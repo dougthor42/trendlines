@@ -1,0 +1,12 @@
+{% extends "trendlines/layout.html" %}
+
+{% block body %}
+<ul>
+  {% for metric in data %}
+    <li><a href="/plot/{{ metric.name }}">{{ metric.name }}</a></li>
+  {% endfor %}
+</ul>
+
+{% endblock %}
+
+<!-- vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2: -->
