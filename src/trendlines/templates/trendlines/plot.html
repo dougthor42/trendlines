@@ -1,0 +1,32 @@
+{% extends "trendlines/layout.html" %}
+
+{% block body %}
+
+<h1>{{ name }}</h1>
+<div id="tester" style="width:90%; height:500px;"></div>
+
+<script>
+  TESTER = document.getElementById('tester');
+
+  var data = {{ data | tojson | safe }};
+  console.log(data);
+
+  // I think Plotly only accepts 1D arrays of data, so split things out.
+  var x = data.rows.map(function (obj) {return obj.timestamp});
+  var y = data.rows.map(function (obj) {return obj.value});
+  var n = data.rows.map(function (obj) {return obj.n});
+
+  trace1 = {
+    x: n,
+    y: y,
+    type: 'scatter'
+  };
+
+  trace = [ trace1 ];
+  Plotly.plot(TESTER, trace);
+
+</script>
+
+{% endblock %}
+
+<!-- vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2: -->
