@@ -17,7 +17,7 @@ DB_OPTS = {
     'synchronous': 0,
 }
 
-db = SqliteDatabase('internal.db', pragmas=DB_OPTS)
+db = SqliteDatabase(None)
 
 
 class DataModel(Model):
