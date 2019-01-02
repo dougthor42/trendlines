@@ -11,12 +11,15 @@ def create_app():
     """
 
     app = Flask(__name__)
+    app.config.from_object('trendlines.default_config')
+    app.config.from_envvar("TRENDLINES_CONFIG_FILE", silent=True)
+    # TODO: Log/warn if from_envvar fails
 
     app.register_blueprint(routes.pages)
     app.register_blueprint(routes.api)
 
     # Create the database file and populate initial tables if needed.
-    create_db()
+    create_db(app.config['DATABASE'])
 
     # If I redesign the architecture a bit, then these could be moved so
     # that they only act on the `api` blueprint instead of the entire app.
@@ -49,13 +52,19 @@ def create_app():
     return app
 
 
-def create_db():
+def create_db(name):
     """
     Create the database and the tables.
 
     Does nothing if the tables already exist. Well, techinically it just
     connects and disconnects - ``create_tables`` is a noop.
+
+    Parameters
+    ----------
+    name : str
+        The name of the database, as given by ``app.config['DATABASE']``.
     """
+    orm.db.init(name, pragmas=orm.DB_OPTS)
     orm.db.connect()
     tables = [
         orm.Metric,

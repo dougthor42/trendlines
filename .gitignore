@@ -127,6 +127,10 @@ dmypy.json
 # Other Virtual Envs.
 .venv*/
 
+# Development Configuration
+config/
+internal.db
+
 # Created by https://www.gitignore.io/api/vim
 # Edit at https://www.gitignore.io/?templates=vim
 
