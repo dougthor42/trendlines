@@ -11,6 +11,9 @@ def create_app():
     """
 
     app = Flask(__name__)
+    app.config.from_object('trendlines.default_config')
+    app.config.from_envvar("TRENDLINES_CONFIG_FILE", silent=True)
+    # TODO: Log/warn if from_envvar fails
 
     app.register_blueprint(routes.pages)
     app.register_blueprint(routes.api)
