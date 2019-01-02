@@ -56,6 +56,9 @@ class Metric(InternalModel):
         s = "<Metric: {id}, {name}, units={units}>"
         return s.format(id=self.metric_id, name=self.name, units=self.units)
 
+    def __str__(self):
+        return repr(self)
+
 
 class DataPoint(DataModel):
     """
@@ -73,3 +76,6 @@ class DataPoint(DataModel):
                         metric=self.metric_id,
                         value=self.value,
                         timestamp=self.timestamp)
+
+    def __str__(self):
+        return repr(self)
