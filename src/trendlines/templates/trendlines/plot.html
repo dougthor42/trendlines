@@ -3,10 +3,10 @@
 {% block body %}
 
 <h1>{{ name }}</h1>
-<div id="tester" style="width:90%; height:500px;"></div>
+<div id="graph" style="width:90%; height:500px;"></div>
 
 <script>
-  TESTER = document.getElementById('tester');
+  TESTER = document.getElementById('graph');
 
   var data = {{ data | tojson | safe }};
   console.log(data);
