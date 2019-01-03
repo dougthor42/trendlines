@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import Flask
 from flask import g
+from peewee import OperationalError
 
 from trendlines import routes
 from trendlines import orm
@@ -42,7 +43,10 @@ def create_app():
             https://github.com/coleifer/peewee/blob/master/examples/twitter/app.py#L152
         """
         g.db = orm.db
-        g.db.connect()
+        try:
+            g.db.connect()
+        except OperationalError:
+            pass
 
     @app.after_request
     def after_request(response):

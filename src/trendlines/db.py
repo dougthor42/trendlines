@@ -53,7 +53,7 @@ def add_data_point(metric, value, timestamp=None):
         timestamp = datetime.now(timezone.utc).timestamp()
 
     new = DataPoint.create(
-        metric_id=metric,
+        metric=metric,
         value=value,
         timestamp=timestamp,
     )
@@ -76,7 +76,7 @@ def get_data(metric):
         :class:`orm.DataPoint` objects
     """
     metric = Metric.get(Metric.name == metric)
-    data = DataPoint.select().where(DataPoint.metric_id == metric.metric_id)
+    data = DataPoint.select().where(DataPoint.metric == metric.metric_id)
     return data
 
 def get_recent_data(metric, age):
@@ -98,7 +98,7 @@ def get_recent_data(metric, age):
     now = datetime.now(timezone.utc).timestamp()
 
     data = DataPoint.select().where(
-        (DataPoint.metric_id == metric.metric_id)
+        (DataPoint.metric == metric.metric_id)
         & (DataPoint.timestamp > (now - age))
     )
 

@@ -62,14 +62,14 @@ def add():
         value = data['value']
     except KeyError:
         print("Missing 'metric' or 'value'.")
-        return "error", 400
+        return "Missing required key. Required keys are:", 400
 
     time = data.get('time', None)
 
     db.add_metric(metric)
     new = db.add_data_point(metric, value, time)
 
-    msg = "Added DataPoint to Metric {}\n".format(new.metric_id)
+    msg = "Added DataPoint to Metric {}\n".format(new.metric)
     return msg, 201
 
 
