@@ -2,6 +2,8 @@
 
 A simple, lightweight alternative to [Graphite](https://graphiteapp.org).
 
+[![Build Status](https://travis-ci.org/dougthor42/trendlines.svg?branch=master)](https://travis-ci.org/dougthor42/trendlines)
+
 
 ## What is Trendlines?
 
