@@ -63,6 +63,14 @@ def populated_db():
 
 
 @pytest.fixture
+def raw_data(app, populated_db):
+    """
+    Provide the raw data as returned by :func:`db.get_data`.
+    """
+    return db.get_data("foo")
+
+
+@pytest.fixture
 def client(app):
     """
     A test client.

@@ -36,7 +36,8 @@ def plot(metric=None):
     if metric is None:
         return "Need a metric, friend!"
 
-    data = get_data(metric)
+    data = db.get_data(metric)
+    data = format_data(data)
     if len(data) == 0:
         return "Metric '{}' wasn't found. No data, maybe?".format(metric)
 
@@ -73,22 +74,20 @@ def add():
     return msg, 201
 
 
-# TODO: Rename this function. It's too easy to get confused with db.get_data
-def get_data(metric):
+def format_data(data):
     """
-    Helper function: query data, format for template consumption.
+    Helper function: format data for template consumption.
 
     Parameters
     ----------
-    metric : str
-        The metric name to get data for.
+    data : :class:`peewee.ModelSelect`
+        The data as returned by :func:`db.get_data`
 
     Returns
     -------
     data : dict
         Dictionary of data where ``timestamp`` is a POSIX integer timestamp.
     """
-    data = db.get_data(metric)
     data = [{'timestamp': row.timestamp.timestamp(),
              'value': row.value,
              'id': row.datapoint_id,

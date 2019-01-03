@@ -47,5 +47,19 @@ def test_api_add_with_missing_key(client):
     assert b"Missing required key. Required keys are:" in rv.data
 
 
-def test_get_data():
-    pass
+def test_format_data(raw_data):
+    rv = routes.format_data(raw_data)
+    assert isinstance(rv, dict)
+    assert len(rv) == 1
+    assert 'rows' in rv.keys()
+    assert isinstance(rv['rows'], list)
+    assert len(rv['rows']) == 4
+    data_0 = rv['rows'][0]
+    assert isinstance(data_0, dict)
+    # Why don't I just use an expected dict here? Because I haven't bothered
+    # to freeze time on the `conftest.populated_db` fixture yet.
+    assert "timestamp" in data_0.keys()
+    assert "value" in data_0.keys()
+    assert "id" in data_0.keys()
+    assert "n" in data_0.keys()
+    assert data_0['value'] == 15
