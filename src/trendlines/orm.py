@@ -66,14 +66,14 @@ class DataPoint(DataModel):
     """
 
     datapoint_id = IntegerField(primary_key=True)
-    metric_id = ForeignKeyField(Metric, backref="datapoints")
+    metric = ForeignKeyField(Metric, backref="datapoints")
     value = FloatField()
     timestamp = TimestampField(utc=True)
 
     def __repr__(self):
         s = "<DataPoint: {id}, {metric}, {value}, {timestamp}>"
         return s.format(id=self.datapoint_id,
-                        metric=self.metric_id,
+                        metric=self.metric,
                         value=self.value,
                         timestamp=self.timestamp)
 

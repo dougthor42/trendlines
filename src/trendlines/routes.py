@@ -69,7 +69,7 @@ def add():
     db.add_metric(metric)
     new = db.add_data_point(metric, value, time)
 
-    msg = "Added DataPoint to Metric {}\n".format(new.metric_id)
+    msg = "Added DataPoint to Metric {}\n".format(new.metric)
     return msg, 201
 
 
