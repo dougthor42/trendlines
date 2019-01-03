@@ -73,7 +73,7 @@ class DataPoint(DataModel):
     def __repr__(self):
         s = "<DataPoint: {id}, {metric}, {value}, {timestamp}>"
         return s.format(id=self.datapoint_id,
-                        metric=self.metric,
+                        metric=self.metric.name,
                         value=self.value,
                         timestamp=self.timestamp)
 
