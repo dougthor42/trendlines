@@ -62,7 +62,7 @@ def add():
         value = data['value']
     except KeyError:
         print("Missing 'metric' or 'value'.")
-        return "error", 400
+        return "Missing required key. Required keys are:", 400
 
     time = data.get('time', None)
 
