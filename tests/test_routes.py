@@ -47,6 +47,16 @@ def test_api_add_with_missing_key(client):
     assert b"Missing required key. Required keys are:" in rv.data
 
 
+def test_api_get_data_as_json(client, populated_db):
+    rv = client.get("/api/v1/get/foo")
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()['rows']
+    assert d[0]['n'] == 0
+    assert d[0]['value'] == 15
+    assert d[3]['value'] == 9
+
+
 def test_format_data(raw_data):
     rv = routes.format_data(raw_data)
     assert isinstance(rv, dict)
