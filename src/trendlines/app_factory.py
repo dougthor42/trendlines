@@ -4,6 +4,7 @@ from flask import g
 from peewee import OperationalError
 
 from trendlines import _logging
+from trendlines import logger
 from trendlines import routes
 from trendlines import orm
 
