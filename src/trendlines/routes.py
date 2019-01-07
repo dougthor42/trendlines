@@ -67,7 +67,7 @@ def add():
         metric = data['metric']
         value = data['value']
     except KeyError:
-        print("Missing 'metric' or 'value'.")
+        logger.warning("Missing JSON keys 'metric' or 'value'.")
         return "Missing required key. Required keys are:", 400
 
     time = data.get('time', None)
@@ -76,6 +76,7 @@ def add():
     new = db.add_data_point(metric, value, time)
 
     msg = "Added DataPoint to Metric {}\n".format(new.metric)
+    logger.info("Added value %s to metric '%s'" % (value, metric))
     return msg, 201
 
 
