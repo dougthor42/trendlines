@@ -3,6 +3,7 @@
 from datetime import datetime
 from datetime import timezone
 
+from trendlines import logger
 from .orm import Metric
 from .orm import DataPoint
 from .orm import db as _db
