@@ -25,7 +25,10 @@ def add_metric(name, units=None):
     metric : :class:`orm.Metric` object
         The metric that was added.
     """
+    logger.debug("Querying metric %s" % name)
     metric, created = Metric.get_or_create(name=name, units=units)
+    if created:
+        logger.info("Metric '%s' created." % name)
     return metric
 
 
