@@ -2,4 +2,5 @@
 branch = False
 omit =
     src/trendlines/__init__.py
+    src/trendlines/_logging.py
     src/trendlines/default_config.py
