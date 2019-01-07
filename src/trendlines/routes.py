@@ -13,6 +13,7 @@ from flask import request
 from peewee import DoesNotExist
 from playhouse.shortcuts import model_to_dict
 
+from trendlines import logger
 from . import db
 from . import utils
 
@@ -42,6 +43,7 @@ def plot(metric=None):
     data = db.get_data(metric)
     data = format_data(data)
     if len(data) == 0:
+        logger.warning("No data exists for metric '%s'" % metric)
         return "Metric '{}' wasn't found. No data, maybe?".format(metric)
 
     # TODO: Ajax request for this data instead of sending it to the template.
@@ -65,7 +67,7 @@ def add():
         metric = data['metric']
         value = data['value']
     except KeyError:
-        print("Missing 'metric' or 'value'.")
+        logger.warning("Missing JSON keys 'metric' or 'value'.")
         return "Missing required key. Required keys are:", 400
 
     time = data.get('time', None)
@@ -74,6 +76,7 @@ def add():
     new = db.add_data_point(metric, value, time)
 
     msg = "Added DataPoint to Metric {}\n".format(new.metric)
+    logger.info("Added value %s to metric '%s'" % (value, metric))
     return msg, 201
 
 
@@ -83,6 +86,7 @@ def get_data_as_json(metric):
     """
     Return data for a given metric as JSON.
     """
+    logger.debug("API: get '%s'" % metric)
     try:
         raw_data = db.get_data(metric)
     except DoesNotExist:
@@ -94,6 +98,7 @@ def get_data_as_json(metric):
             status=http_status,
             detail=detail,
         )
+        logger.warning("API error: %s" % detail)
         return resp.as_response(), http_status
 
     if len(raw_data) == 0:
@@ -105,6 +110,7 @@ def get_data_as_json(metric):
             status=http_status,
             detail=detail,
         )
+        logger.warning("API error: %s" % detail)
         return resp.as_response(), http_status
 
     data = format_data(raw_data)

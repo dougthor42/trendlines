@@ -3,6 +3,7 @@
 from datetime import datetime
 from datetime import timezone
 
+from trendlines import logger
 from .orm import Metric
 from .orm import DataPoint
 from .orm import db as _db
@@ -24,7 +25,10 @@ def add_metric(name, units=None):
     metric : :class:`orm.Metric` object
         The metric that was added.
     """
+    logger.debug("Querying metric %s" % name)
     metric, created = Metric.get_or_create(name=name, units=units)
+    if created:
+        logger.info("Metric '%s' created." % name)
     return metric
 
 
@@ -47,9 +51,11 @@ def add_data_point(metric, value, timestamp=None):
     new : :class:`orm.DataPoint` object
         An instance of the newly-created model object.
     """
+    logger.debug("Adding data point %s to metric '%s'" % (value, metric))
     metric = Metric.get(Metric.name == metric)
 
     if timestamp is None:
+        logger.debug("Timestamp not given, using current time.")
         timestamp = datetime.now(timezone.utc).timestamp()
 
     new = DataPoint.create(
@@ -75,6 +81,7 @@ def get_data(metric):
         The returned data. Acts like an iterable of
         :class:`orm.DataPoint` objects
     """
+    logger.debug("Querying data for '%s'" % metric)
     metric = Metric.get(Metric.name == metric)
     data = DataPoint.select().where(DataPoint.metric == metric.metric_id)
     return data
@@ -94,6 +101,7 @@ def get_recent_data(metric, age):
     -------
     data : iterable of :class:`orm.DataPoint` objects
     """
+    logger.debug("Querying last %s seconds of data for '%s'." % (age, metric))
     metric = Metric.get(Metric.name == metric)
     now = datetime.now(timezone.utc).timestamp()
 
@@ -113,4 +121,5 @@ def get_metrics():
     -------
     metrics : iterable of :class:`orm.Metric` objects
     """
+    logger.debug("Querying list of metrics.")
     return Metric.select()
