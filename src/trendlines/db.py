@@ -51,9 +51,11 @@ def add_data_point(metric, value, timestamp=None):
     new : :class:`orm.DataPoint` object
         An instance of the newly-created model object.
     """
+    logger.debug("Adding data point %s to metric '%s'" % (value, metric))
     metric = Metric.get(Metric.name == metric)
 
     if timestamp is None:
+        logger.debug("Timestamp not given, using current time.")
         timestamp = datetime.now(timezone.utc).timestamp()
 
     new = DataPoint.create(
