@@ -101,6 +101,7 @@ def get_recent_data(metric, age):
     -------
     data : iterable of :class:`orm.DataPoint` objects
     """
+    logger.debug("Querying last %s seconds of data for '%s'." % (age, metric))
     metric = Metric.get(Metric.name == metric)
     now = datetime.now(timezone.utc).timestamp()
 
