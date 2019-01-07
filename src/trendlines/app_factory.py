@@ -3,6 +3,7 @@ from flask import Flask
 from flask import g
 from peewee import OperationalError
 
+from trendlines import _logging
 from trendlines import routes
 from trendlines import orm
 
@@ -10,6 +11,7 @@ def create_app():
     """
     Primary application factory.
     """
+    _logging.setup_logging()
 
     app = Flask(__name__)
     app.config.from_object('trendlines.default_config')
