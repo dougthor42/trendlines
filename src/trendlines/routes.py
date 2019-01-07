@@ -13,6 +13,7 @@ from flask import request
 from peewee import DoesNotExist
 from playhouse.shortcuts import model_to_dict
 
+from trendlines import logger
 from . import db
 from . import utils
 
