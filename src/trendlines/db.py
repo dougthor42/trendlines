@@ -121,4 +121,5 @@ def get_metrics():
     -------
     metrics : iterable of :class:`orm.Metric` objects
     """
+    logger.debug("Querying list of metrics.")
     return Metric.select()
