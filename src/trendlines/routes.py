@@ -43,6 +43,7 @@ def plot(metric=None):
     data = db.get_data(metric)
     data = format_data(data)
     if len(data) == 0:
+        logger.warning("No data exists for metric '%s'" % metric)
         return "Metric '{}' wasn't found. No data, maybe?".format(metric)
 
     # TODO: Ajax request for this data instead of sending it to the template.
