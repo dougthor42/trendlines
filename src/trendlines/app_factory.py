@@ -74,6 +74,7 @@ def create_db(name):
     name : str
         The name of the database, as given by ``app.config['DATABASE']``.
     """
+    logger.debug("Creating database.")
     orm.db.init(name, pragmas=orm.DB_OPTS)
     orm.db.connect()
     tables = [
