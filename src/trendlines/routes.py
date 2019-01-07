@@ -86,6 +86,7 @@ def get_data_as_json(metric):
     """
     Return data for a given metric as JSON.
     """
+    logger.debug("API: get '%s'" % metric)
     try:
         raw_data = db.get_data(metric)
     except DoesNotExist:
@@ -97,6 +98,7 @@ def get_data_as_json(metric):
             status=http_status,
             detail=detail,
         )
+        logger.warning("API error: %s" % detail)
         return resp.as_response(), http_status
 
     if len(raw_data) == 0:
@@ -108,6 +110,7 @@ def get_data_as_json(metric):
             status=http_status,
             detail=detail,
         )
+        logger.warning("API error: %s" % detail)
         return resp.as_response(), http_status
 
     data = format_data(raw_data)
