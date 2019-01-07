@@ -67,6 +67,16 @@ def test_api_get_data_as_json_metric_not_found(client):
     assert 'does not exist' in d['detail']
 
 
+def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
+    rv = client.get("/api/v1/get/empty_metric")
+    assert rv.status_code == 404
+    assert rv.is_json
+    d = rv.get_json()
+    assert 'type' in d.keys()
+    assert d['status'] == 404
+    assert 'No data exists for metric' in d['detail']
+
+
 def test_format_data(raw_data):
     rv = routes.format_data(raw_data)
     assert isinstance(rv, dict)
