@@ -81,6 +81,7 @@ def get_data(metric):
         The returned data. Acts like an iterable of
         :class:`orm.DataPoint` objects
     """
+    logger.debug("Querying data for '%s'" % metric)
     metric = Metric.get(Metric.name == metric)
     data = DataPoint.select().where(DataPoint.metric == metric.metric_id)
     return data
