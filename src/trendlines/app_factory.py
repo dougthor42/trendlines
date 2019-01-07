@@ -14,11 +14,14 @@ def create_app():
     """
     _logging.setup_logging()
 
+    logger.debug("Creating app.")
     app = Flask(__name__)
     app.config.from_object('trendlines.default_config')
-    app.config.from_envvar("TRENDLINES_CONFIG_FILE", silent=True)
-    # TODO: Log/warn if from_envvar fails
+    ok = app.config.from_envvar("TRENDLINES_CONFIG_FILE", silent=True)
+    if not ok:
+        logger.warning("Unable to load config from 'TRENDLINES_CONFIG_FILE'.")
 
+    logger.debug("Registering blueprints.")
     app.register_blueprint(routes.pages)
     app.register_blueprint(routes.api)
 
