@@ -5,13 +5,16 @@ from datetime import datetime
 from datetime import timezone
 
 from flask import Blueprint
+from flask import jsonify
 from flask import render_template
 from flask import request
 
 # peewee
+from peewee import DoesNotExist
 from playhouse.shortcuts import model_to_dict
 
 from . import db
+from . import utils
 
 pages = Blueprint('pages', __name__)
 api = Blueprint('api', __name__)
@@ -72,6 +75,41 @@ def add():
 
     msg = "Added DataPoint to Metric {}\n".format(new.metric)
     return msg, 201
+
+
+@api.route("/api/v1/<metric>", methods=["GET"])
+@api.route("/api/v1/get/<metric>", methods=["GET"])
+def get_data_as_json(metric):
+    """
+    Return data for a given metric as JSON.
+    """
+    try:
+        raw_data = db.get_data(metric)
+    except DoesNotExist:
+        http_status = 404
+        detail = "The metric '{}' does not exist.".format(metric)
+        resp = utils.Rfc7807ErrorResponse(
+            type_="metric-not-found",
+            title="Metric not found",
+            status=http_status,
+            detail=detail,
+        )
+        return resp.as_response(), http_status
+
+    if len(raw_data) == 0:
+        http_status = 404
+        detail = "No data exists for metric '{}'.".format(metric)
+        resp = utils.Rfc7807ErrorResponse(
+            type_="no-data",
+            title="No data for metric",
+            status=http_status,
+            detail=detail,
+        )
+        return resp.as_response(), http_status
+
+    data = format_data(raw_data)
+
+    return jsonify(data)
 
 
 def format_data(data):
