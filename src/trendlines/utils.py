@@ -128,3 +128,25 @@ def get_metric_parent(metric):
         parent = ".".join(s[:-1])
 
     return parent
+
+
+def format_metric_for_jstree(metric):
+    """
+    Format a metric name into a dict consumable by jsTree.
+
+    See "Alternative JSON format" in the `jsTree docs`_.
+
+    .. _`jsTree docs`: https://www.jstree.com/docs/json/
+
+    Parameters
+    ----------
+    metric : str
+        The metric name to format.
+
+    Returns
+    -------
+    dict
+        A dict with the following keys: id, parent, text, is_link
+    """
+    parent = get_metric_parent(metric)
+    return {"id": metric, "parent": parent, "text": metric, "is_link": True}

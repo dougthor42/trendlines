@@ -70,3 +70,15 @@ def test_adjust_jsonify_mimetype(app_context):
 ])
 def test_get_metric_parent(metric, expected):
     assert utils.get_metric_parent(metric) == expected
+
+
+@pytest.mark.parametrize("data, expected", [
+    ("foo", {"id": "foo", "parent": "#", "text": "foo", "is_link": True}),
+    ("foo.bar", {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
+                 "is_link": True}),
+    ("foo.bar.baz", {"id": "foo.bar.baz", "parent": "foo.bar",
+                     "text": "foo.bar.baz", "is_link": True}),
+])
+def test_format_metric_for_jstree(data, expected):
+    rv = utils.format_metric_for_jstree(data)
+    assert rv == expected
