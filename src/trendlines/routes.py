@@ -28,7 +28,8 @@ def index():
 
     Displays a list of all the known metrics with links.
     """
-    data = db.get_metrics()
+    raw_data = db.get_metrics()
+    data = utils.build_jstree_data(m.name for m in raw_data)
     return render_template("trendlines/index.html", data=data)
 
 

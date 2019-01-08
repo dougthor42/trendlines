@@ -61,3 +61,59 @@ def test_adjust_jsonify_mimetype(app_context):
     with utils.adjust_jsonify_mimetype('foo'):
         assert current_app.config[var_name] == 'foo'
     assert current_app.config[var_name] == old
+
+
+@pytest.mark.parametrize("metric, expected", [
+    ("foo", "#"),
+    ("foo.bar", "foo"),
+    ("foo.bar.baz", "foo.bar"),
+])
+def test_get_metric_parent(metric, expected):
+    assert utils.get_metric_parent(metric) == expected
+
+
+@pytest.mark.parametrize("data, expected", [
+    ("foo", {"id": "foo", "parent": "#", "text": "foo", "is_link": True}),
+    ("foo.bar", {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
+                 "is_link": True}),
+    ("foo.bar.baz", {"id": "foo.bar.baz", "parent": "foo.bar",
+                     "text": "foo.bar.baz", "is_link": True}),
+])
+def test_format_metric_for_jstree(data, expected):
+    rv = utils.format_metric_for_jstree(data)
+    assert rv == expected
+
+
+@pytest.mark.parametrize("metrics, expected", [
+    (["foo", "foo.bar"], [
+        {"id": "foo", "parent": "#", "text": "foo", "is_link": True},
+        {"id": "foo.bar", "parent": "foo", "text": "foo.bar", "is_link": True},
+        ]
+     ),
+    (["foo.bar.baz"], [
+        {"id": "foo", "parent": "#", "text": "foo", "is_link": False},
+        {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
+         "is_link": False},
+        {"id": "foo.bar.baz", "parent": "foo.bar", "text": "foo.bar.baz",
+         "is_link": True},
+        ]
+     ),
+    (["foo.bar", "foo.baz"], [
+        {"id": "foo", "parent": "#", "text": "foo", "is_link": False},
+        {"id": "foo.bar", "parent": "foo", "text": "foo.bar", "is_link": True},
+        {"id": "foo.baz", "parent": "foo", "text": "foo.baz", "is_link": True},
+        ]
+     ),
+    (["foo", "foo.bar", "bar.baz.biz"], [
+        {"id": "bar", "parent": "#", "text": "bar", "is_link": False},
+        {"id": "bar.baz", "parent": "bar", "text": "bar.baz", "is_link": False},
+        {"id": "bar.baz.biz", "parent": "bar.baz", "text": "bar.baz.biz",
+         "is_link": True},
+        {"id": "foo", "parent": "#", "text": "foo", "is_link": True},
+        {"id": "foo.bar", "parent": "foo", "text": "foo.bar", "is_link": True},
+       ]
+     )
+])
+def test_build_jstree_data(metrics, expected):
+    rv = utils.build_jstree_data(metrics)
+    assert rv == expected
