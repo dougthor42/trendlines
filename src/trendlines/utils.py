@@ -94,3 +94,37 @@ def adjust_jsonify_mimetype(new_type):
     current_app.config[var_name] = new_type
     yield
     current_app.config[var_name] = old
+
+
+def get_metric_parent(metric):
+    """
+    Determine the parent of a metric.
+
+    If no parent exists, the root ``#`` is given.
+
+    Parameters
+    ----------
+    metric : str
+        The dotted metric to act on.
+
+    Returns
+    -------
+    parent : str
+
+    Examples
+    --------
+    >>> get_metric_parent("foo")
+    "#"
+    >>> get_metric_parent("foo.bar")
+    "foo"
+    >>> get_metric_parent("foo.bar.baz.foo")
+    "foo.bar.baz"
+    """
+    s = metric.split(".")
+    if len(s) == 1:
+        # top-level item. parent is "#" (root)
+        parent = "#"
+    else:
+        parent = ".".join(s[:-1])
+
+    return parent

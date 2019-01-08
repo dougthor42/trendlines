@@ -61,3 +61,12 @@ def test_adjust_jsonify_mimetype(app_context):
     with utils.adjust_jsonify_mimetype('foo'):
         assert current_app.config[var_name] == 'foo'
     assert current_app.config[var_name] == old
+
+
+@pytest.mark.parametrize("metric, expected", [
+    ("foo", "#"),
+    ("foo.bar", "foo"),
+    ("foo.bar.baz", "foo.bar"),
+])
+def test_get_metric_parent(metric, expected):
+    assert utils.get_metric_parent(metric) == expected
