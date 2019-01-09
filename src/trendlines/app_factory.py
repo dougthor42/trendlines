@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from pathlib import Path
 from traceback import format_exc
 
 from flask import Flask
@@ -91,9 +92,16 @@ def create_db(name):
     name : str
         The name of the database, as given by ``app.config['DATABASE']``.
     """
-    logger.debug("Creating database.")
+    logger.debug("Creating database: '%s'." % name)
     orm.db.init(name, pragmas=orm.DB_OPTS)
-    orm.db.connect()
+
+    try:
+        orm.db.connect()
+    except OperationalError:
+        full_path = Path(name).resolve()
+        logger.error("Unable to open database file '%s'" % full_path)
+        raise
+
     tables = [
         orm.Metric,
         orm.DataPoint,
