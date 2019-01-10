@@ -28,5 +28,14 @@ deploy:
   provider: pypi
   user: dougthor42
   password:
-    secure: ""
+    secure: '3ukAo1IFlmqkuR7XI2GDKvlhA66fpA5WMD04DimNN0Kra59Za8RFX4kYrz61cDDG
+      ViwR+zOCr3emU9eAckC/wVF1WzHbdRHojnfKr8NjBxsDPRiSkiNq8X0fewtWCvklJEabxsT
+      GeWQePoPKHs59VU2ZkO2Bf++3m/SksB60/dZHodLNNerpTBultpXIKLJI4dcb2WHmSasCE+
+      Z4pk1WjK9tgYQ+63E50AW1VAprZSX7PmHcoSCS5/EAwpMGdxGZAN6aau6lUy9kNHCQxjT/b
+      rVtailtbi10dgMgxnlxP3Q6QhvwR2w2SJ3cLXp/WHSUuRpseB/PZX1Rs2d74P2UK30Bw/m0
+      JpnOCpA28roclayKJ+qQXbAd/tTYJHebir+uMsX/0tRKXIq/OvaT79pE0xXVLwfZNnlnk3/
+      eOfcihxGYwTaUIbdPufGpjaDi+cX1ROQAVLwK3i6HcbqFZeivQILqZtybBtMl91cNZQgjdj
+      e2EwA0NH7r5eu3e19rWGH9E/37xY3jqbh6YYB+fjNBP0gnCsca+MCyoaxOsOXU6cLPkG2dW
+      cy+SDPvsLKtRZmgAVtSbGkO3B3GXoVdxC+dghh+mtOj7ucP7/tO03DxKDmcDZ7kmzdssvGa
+      lU8kK/2MuVkEM2xf93dJaRug3bIz6VMG2Ab6GN6aVlL6w4SI/aM='
   distributions: sdist bdist_wheel
