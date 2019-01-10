@@ -3,3 +3,4 @@ coverage==4.5.2
 pytest-cov==2.6.0
 freezegun==0.3.11
 coveralls==1.5.1
+wheel==0.32.3
