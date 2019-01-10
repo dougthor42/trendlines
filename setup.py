@@ -12,7 +12,7 @@ setup(
     description="Lightweight time-series recording.",
     long_description="",
     long_description_content_type="text/markdown",
-    url="https://github.com/dougthor42/X",
+    url="https://github.com/dougthor42/trendlines",
     author="Douglas Thor",
     author_email="doug.thor@gmail.com",
     package_dir={'': 'src'},
