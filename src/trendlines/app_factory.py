@@ -98,7 +98,13 @@ def create_db(name):
     try:
         orm.db.connect()
     except OperationalError:
-        full_path = Path(name).resolve()
+        # .resolve() will fail for missing paths, and the `strit=False` arg
+        # wasn't added until 3.6. Since dev environment is 3.5 I need
+        # this try..except block.
+        try:        # pragma: no cover
+            full_path = Path(name).resolve()
+        except FileNotFoundError:
+            full_path = name
         logger.error("Unable to open database file '%s'" % full_path)
         raise
 
