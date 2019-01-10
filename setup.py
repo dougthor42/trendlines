@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
+from pathlib import Path
 from setuptools import setup, find_packages
+
+long_descr = Path("./README.md").read_text()
 
 requires = [
     "flask>=1.0",
@@ -10,7 +13,7 @@ setup(
     name="trendlines",
     version="0.0.0",
     description="Lightweight time-series recording.",
-    long_description="",
+    long_description=long_descr,
     long_description_content_type="text/markdown",
     url="https://github.com/dougthor42/trendlines",
     author="Douglas Thor",
