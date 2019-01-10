@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 
 requires = [
     "flask>=1.0",
+    "peewee>=3.8",
 ]
 
 setup(
