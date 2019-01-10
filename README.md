@@ -48,6 +48,72 @@ It's been designed to handle infrequent, variable interval data. Sometimes
 real-world data just doesn't appear at nice, regular intervals.
 
 
+## Installing
+
+
+### Docker
+
+The easiest way to get up and running with **Trendlines** is with Docker:
+
+```bash
+$ docker run p 5000:80 dougthor42/trendlines:latest
+```
+
+Then open a browser to `http://localhost:5000/` and you're all set. Add some data
+(see below) and refresh the page.
+
+> **Note:** Data will not persist when the container is destroyed!
+
+
+### Docker Compose
+
+> **WIP!**
+
+If you're doing more than just playing around, you'll likely want to set up
+Docker Compose. I've included an example Compose file
+[here](/docker/docker-compose.yml).
+
+Before using the example Compose file, you'll need to:
+
+1. Make a directory to store the config file (and database file if using
+   SQLite)
+2. Make sure that dir is writable by docker-compose.
+3. Create the configuration `trendlines.cfg` within that directory.
+
+```bash
+$ mkdir /var/www/trendlines
+$ chmod -R a+w /var/www/trendlines
+$ touch /var/www/trendlines/trendlines.cfg
+```
+
+Next, edit your new `trendlines.cfg` file as needed. At the very least, the
+following is needed:
+
+```python
+# /var/www/trendlines/trendlines.cfg
+SECRET_KEY = b"don't use the value written in this README file!"
+DATABASE = "/data/internal.db"
+```
+
+You should be all set to bring Docker Compose up:
+
+```bash
+$ docker-compose -f path/to/docker-compose.yml up -d
+```
+
+Again, open up a browser to `http://localhost` and you're good to go. Add some
+data as outlined below and start playing around.
+
+**Note:** If you get an error complaining about "Error starting userland proxy:
+Bind for 0.0.0.0:80: Unexpected error Permission denied", then try changing
+the port in docker-compose.yml to something else. I like 5000 myself:
+
+```yaml
+ports:
+  - 5000:80
+```
+
+
 ## Usage
 
 TODO.

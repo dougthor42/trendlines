@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import os
+from pathlib import Path
+from traceback import format_exc
+
 from flask import Flask
 from flask import g
 from peewee import OperationalError
@@ -7,6 +11,8 @@ from trendlines import _logging
 from trendlines import logger
 from trendlines import routes
 from trendlines import orm
+
+CFG_VAR = "TRENDLINES_CONFIG_FILE"
 
 def create_app():
     """
@@ -17,9 +23,21 @@ def create_app():
     logger.debug("Creating app.")
     app = Flask(__name__)
     app.config.from_object('trendlines.default_config')
-    ok = app.config.from_envvar("TRENDLINES_CONFIG_FILE", silent=True)
-    if not ok:
-        logger.warning("Unable to load config from 'TRENDLINES_CONFIG_FILE'.")
+
+    try:
+        app.config.from_envvar(CFG_VAR)
+        logger.info("Loaded config file '%s'" % os.environ[CFG_VAR])
+    except FileNotFoundError:
+        msg = "Failed to load config file. The file %s='%s' was not found."
+        logger.warning(msg % (CFG_VAR, os.environ[CFG_VAR]))
+    except RuntimeError as err:
+        # Flask's error for missing env var is sufficient.
+        logger.warning(str(err))
+    except Exception as err:
+        logger.warning("An unknown error occured while reading from the"
+                       " config file. See debug stack trace for details.")
+        logger.debug(format_exc())
+
 
     logger.debug("Registering blueprints.")
     app.register_blueprint(routes.pages)
@@ -74,9 +92,16 @@ def create_db(name):
     name : str
         The name of the database, as given by ``app.config['DATABASE']``.
     """
-    logger.debug("Creating database.")
+    logger.debug("Creating database: '%s'." % name)
     orm.db.init(name, pragmas=orm.DB_OPTS)
-    orm.db.connect()
+
+    try:
+        orm.db.connect()
+    except OperationalError:
+        full_path = Path(name).resolve()
+        logger.error("Unable to open database file '%s'" % full_path)
+        raise
+
     tables = [
         orm.Metric,
         orm.DataPoint,

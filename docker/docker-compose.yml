@@ -1,0 +1,16 @@
+# Need version >= 3.2 because of how we define our volumes
+version: "3.2"
+services:
+  trendlines:
+    image: dougthor42/trendlines:latest
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - type: bind
+        # Host location. This can be anywhere on your file system.
+        source: /var/www/trendlines
+        # Within the container. The /data directory holds both the internal
+        # database file (if you're using SQLite) and the configuration file
+        # `trendlines.cfg`.
+        target: /data
