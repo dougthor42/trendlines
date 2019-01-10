@@ -20,3 +20,13 @@ script:
 
 after_success:
   - coveralls
+
+deploy:
+  on:
+    tags: true
+    branch: master
+  provider: pypi
+  user: dougthor42
+  password:
+    secure: ""
+  distributions: sdist bdist_wheel
