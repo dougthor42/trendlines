@@ -48,6 +48,23 @@ It's been designed to handle infrequent, variable interval data. Sometimes
 real-world data just doesn't appear at nice, regular intervals.
 
 
+## Installing
+
+
+### Docker
+
+The easiest way to get up and running with **Trendlines** is with Docker:
+
+```bash
+$ docker run p 5000:80 dougthor42/trendlines:latest
+```
+
+Then open a browser to `http://localhost:5000/` and you're all set. Add some data
+(see below) and refresh the page.
+
+> **Note:** Data will not persist when the container is destroyed!
+
+
 ## Usage
 
 TODO.
