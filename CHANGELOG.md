@@ -4,6 +4,10 @@
 ## Unreleased
 
 
+## v0.1.1 (2019-01-10):
+Simply a version bump to verify deployment to PyPI from Travis-CI.
+
+
 ## v0.1.0 (2019-01-10): Preview Release
 This is a preview release with the core functionality:
 
