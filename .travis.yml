@@ -26,6 +26,7 @@ deploy:
     tags: true
     branch: master
   provider: pypi
+  skip_existing: true
   user: dougthor42
   password:
     secure: '3ukAo1IFlmqkuR7XI2GDKvlhA66fpA5WMD04DimNN0Kra59Za8RFX4kYrz61cDDG
