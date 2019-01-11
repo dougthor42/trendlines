@@ -36,14 +36,14 @@ def test_plot_with_data(client, populated_db):
 
 def test_api_add(client):
     data = {"metric": "test", "value": 10}
-    rv = client.post("/api/v1/add", json=data)
+    rv = client.post("/api/v1/data", json=data)
     assert rv.status_code == 201
     assert b"Added DataPoint to Metric" in rv.data
 
 
 def test_api_add_with_missing_key(client):
     data = {"value": 10}
-    rv = client.post("/api/v1/add", json=data)
+    rv = client.post("/api/v1/data", json=data)
     assert rv.status_code == 400
     assert b"Missing required key. Required keys are:" in rv.data
 
