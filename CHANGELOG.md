@@ -2,6 +2,8 @@
 
 
 ## Unreleased
++ [BREAKING] Updated REST API: "add" and "get" changed to "data". The HTTP
+  method will be used to determine adding or retrieving.
 + Implemented switching between sequential and time-series data. (#8).
 
 
