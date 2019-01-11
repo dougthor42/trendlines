@@ -49,7 +49,7 @@ def test_api_add_with_missing_key(client):
 
 
 def test_api_get_data_as_json(client, populated_db):
-    rv = client.get("/api/v1/get/foo")
+    rv = client.get("/api/v1/data/foo")
     assert rv.status_code == 200
     assert rv.is_json
     d = rv.get_json()['rows']
@@ -59,7 +59,7 @@ def test_api_get_data_as_json(client, populated_db):
 
 
 def test_api_get_data_as_json_metric_not_found(client):
-    rv = client.get("/api/v1/get/missing")
+    rv = client.get("/api/v1/data/missing")
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
@@ -69,7 +69,7 @@ def test_api_get_data_as_json_metric_not_found(client):
 
 
 def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
-    rv = client.get("/api/v1/get/empty_metric")
+    rv = client.get("/api/v1/data/empty_metric")
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
