@@ -2,6 +2,7 @@
 
 
 ## Unreleased
++ Implemented switching between sequential and time-series data. (#8).
 
 
 ## v0.1.1 (2019-01-10):
