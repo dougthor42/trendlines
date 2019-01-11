@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+from datetime import datetime
 
 import pytest
 
@@ -93,3 +94,9 @@ def test_format_data(raw_data):
     assert "id" in data_0.keys()
     assert "n" in data_0.keys()
     assert data_0['value'] == 15
+    assert isinstance(data_0['timestamp'], str)
+    try:
+        #  datetime.fromisoformat(data_0['timestamp'])   # Python 3.7 only
+        datetime.strptime(data_0['timestamp'], "%Y-%m-%dT%H:%M:%S")
+    except Exception as err:
+        pytest.fail("data['timestamp'] is not the correct format")
