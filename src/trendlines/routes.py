@@ -51,8 +51,8 @@ def plot(metric=None):
     return render_template('trendlines/plot.html', name=metric, data=data)
 
 
-@api.route("/api/v1/add", methods=['POST'])
-def add():
+@api.route("/api/v1/data", methods=['POST'])
+def post_datapoint():
     """
     Add a new value and possibly a metric if needed.
 
@@ -82,7 +82,7 @@ def add():
 
 
 @api.route("/api/v1/<metric>", methods=["GET"])
-@api.route("/api/v1/get/<metric>", methods=["GET"])
+@api.route("/api/v1/data/<metric>", methods=["GET"])
 def get_data_as_json(metric):
     """
     Return data for a given metric as JSON.

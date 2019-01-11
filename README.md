@@ -130,7 +130,7 @@ To send in data using the HTTP POST method:
 curl --data '{"metric": "foo.bar", "value": 52.88, "time": '${date +%s}'}' \
      --header "Content-Type: application/json" \
      --request POST \
-     http://$SERVER/api/v1/add`
+     http://$SERVER/api/v1/data`
 ```
 
 Or via UDP:
@@ -154,5 +154,5 @@ metric shows you the graph of historical data.
 You can also export the data as JSON by sending an HTTP GET request:
 
 ```
-curl http://$SERVER/api/v1/get/$METRIC_NAME
+curl http://$SERVER/api/v1/data/$METRIC_NAME
 ```
