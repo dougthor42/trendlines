@@ -35,6 +35,24 @@
   trace = [ trace1 ];
   Plotly.plot(TESTER, trace);
 
+  $(document).ready(
+    function() {
+      $(":radio[name='x-axis-type']").change(
+        function() {
+          // Determine which x scale to use.
+          if (this.value == "time") {
+            new_x = x;
+          } else if (this.value == "sequential") {
+            new_x = n;
+          }
+
+          // Adjust the x values of the data.
+          Plotly.restyle(TESTER, 'x', [new_x]);
+        }
+      )
+    }
+  );
+
 </script>
 
 {% endblock %}
