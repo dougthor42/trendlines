@@ -131,9 +131,9 @@ def format_data(data):
     Returns
     -------
     data : dict
-        Dictionary of data where ``timestamp`` is a POSIX integer timestamp.
+        Dictionary of data where ``timestamp`` is an ISO 8601 string.
     """
-    data = [{'timestamp': row.timestamp.timestamp(),
+    data = [{'timestamp': row.timestamp.isoformat(),
              'value': row.value,
              'id': row.datapoint_id,
              'n': n}

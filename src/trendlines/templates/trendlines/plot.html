@@ -3,6 +3,16 @@
 {% block body %}
 
 <h1>{{ name }}</h1>
+
+<div id="change-axis-buttons" class="btn-group btn-group-toggle" data-toggle="buttons">
+  <label class="btn btn-primary active">
+    <input id="x-axis-type-sequential" type="radio" name="x-axis-type" autocomplete="off" value="sequential" checked>Sequential
+  </label>
+  <label class="btn btn-primary">
+    <input id="x-axis-type-time" type="radio" name="x-axis-type" autocomplete="off" value="time">Time Series
+  </label>
+</div>
+
 <div id="graph" style="width:90%; height:500px;"></div>
 
 <script>
@@ -24,6 +34,24 @@
 
   trace = [ trace1 ];
   Plotly.plot(TESTER, trace);
+
+  $(document).ready(
+    function() {
+      $(":radio[name='x-axis-type']").change(
+        function() {
+          // Determine which x scale to use.
+          if (this.value == "time") {
+            new_x = x;
+          } else if (this.value == "sequential") {
+            new_x = n;
+          }
+
+          // Adjust the x values of the data.
+          Plotly.restyle(TESTER, 'x', [new_x]);
+        }
+      )
+    }
+  );
 
 </script>
 
