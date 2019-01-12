@@ -25,14 +25,42 @@ $(function () {
 
   // Go to data pages if they exist, otherwise just open the tree.
   tree.on('select_node.jstree', function(e, data) {
-    var path = "/plot/"
+    // We can't send JS vars into Jinja/url_for, so we hack in a placeholder
+    // that we'll swap out later. There's got to be a better way!
+    var path = "{{ url_for('pages.plot', metric='PLACEHOLDER') }}"
 
     // jsTree puts the original data structure in a nested object
     // called 'original'. How original of them. Hahaha I crack myself up.
     if (data.node.original.is_link) {
+      // Handle cases where an external force is modifying the URL provided
+      // to the client. For example, when Apache sets:
+      //   <Location /extra/stuff>
+      // We can't do this server-side because the trendlines server doesn't
+      // know that it's being routed through an Apache server.
+      // Basically we're doing this:
+      //    http://server.com/extra/stuff                  // current
+      //  - http://server.com                              // origin
+      //    ----------------------------------------------
+      //  =                  /extra/stuff                  // extra
+      //  +                              /plot/metric.name // expected
+      //  + http://server.com                              // location.origin
+      //    ----------------------------------------------
+      //  = http://server.com/extra/stuff/plot/metric.name // new_href
+
+      var expected = path.replace("PLACEHOLDER", data.node.id);
+      var current = document.location.href;
+      var origin = document.location.origin;
+      var extra = current.replace(origin, "");
+      // For the case where our path is *not* being modified (eg:
+      // `<Location />` in apache), `current` has a trailing slash, causing
+      // `extra` to simply be "/". We remove that so our `new_href` doesn't
+      // have double slashes: "http://server.com//plot/metric_name".
+      if (extra == "/") { extra = ""; }
+
+      var new_href = origin + extra + expected;
+
       // Take the user to the plot page.
-      href = path + data.node.id;
-      document.location.href = href;
+      document.location.href = new_href;
     } else {
       data.instance.toggle_node(data.node);
     };

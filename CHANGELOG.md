@@ -5,6 +5,8 @@
 + [BREAKING] Updated REST API: "add" and "get" changed to "data". The HTTP
   method will be used to determine adding or retrieving.
 + Implemented switching between sequential and time-series data. (#8).
++ Plot link generation has been moved client-side. This fixes an issue where
+  links would not work when an external force modifies the URL. Fixes #33.
 
 
 ## v0.1.1 (2019-01-10):
