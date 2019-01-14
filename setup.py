@@ -11,7 +11,7 @@ requires = [
 
 setup(
     name="trendlines",
-    version="0.1.1",
+    version="0.2.0",
     description="Lightweight time-series recording.",
     long_description=long_descr,
     long_description_content_type="text/markdown",
