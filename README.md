@@ -114,6 +114,38 @@ ports:
 ```
 
 
+### Running behind a proxy
+
+A typical case, for me at least, is adding this application to a server that's
+already running Apache for other things. In this case, make the following
+adjustments:
+
+1.  Add a proxy to the `VirtualHost` in your apache config.
+2.  Make sure to set the `URL_PREFIX` variable in your Trendlines config file.
+
+```apache
+# /etc/apache2/sites-enabled/your-site.conf
+<VirtualHost *:80>
+...
+    # optionally replace all instances of "trendlines" with whatever you want
+    # Make sure the port on ProxyPass and ProxyPassReverse matches what is
+    # exposed in your docker-compose.yml file.
+    <Location /trendlines>
+        ProxyPreserveHost On
+        ProxyPass http://0.0.0.0:5082/trendlines
+        ProxyPassReverse http://0.0.0.0:5082/trendlines
+
+        RequestHeader set X-Forwarded-Port 80
+    </Location>
+</VirtualHost>
+```
+
+```python
+# /var/www/trendlines/trendlines.cfg
+URL_PREFIX = "/trendlines"    # Whatever you put in your Apache proxy
+```
+
+
 ## Usage
 
 TODO.
