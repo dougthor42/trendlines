@@ -2,6 +2,7 @@
 
 
 ## Unreleased
++ Added a title that will link back to the index page.
 
 
 ## v0.2.0 (2019-01-14)
