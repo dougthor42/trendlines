@@ -123,3 +123,19 @@ def get_metrics():
     """
     logger.debug("Querying list of metrics.")
     return Metric.select()
+
+
+def get_units(metric):
+    """
+    Return the units for a given metric.
+
+    Parameters
+    ----------
+    metric : str
+
+    Returns
+    -------
+    units : str
+    """
+    units = Metric.get(Metric.name == metric).units
+    return units
