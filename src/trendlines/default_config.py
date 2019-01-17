@@ -16,6 +16,10 @@ DB_TYPE = "sqlite"
 # The database file to use. Ignored if DB_TYPE is not "sqlite"
 DATABASE = "./internal.db"
 
+# Set this value to insert a prefix into any generaged URLs. Mainly used when
+# running behind a proxy that is adjusting URLs.
+#URL_PREFIX = "/trendlines"
+
 # Flask Builtins ################################
 DEBUG = False
 TESTING = False
