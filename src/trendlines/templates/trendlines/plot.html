@@ -19,7 +19,6 @@
   TESTER = document.getElementById('graph');
 
   var data = {{ data | tojson | safe }};
-  console.log(data);
 
   // I think Plotly only accepts 1D arrays of data, so split things out.
   var x = data.rows.map(function (obj) {return obj.timestamp});
