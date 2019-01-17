@@ -72,3 +72,11 @@ def test_get_metrics(app, populated_db):
     assert rv[0].name == "empty_metric"
     assert rv[1].metric_id == 2
     assert rv[3].units == "apples"
+
+
+def test_get_units(app, populated_db):
+    rv = db.get_units("metric_with_units")
+    assert rv == "apples"
+
+    rv = db.get_units("foo")
+    assert rv is None
