@@ -121,8 +121,9 @@ TODO.
 
 ### Sending Data
 
-**Trendlines** accepts 2 forms of data entry: TCP via HTTP POST with a JSON
-payload and UDP (not yet implemented).
+**Trendlines** accepts 2 forms of data entry: TCP and UDP. TCP data entry is
+done via HTTP POST with a JSON payload. UDP data entry is done in a similar
+manner as Graphite (though not yet implemented).
 
 To send in data using the HTTP POST method:
 
