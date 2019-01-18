@@ -6,7 +6,18 @@
 </div>
 
 <script>
+function getData() {
+  $.getJSON(
+    "{{ url_for('api.get_metrics_as_json') }}",
+    function(d) {
+      console.log(d);
+    }
+  )
+};
+
 $(function () {
+  getData();
+
   var tree = $('#jstree-div');
   // Create an instance when the DOM is ready.
   tree.jstree(
