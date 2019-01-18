@@ -42,7 +42,8 @@ def plot(metric=None):
         return "Need a metric, friend!"
 
     data = db.get_data(metric)
-    data = format_data(data)
+    units = db.get_units(metric)
+    data = format_data(data, units)
     if len(data) == 0:
         logger.warning("No data exists for metric '%s'" % metric)
         return "Metric '{}' wasn't found. No data, maybe?".format(metric)
