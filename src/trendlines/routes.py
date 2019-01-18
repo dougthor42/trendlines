@@ -90,6 +90,7 @@ def get_data_as_json(metric):
     logger.debug("API: get '%s'" % metric)
     try:
         raw_data = db.get_data(metric)
+        units = db.get_units(metric)
     except DoesNotExist:
         http_status = 404
         detail = "The metric '{}' does not exist.".format(metric)
@@ -114,7 +115,7 @@ def get_data_as_json(metric):
         logger.warning("API error: %s" % detail)
         return resp.as_response(), http_status
 
-    data = format_data(raw_data)
+    data = format_data(raw_data, units)
 
     return jsonify(data)
 
