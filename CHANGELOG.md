@@ -4,6 +4,7 @@
 ## Unreleased
 + Removed a confusing route: `/api/v1/<metric>`. (#39)
 + Added a title that will link back to the index page.
++ Units will now be displayed on the y-axis if they exist. (#37)
 
 
 ## v0.2.0 (2019-01-14)

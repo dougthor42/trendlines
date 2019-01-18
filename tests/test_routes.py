@@ -81,8 +81,9 @@ def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
 def test_format_data(raw_data):
     rv = routes.format_data(raw_data)
     assert isinstance(rv, dict)
-    assert len(rv) == 1
+    assert len(rv) == 2
     assert 'rows' in rv.keys()
+    assert 'units' in rv.keys()
     assert isinstance(rv['rows'], list)
     assert len(rv['rows']) == 4
     data_0 = rv['rows'][0]
