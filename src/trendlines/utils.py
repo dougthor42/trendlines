@@ -218,3 +218,29 @@ def build_jstree_data(metrics):
     # Lastly sort things in a predictable fashion.
     data.sort(key=lambda d: d['id'])
     return data
+
+
+def format_data(data, units=None):
+    """
+    Helper function: format data for template consumption.
+
+    Parameters
+    ----------
+    data : :class:`peewee.ModelSelect`
+        The data as returned by :func:`db.get_data`
+
+    units : str, optional
+        The units of the data, if any. The :meth:`db.get_units` function can
+        be used to get this value.
+
+    Returns
+    -------
+    data : dict
+        Dictionary of data where ``timestamp`` is an ISO 8601 string.
+    """
+    data = [{'timestamp': row.timestamp.isoformat(),
+             'value': row.value,
+             'id': row.datapoint_id,
+             'n': n}
+            for n, row in enumerate(data)]
+    return {'rows': data, "units": units}

@@ -43,7 +43,7 @@ def plot(metric=None):
 
     data = db.get_data(metric)
     units = db.get_units(metric)
-    data = format_data(data, units)
+    data = utils.format_data(data, units)
     if len(data) == 0:
         logger.warning("No data exists for metric '%s'" % metric)
         return "Metric '{}' wasn't found. No data, maybe?".format(metric)
@@ -115,32 +115,6 @@ def get_data_as_json(metric):
         logger.warning("API error: %s" % detail)
         return resp.as_response(), http_status
 
-    data = format_data(raw_data, units)
+    data = utils.format_data(raw_data, units)
 
     return jsonify(data)
-
-
-def format_data(data, units=None):
-    """
-    Helper function: format data for template consumption.
-
-    Parameters
-    ----------
-    data : :class:`peewee.ModelSelect`
-        The data as returned by :func:`db.get_data`
-
-    units : str, optional
-        The units of the data, if any. The :meth:`db.get_units` function can
-        be used to get this value.
-
-    Returns
-    -------
-    data : dict
-        Dictionary of data where ``timestamp`` is an ISO 8601 string.
-    """
-    data = [{'timestamp': row.timestamp.isoformat(),
-             'value': row.value,
-             'id': row.datapoint_id,
-             'n': n}
-            for n, row in enumerate(data)]
-    return {'rows': data, "units": units}

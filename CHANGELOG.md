@@ -8,6 +8,7 @@
 + Changed the way we handle generating links when behind a proxy that's
   mucking about with the URLs. (#41)
 + Units will now be displayed on the y-axis if they exist. (#37)
++ `routes.format_data` was moved to the `utils` module.
 
 
 ## v0.2.0 (2019-01-14)
