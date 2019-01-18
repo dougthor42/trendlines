@@ -9,21 +9,19 @@
 function getData() {
   $.getJSON(
     "{{ url_for('api.get_metrics_as_json') }}",
-    function(d) {
-      console.log(d);
-    }
+    createTree
   )
 };
 
-$(function () {
-  getData();
+function createTree(data) {
+  console.log(data);
 
   var tree = $('#jstree-div');
   // Create an instance when the DOM is ready.
   tree.jstree(
     {
       'core': {
-        'data' : {{ data | tojson | safe }}
+        'data' : data
       }
     }
   );
@@ -50,8 +48,9 @@ $(function () {
       data.instance.toggle_node(data.node);
     };
   });
-});
+};
 
+$(getData());
 </script>
 
 {% endblock %}
