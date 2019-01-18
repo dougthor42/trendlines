@@ -119,7 +119,7 @@ def get_data_as_json(metric):
     return jsonify(data)
 
 
-def format_data(data):
+def format_data(data, units=None):
     """
     Helper function: format data for template consumption.
 
@@ -127,6 +127,10 @@ def format_data(data):
     ----------
     data : :class:`peewee.ModelSelect`
         The data as returned by :func:`db.get_data`
+
+    units : str, optional
+        The units of the data, if any. The :meth:`db.get_units` function can
+        be used to get this value.
 
     Returns
     -------
@@ -138,4 +142,4 @@ def format_data(data):
              'id': row.datapoint_id,
              'n': n}
             for n, row in enumerate(data)]
-    return {'rows': data}
+    return {'rows': data, "units": units}
