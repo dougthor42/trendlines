@@ -81,7 +81,6 @@ def post_datapoint():
     return msg, 201
 
 
-@api.route("/api/v1/<metric>", methods=["GET"])
 @api.route("/api/v1/data/<metric>", methods=["GET"])
 def get_data_as_json(metric):
     """

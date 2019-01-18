@@ -2,6 +2,7 @@
 
 
 ## Unreleased
++ Removed a confusing route: `/api/v1/<metric>`. (#39)
 + Added a title that will link back to the index page.
 
 
