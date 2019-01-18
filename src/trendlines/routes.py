@@ -118,3 +118,17 @@ def get_data_as_json(metric):
     data = utils.format_data(raw_data, units)
 
     return jsonify(data)
+
+
+@api.route("/api/v1/metrics", methods=["GET"])
+def get_metrics_as_json():
+    """
+    Return a list of all metrics and their attributes as JSON.
+    """
+    logger.debug("API: /api/v1/metrics")
+    data = db.get_metrics()
+    data = [{"metric_id": row.metric_id,
+             "name": row.name,
+             "units": row.units}
+            for row in data]
+    return jsonify(data)
