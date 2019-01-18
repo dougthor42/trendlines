@@ -40,8 +40,9 @@ def create_app():
 
 
     logger.debug("Registering blueprints.")
-    app.register_blueprint(routes.pages)
-    app.register_blueprint(routes.api)
+    url_prefix = app.config.get("URL_PREFIX", None)
+    app.register_blueprint(routes.pages, url_prefix=url_prefix)
+    app.register_blueprint(routes.api, url_prefix=url_prefix)
 
     # Create the database file and populate initial tables if needed.
     create_db(app.config['DATABASE'])

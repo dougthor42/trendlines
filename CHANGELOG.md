@@ -3,7 +3,9 @@
 
 ## Unreleased
 + Removed a confusing route: `/api/v1/<metric>`. (#39)
-+ Added a title that will link back to the index page.
++ Added a title that will link back to the index page. (#40)
++ Changed the way we handle generating links when behind a proxy that's
+  mucking about with the URLs. (#41)
 + Units will now be displayed on the y-axis if they exist. (#37)
 
 
