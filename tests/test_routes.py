@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
-from datetime import datetime
-
 import pytest
-
 
 from trendlines import routes
 
@@ -78,28 +75,3 @@ def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
     assert 'type' in d.keys()
     assert d['status'] == 404
     assert 'No data exists for metric' in d['detail']
-
-
-def test_format_data(raw_data):
-    rv = routes.format_data(raw_data)
-    assert isinstance(rv, dict)
-    assert len(rv) == 2
-    assert 'rows' in rv.keys()
-    assert 'units' in rv.keys()
-    assert isinstance(rv['rows'], list)
-    assert len(rv['rows']) == 4
-    data_0 = rv['rows'][0]
-    assert isinstance(data_0, dict)
-    # Why don't I just use an expected dict here? Because I haven't bothered
-    # to freeze time on the `conftest.populated_db` fixture yet.
-    assert "timestamp" in data_0.keys()
-    assert "value" in data_0.keys()
-    assert "id" in data_0.keys()
-    assert "n" in data_0.keys()
-    assert data_0['value'] == 15
-    assert isinstance(data_0['timestamp'], str)
-    try:
-        #  datetime.fromisoformat(data_0['timestamp'])   # Python 3.7 only
-        datetime.strptime(data_0['timestamp'], "%Y-%m-%dT%H:%M:%S")
-    except Exception as err:
-        pytest.fail("data['timestamp'] is not the correct format")
