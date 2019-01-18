@@ -25,6 +25,7 @@
   var x = data.rows.map(function (obj) {return obj.timestamp});
   var y = data.rows.map(function (obj) {return obj.value});
   var n = data.rows.map(function (obj) {return obj.n});
+  var units = data.units;
 
   trace1 = {
     x: n,
@@ -32,8 +33,14 @@
     type: 'scatter'
   };
 
+  layout = {
+    yaxis: {
+      title: units
+    }
+  };
+
   trace = [ trace1 ];
-  Plotly.plot(TESTER, trace);
+  Plotly.plot(TESTER, trace, layout);
 
   $(document).ready(
     function() {
