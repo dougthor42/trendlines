@@ -161,7 +161,12 @@ def build_jstree_data(metrics):
     Parameters
     ----------
     metrics : list of str
-        The metrics to display as returned by :func:`db.get_metrics`.
+        The metric names to display. Note that this is *not* the Metric
+        objects themselves, but rather a simple list of strings (metric
+        names). Take the results of :func:`db.get_metrics`::
+
+           raw_data = db.get_metrics()
+           tree = build_jstree_data(m.name for m in raw_data)
 
     Returns
     -------
