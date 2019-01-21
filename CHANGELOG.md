@@ -2,11 +2,15 @@
 
 
 ## Unreleased
++ `units` are now also returned in the GET `/data` API call.
++ All database access is now done via AJAX requests using our own API rather
+  than doing server-side requests. (#45)
 + Removed a confusing route: `/api/v1/<metric>`. (#39)
 + Added a title that will link back to the index page. (#40)
 + Changed the way we handle generating links when behind a proxy that's
   mucking about with the URLs. (#41)
 + Units will now be displayed on the y-axis if they exist. (#37)
++ `routes.format_data` was moved to the `utils` module.
 
 
 ## v0.2.0 (2019-01-14)

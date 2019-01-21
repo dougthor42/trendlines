@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 """
+from datetime import datetime
+
 import pytest
 from flask import current_app
 from flask import Response
@@ -117,3 +119,28 @@ def test_format_metric_for_jstree(data, expected):
 def test_build_jstree_data(metrics, expected):
     rv = utils.build_jstree_data(metrics)
     assert rv == expected
+
+
+def test_format_data(raw_data):
+    rv = utils.format_data(raw_data)
+    assert isinstance(rv, dict)
+    assert len(rv) == 2
+    assert 'rows' in rv.keys()
+    assert 'units' in rv.keys()
+    assert isinstance(rv['rows'], list)
+    assert len(rv['rows']) == 4
+    data_0 = rv['rows'][0]
+    assert isinstance(data_0, dict)
+    # Why don't I just use an expected dict here? Because I haven't bothered
+    # to freeze time on the `conftest.populated_db` fixture yet.
+    assert "timestamp" in data_0.keys()
+    assert "value" in data_0.keys()
+    assert "id" in data_0.keys()
+    assert "n" in data_0.keys()
+    assert data_0['value'] == 15
+    assert isinstance(data_0['timestamp'], str)
+    try:
+        #  datetime.fromisoformat(data_0['timestamp'])   # Python 3.7 only
+        datetime.strptime(data_0['timestamp'], "%Y-%m-%dT%H:%M:%S")
+    except Exception as err:
+        pytest.fail("data['timestamp'] is not the correct format")

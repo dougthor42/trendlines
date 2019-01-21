@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
-from datetime import datetime
-
 import pytest
-
 
 from trendlines import routes
 
@@ -14,6 +11,7 @@ def test_index(client):
     assert rv.status_code == 200
 
 
+@pytest.mark.xfail(reason="Need to figure out the AJAX testing.")
 def test_index_with_data(client, populated_db):
     rv = client.get('/')
     assert rv.status_code == 200
@@ -52,7 +50,9 @@ def test_api_get_data_as_json(client, populated_db):
     rv = client.get("/api/v1/data/foo")
     assert rv.status_code == 200
     assert rv.is_json
-    d = rv.get_json()['rows']
+    d = rv.get_json()
+    assert d['units'] == None
+    d = d['rows']
     assert d[0]['n'] == 0
     assert d[0]['value'] == 15
     assert d[3]['value'] == 9
@@ -78,26 +78,22 @@ def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
     assert 'No data exists for metric' in d['detail']
 
 
-def test_format_data(raw_data):
-    rv = routes.format_data(raw_data)
-    assert isinstance(rv, dict)
-    assert len(rv) == 2
-    assert 'rows' in rv.keys()
-    assert 'units' in rv.keys()
-    assert isinstance(rv['rows'], list)
-    assert len(rv['rows']) == 4
-    data_0 = rv['rows'][0]
-    assert isinstance(data_0, dict)
-    # Why don't I just use an expected dict here? Because I haven't bothered
-    # to freeze time on the `conftest.populated_db` fixture yet.
-    assert "timestamp" in data_0.keys()
-    assert "value" in data_0.keys()
-    assert "id" in data_0.keys()
-    assert "n" in data_0.keys()
-    assert data_0['value'] == 15
-    assert isinstance(data_0['timestamp'], str)
-    try:
-        #  datetime.fromisoformat(data_0['timestamp'])   # Python 3.7 only
-        datetime.strptime(data_0['timestamp'], "%Y-%m-%dT%H:%M:%S")
-    except Exception as err:
-        pytest.fail("data['timestamp'] is not the correct format")
+def test_api_get_metrics_as_json(client, populated_db):
+    rv = client.get("/api/v1/metrics")
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    assert len(d) == 5
+    assert d[0] == {"metric_id": 1, "name": "empty_metric", "units": "units"}
+
+
+def test_api_get_metrics_as_json_as_tree(client, populated_db):
+    rv = client.get("/api/v1/metrics", query_string={"as_tree": 1})
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    assert len(d) == 5
+    assert d[2] == {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
+                    "is_link": True}
+    assert d[4] == {"id": "old_data", "parent": "#", "text": "old_data",
+                    "is_link": True}

@@ -40,7 +40,6 @@ def app():
     yield app
 
 
-
 @pytest.fixture
 def populated_db():
     # XXX: Should this be using my functions or should it use pure PeeWee

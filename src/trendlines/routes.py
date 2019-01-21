@@ -43,7 +43,7 @@ def plot(metric=None):
 
     data = db.get_data(metric)
     units = db.get_units(metric)
-    data = format_data(data, units)
+    data = utils.format_data(data, units)
     if len(data) == 0:
         logger.warning("No data exists for metric '%s'" % metric)
         return "Metric '{}' wasn't found. No data, maybe?".format(metric)
@@ -90,6 +90,7 @@ def get_data_as_json(metric):
     logger.debug("API: get '%s'" % metric)
     try:
         raw_data = db.get_data(metric)
+        units = db.get_units(metric)
     except DoesNotExist:
         http_status = 404
         detail = "The metric '{}' does not exist.".format(metric)
@@ -114,32 +115,31 @@ def get_data_as_json(metric):
         logger.warning("API error: %s" % detail)
         return resp.as_response(), http_status
 
-    data = format_data(raw_data)
+    data = utils.format_data(raw_data, units)
 
     return jsonify(data)
 
 
-def format_data(data, units=None):
+@api.route("/api/v1/metrics", methods=["GET"])
+def get_metrics_as_json():
     """
-    Helper function: format data for template consumption.
-
-    Parameters
-    ----------
-    data : :class:`peewee.ModelSelect`
-        The data as returned by :func:`db.get_data`
-
-    units : str, optional
-        The units of the data, if any. The :meth:`db.get_units` function can
-        be used to get this value.
-
-    Returns
-    -------
-    data : dict
-        Dictionary of data where ``timestamp`` is an ISO 8601 string.
+    Return a list of all metrics and their attributes as JSON.
     """
-    data = [{'timestamp': row.timestamp.isoformat(),
-             'value': row.value,
-             'id': row.datapoint_id,
-             'n': n}
-            for n, row in enumerate(data)]
-    return {'rows': data, "units": units}
+    # TODO: I don't know if I like how I modify the return structure based
+    # on the query args... seems like no matter the args the structure should
+    # stay the same. Either I need to make a separate route for getting
+    # tree-like data or I need to update build_jstree_data to include all
+    # attributes of the :class:`orm.Metric` object in addition to the jstree
+    # attributs (parent, is_link, text)
+    logger.debug("API: /api/v1/metrics, args=%s" % request.args)
+    as_tree = request.args.get('as_tree', 0, type=int) == 1
+    data = db.get_metrics()
+    if as_tree:
+        data = utils.build_jstree_data(m.name for m in data)
+    else:
+        data = [{"metric_id": row.metric_id,
+                 "name": row.name,
+                 "units": row.units}
+                for row in data]
+
+    return jsonify(data)
