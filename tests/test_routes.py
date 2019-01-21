@@ -76,3 +76,24 @@ def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
     assert 'type' in d.keys()
     assert d['status'] == 404
     assert 'No data exists for metric' in d['detail']
+
+
+def test_api_get_metrics_as_json(client, populated_db):
+    rv = client.get("/api/v1/metrics")
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    assert len(d) == 5
+    assert d[0] == {"metric_id": 1, "name": "empty_metric", "units": "units"}
+
+
+def test_api_get_metrics_as_json_as_tree(client, populated_db):
+    rv = client.get("/api/v1/metrics", query_string={"as_tree": 1})
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    assert len(d) == 5
+    assert d[2] == {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
+                    "is_link": True}
+    assert d[4] == {"id": "old_data", "parent": "#", "text": "old_data",
+                    "is_link": True}
