@@ -4,6 +4,7 @@ Global PyTest fixtures.
 """
 from pathlib import Path
 
+import capybara
 import pytest
 
 from trendlines import db
@@ -11,6 +12,8 @@ from trendlines.app_factory import create_app
 from trendlines.app_factory import create_db
 from trendlines.orm import DataPoint
 from trendlines.orm import Metric
+
+pytest_plugins = ["capybara.pytest_plugin"]
 
 
 @pytest.fixture
@@ -30,6 +33,8 @@ def app():
         pass
 
     app = create_app()
+    capybara.app = app
+    capybara.default_max_wait_time = 5
 
     # Since the `create_db` function modifies orm.db directly, we can simply
     # call it here. I guess *technically* what's happening is whatever

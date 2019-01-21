@@ -12,6 +12,12 @@ def test_index(client):
 
 
 @pytest.mark.xfail(reason="Need to figure out the AJAX testing.")
+def test_index_with_data_(app, page, populated_db):
+    page.visit("/")
+    assert page.has_text("empty_metric")
+
+
+@pytest.mark.xfail(reason="Need to figure out the AJAX testing.")
 def test_index_with_data(client, populated_db):
     rv = client.get('/')
     assert rv.status_code == 200
