@@ -125,10 +125,21 @@ def get_metrics_as_json():
     """
     Return a list of all metrics and their attributes as JSON.
     """
-    logger.debug("API: /api/v1/metrics")
+    # TODO: I don't know if I like how I modify the return structure based
+    # on the query args... seems like no matter the args the structure should
+    # stay the same. Either I need to make a separate route for getting
+    # tree-like data or I need to update build_jstree_data to include all
+    # attributes of the :class:`orm.Metric` object in addition to the jstree
+    # attributs (parent, is_link, text)
+    logger.debug("API: /api/v1/metrics, args=%s" % request.args)
+    as_tree = request.args.get('as_tree', 0, type=int) == 1
     data = db.get_metrics()
-    data = [{"metric_id": row.metric_id,
-             "name": row.name,
-             "units": row.units}
-            for row in data]
+    if as_tree:
+        data = utils.build_jstree_data(m.name for m in data)
+    else:
+        data = [{"metric_id": row.metric_id,
+                 "name": row.name,
+                 "units": row.units}
+                for row in data]
+
     return jsonify(data)
