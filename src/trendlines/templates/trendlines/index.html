@@ -8,7 +8,7 @@
 <script>
 function getData() {
   $.getJSON(
-    "{{ url_for('api.get_metrics_as_json') }}",
+    "{{ url_for('api.get_metrics_as_json', as_tree=1) }}",
     createTree
   )
 };
