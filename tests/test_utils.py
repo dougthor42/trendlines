@@ -6,6 +6,7 @@ from datetime import datetime
 import pytest
 from flask import current_app
 from flask import Response
+from freezegun import freeze_time
 
 from trendlines import utils
 
@@ -144,3 +145,29 @@ def test_format_data(raw_data):
         datetime.strptime(data_0['timestamp'], "%Y-%m-%dT%H:%M:%S")
     except Exception as err:
         pytest.fail("data['timestamp'] is not the correct format")
+
+
+@freeze_time("2019-01-25T04:32:28Z")        # 1548390748
+@pytest.mark.parametrize("value, expected", [
+    ("metric 15",
+     {"metric": "metric", "value": 15, "time": 1548390748}),
+    (b"metric 19",
+     {"metric": "metric", "value": 19, "time": 1548390748}),
+    ("foo.bar 123.78 1546532070",
+     {"metric": "foo.bar", "value": 123.78, "time": 1546532070}),
+])
+def test_parse_socket_data(value, expected):
+    rv = utils.parse_socket_data(value)
+    expected_keys = {"metric", "value", "time"}
+    assert set(rv.keys()) == expected_keys
+    assert rv == expected
+
+
+@pytest.mark.parametrize("value", [
+    "metric 15 apple",
+    "foo bar 16",
+    "aasdas 24.4523 ",
+])
+def test_parse_socket_data_raises_value_error(value):
+    with pytest.raises(ValueError):
+        utils.parse_socket_data(value)
