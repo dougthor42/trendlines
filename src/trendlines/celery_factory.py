@@ -120,13 +120,6 @@ def create_celery():
     celery.finalize()
     logger.debug("Celery has been finalized.")
 
-    class UDPHandler(socketserver.BaseRequestHandler):
-        def handle(self):
-            data = self.request[0].strip()
-            parsed = utils.parse_socket_data(data)
-            logger.debug("UDP: {}".format(parsed))
-            r = requests.post(URL, json=parsed)
-            logger.info(r.status_code)
 
     class TCPHandler(socketserver.BaseRequestHandler):
         def handle(self):
@@ -146,13 +139,6 @@ def create_celery():
             self.request.sendall(b"accepted")
 
     @celery.task
-    def listen_to_udp():
-        hp = (HOST, UDP_PORT)
-        logger.info("listening for UDP on %s:%s" % hp)
-        with socketserver.UDPServer(hp, UDPHandler) as server:
-            server.serve_forever()
-
-    @celery.task
     def listen_to_tcp():
         hp = (HOST, TCP_PORT)
         logger.info("listening for TCP on %s:%s" % hp)
@@ -161,7 +147,7 @@ def create_celery():
 
     # Start our tasks
     logger.debug("Starting tasks")
-    listen_to_udp.delay()
+    #  listen_to_udp.delay()
     listen_to_tcp.delay()
 
     return celery
