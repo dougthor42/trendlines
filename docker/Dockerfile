@@ -40,7 +40,9 @@ RUN pip install \
     && rm /requirements.txt
 
 # I hate that I copy over everything.
-COPY . /trendlines
+COPY ./src /trendlines/src
+COPY setup.py /trendlines
+COPY README.md /trendlines
 COPY apache/trendlines.conf /etc/apache2/sites-available/trendlines.conf
 COPY apache/wsgi.py /var/www/wsgi.py
 COPY docker/trendlines.cfg /data/trendlines.cfg
