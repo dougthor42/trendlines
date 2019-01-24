@@ -146,6 +146,28 @@ URL_PREFIX = "/trendlines"    # Whatever you put in your Apache proxy
 ```
 
 
+### Running with Celery
+
+Add the following services to your `docker-compose.yml`:
+
+```yaml
+redis:
+  image: redis
+  ports:
+    - "6379:6379"
+celery:
+  image: dougthor42/trendlines:latest
+  ports:
+    - "9999:9999"
+  volumes:
+    # should be the same as what's in the 'trendlines' service
+    - type: bind
+      source: /var/www/trendlines
+      target: /data
+  command: celery worker -l info -A trendlines.celery_app.celery
+```
+
+
 ## Usage
 
 TODO.
