@@ -4,7 +4,7 @@ from pathlib import Path
 
 from trendlines.app_factory import create_app
 
-PORT = 5001
+PORT = 5000
 
 # Load our configuration. We're using pathlib and `.resolve()` because
 # Flask's working dir is src/trendlines and uses that when running

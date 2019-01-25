@@ -229,7 +229,7 @@ Make sure the `config/localhost.cfg` file exists:
 # ./config/localhost.cfg
 DEBUG = True
 DATABASE = "./internal.db"
-TRENDLINES_API_URL = "http://localhost:5001/api/v1/data"
+TRENDLINES_API_URL = "http://localhost:5000/api/v1/data"
 broker_url = "redis://localhost"
 ```
 
@@ -248,7 +248,7 @@ From a 4th shell, send data:
 echo "metric.name 12.345 `date +%s`" | nc localhost 9999
 ```
 
-And view the data by opening `http://localhost:5001` in your browser.
+And view the data by opening `http://localhost:5000` in your browser.
 
 
 ### Running with Docker-Compose
