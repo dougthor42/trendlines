@@ -1,3 +1,7 @@
+#
+# Example docker-compose.yml file for running on a linux server.
+#
+
 # Need version >= 3.2 because of how we define our volumes
 version: "3.2"
 services:
@@ -5,7 +9,7 @@ services:
     image: dougthor42/trendlines:latest
     restart: always
     ports:
-      - 80:80
+      - "127.0.0.1:80:80"
     volumes:
       - type: bind
         # Host location. This can be anywhere on your file system.
@@ -14,3 +18,17 @@ services:
         # database file (if you're using SQLite) and the configuration file
         # `trendlines.cfg`.
         target: /data
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  celery:
+    image: dougthor42/trendlines:latest
+    ports:
+      - "9999:9999"
+    volumes:
+      # This should be the same as what's in the 'trendlines' service.
+      - type: bind
+        source: /var/www/trendlines
+        target: /data
+    command: celery worker -l info -A trendlines.celery_app.celery

@@ -20,6 +20,16 @@ DATABASE = "./internal.db"
 # running behind a proxy that is adjusting URLs.
 #URL_PREFIX = "/trendlines"
 
+# Celery stuff. See here for names:
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html
+broker_url = "redis://redis"
+
+# Socket stuff.
+TARGET_HOST = "0.0.0.0"
+TRENDLINES_API_URL = "http://trendlines/api/v1/data"
+TCP_PORT = 9999
+UDP_PORT = 9999
+
 # Flask Builtins ################################
 DEBUG = False
 TESTING = False

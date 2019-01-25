@@ -2,6 +2,8 @@
 """
 """
 from contextlib import contextmanager
+from datetime import datetime
+from datetime import timezone
 
 from flask import current_app
 from flask import jsonify
@@ -249,3 +251,41 @@ def format_data(data, units=None):
              'n': n}
             for n, row in enumerate(data)]
     return {'rows': data, "units": units}
+
+
+def parse_socket_data(data):
+    """
+    Parse socket data to a dict suitable for sending to ``/api/v1/data``.
+
+    Parameters
+    ----------
+    data : str
+        The raw string sent in via a TCP or UDP socket. This should follow
+        the "metric value [timestamp]" format. If ``timestamp`` is not given,
+        then the time that the request was received will be used.
+
+    Returns
+    -------
+    dict
+        A dict suitable for sending via :module:`requests` as JSON.
+    """
+    try:
+        data = data.decode("utf-8")
+    except AttributeError:
+        # 'data' is already a string, not bytes.
+        pass
+
+    s = data.split(" ")
+    try:
+        metric, value = s[0], float(s[1])
+    except Exception:
+        raise ValueError("Failed to parse `%s` % data")
+
+    try:
+        time = int(s[2])
+    except IndexError:
+        time = int(datetime.now(timezone.utc).timestamp())
+
+    d = {"metric": metric, "value": value, "time": time}
+
+    return d
