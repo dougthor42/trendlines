@@ -211,3 +211,73 @@ You can also export the data as JSON by sending an HTTP GET request:
 ```
 curl http://$SERVER/api/v1/data/$METRIC_NAME
 ```
+
+
+## Development
+
+Assumptions:
+
++ Docker and Docker-compose are installed and up-to-date
++ Python 3.6 or higher
+
+
+### Running with scripts
+
+Make sure the `config/localhost.cfg` file exists:
+
+```python
+# ./config/localhost.cfg
+DEBUG = True
+DATABASE = "./internal.db"
+TRENDLINES_API_URL = "http://localhost:5001/api/v1/data"
+broker_url = "redis://localhost"
+```
+
+In 3 separate shells, run these 3 commands in order
+
+1.  `docker run -p 6379:6379 redis`
+2.  `python runserver.py`
+3.  `python runworker.py`
+
+You can also optionally run each in the background (`-d` for docker and
+`&` for the others), but personally I like to see the logs scroll by.
+
+From a 4th shell, send data:
+
+```shell
+echo "metric.name 12.345 `date +%s`" | nc localhost 9999
+```
+
+And view the data by opening `http://localhost:5001` in your browser.
+
+
+### Running with Docker-Compose
+
+The default configuration assumes running within docker-compose. If you need
+different settings, create `config/trendlines.cfg` and add your variables
+to it.
+
+Build the images and bring up the stack:
+
+```shell
+$ docker-compose -f docker-build.yml build
+$ docker-compose -f docker-build.yml up
+```
+
+Send data in
+
+```shell
+echo "metric.name 12.345 `date +%s`" | nc localhost 9999
+```
+
+And view the data by opening `http://localhost:5000` in your browser.
+
+
+### Building Docker image
+
+This is handled in CI, but in case you need to do it manually:
+
+```shell
+docker build -f docker/Dockerfile -t trendlines:latest -t dougthor42/trendlines:latest .
+docker push dougthor42/trendlines:latest
+```
