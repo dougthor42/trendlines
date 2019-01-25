@@ -9,6 +9,8 @@
   mucking about with the URLs. (#41)
 + Units will now be displayed on the y-axis if they exist. (#37)
 + `routes.format_data` was moved to the `utils` module.
++ Added support for optional Celery workers that accept TCP data, allowing
+  for easier transition from `Graphite`. (#6)
 
 
 ## v0.2.0 (2019-01-14)
