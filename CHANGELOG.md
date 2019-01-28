@@ -2,6 +2,9 @@
 
 
 ## Unreleased
+
+
+## v0.3.0 (2019-01-28)
 + `units` are now also returned in the GET `/data` API call.
 + Removed a confusing route: `/api/v1/<metric>`. (#39)
 + Added a title that will link back to the index page. (#40)
