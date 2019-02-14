@@ -281,3 +281,86 @@ This is handled in CI, but in case you need to do it manually:
 docker build -f docker/Dockerfile -t trendlines:latest -t dougthor42/trendlines:latest .
 docker push dougthor42/trendlines:latest
 ```
+
+
+### Database Migrations
+
+This project uses [`peewee-moves`](https://github.com/timster/peewee-moves)
+to handle migrations. The documentation for that project is a little lacking,
+but I found it a litte easier to use than the more-popular
+[`peewee-migrate`](https://github.com/klen/peewee_migrate). `peewee-moves`
+also has more documentation.
+
+To apply migrations to an exsiting database that has ***never had any
+migrations applied***:
+
+1.  Open up the database
+2.  Manually create the following table (adjust syntax accordingly):
+    ```sql
+    CREATE TABLE migration_history (
+      `id` INT NOT NULL AUTO_INCREMENT,
+      `name` VARCHAR(255) NOT NULL,
+      `date_applied` DATETIME NOT NULL,
+      PRIMARY_KEY (`id`));
+    ```
+3.  Populate the table with all the migrations that have already been
+    applied. The `name` value should match the migration filename, sans `.py`
+    extension, and the `date_applied` field can be any timestamp.
+    ```sql
+    INSERT INTO `migration_history`
+      (`name`, `date_applied`)
+      VALUES
+        ('0001_create_table_metric', '2019-02-14 14:56:37'),
+        ('0002_create_table_datapoint', '2019-02-14 14:56:37');
+    ```
+4.  Verify that things are working. You should see `[x]` for all migrations:
+    ```shell
+    peewee-db --directory migrations --database sqlite:///internal.db status
+    ```
+
+
+#### Creating a new Table
+
+1.  Create the table in `trendlines.orm`.
+2.  Create the new table migration:
+    ```shell
+    $ peewee-db --directory migrations \
+                --database sqlite:///internal.db \
+                create \
+                trendlines.orm.NewTable
+    ```
+3.  And then apply it:
+    ```shell
+    $ peewee-db --directory migrations \
+                --database sqlite:///internal.db \
+                upgrade
+    ```
+
+If you're using the python shell, run the following for for step 3:
+```python
+>>> from peewee import SqliteDatabase
+>>> from peewee_moves import DatabaseManager
+>>> manager = DatabaseManager(SqliteDatabase('internal.db')
+>>> manager.create('trendlines.orm')
+>>> manager.upgrade()
+```
+
+
+#### Modifying a table:
+
+1.  Modify the table in `trendlines.orm`.
+2.  Create the migration file:
+    ```shell
+    $ peewee-db --directory migrations \
+                --database sqlite:///internal.db \
+                revision
+                "short_revision_description spaces OK but not recommended"
+    ```
+3.  Manually modify the `upgrade` and `downgrade` scripts in the new
+    migration file.
+4.  Apply the migration:
+    ```shell
+    $ peewee-db --directory migrations \
+                --database sqlite:///internal.db \
+                upgrade
+    ```

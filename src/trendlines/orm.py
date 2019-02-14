@@ -20,7 +20,12 @@ DB_OPTS = {
 db = SqliteDatabase(None)
 
 
-class DataModel(Model):
+class BaseModel(Model):
+    class Meta(object):
+        database = db
+
+
+class DataModel(BaseModel):
     """
     Model for storing data points.
 
@@ -28,19 +33,17 @@ class DataModel(Model):
     a point in the future where I want to switch to one-file-per-metric
     and having a separate DataModel class will make this easier.
     """
-    class Meta(object):
-        database = db
+    pass
 
 
-class InternalModel(Model):
+class InternalModel(BaseModel):
     """
     Model for internal data tables.
 
     *IF* we were to move to one-file-per-metric, then this model would
     hold all of the non-dynamically-generated tables.
     """
-    class Meta(object):
-        database = db
+    pass
 
 
 class Metric(InternalModel):

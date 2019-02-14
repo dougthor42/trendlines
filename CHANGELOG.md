@@ -2,6 +2,7 @@
 
 
 ## Unreleased
++ Implemented database migrations (#62)
 + Changed (again) how we handle being behind a proxy. (#60)
 
 
