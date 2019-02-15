@@ -4,6 +4,7 @@
 ## Unreleased
 + Implemented database migrations (#62)
 + Changed (again) how we handle being behind a proxy. (#60)
++ Added columns to the `Metric` table to support limits. (#65)
 
 
 ## v0.3.0 (2019-01-28)

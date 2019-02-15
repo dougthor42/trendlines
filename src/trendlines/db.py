@@ -9,9 +9,12 @@ from .orm import DataPoint
 from .orm import db as _db
 
 
-def add_metric(name, units=None):
+def add_metric(name, units=None, lower_limit=None, upper_limit=None):
     """
     Add a new metric to the database.
+
+    If both ``lower_limit`` and ``upper_limit`` are given, then
+    ``upper_limit`` must be greater than ``lower_limit``.
 
     Parameters
     ----------
@@ -19,14 +22,44 @@ def add_metric(name, units=None):
         The full metric name. Eg. `tphweb.master.coverage`
     units : str, optional
         List the units for this metric.
+    lower_limit: float, optional
+        The lower limit for data. Data values below this limit will trigger
+        email alerts.
+    upper_limit: float, optional
+        The upper limit for data. Data values above this limit will trigger
+        email alerts.
 
     Returns
     -------
     metric : :class:`orm.Metric` object
         The metric that was added.
+
+    Raises
+    ------
+    ValueError
+        The provide limits do not satisfy ``upper_limit <= lower_limit``.
+    TypeError
+        The provided limits are not numeric or ``None``.
     """
     logger.debug("Querying metric %s" % name)
-    metric, created = Metric.get_or_create(name=name, units=units)
+
+    _t = (int, float, type(None))
+    if not isinstance(lower_limit, _t) or not isinstance(upper_limit, _t):
+        msg = "Invalid type for limits. lower_limit: {}. upper_limit: {}"
+        logger.error(msg.format(type(lower_limit), type(upper_limit)))
+        raise TypeError("upper_limit and lower_limit must be numerics or None.")
+
+    if lower_limit is not None and upper_limit is not None:
+        if upper_limit <= lower_limit:
+            logger.error("upper_limit not greater than lower_limit.")
+            raise ValueError("upper_limit must be greater than lower_limit")
+
+    metric, created = Metric.get_or_create(
+        name=name,
+        units=units,
+        lower_limit=lower_limit,
+        upper_limit=upper_limit,
+    )
     if created:
         logger.info("Metric '%s' created." % name)
     return metric

@@ -18,6 +18,49 @@ def test_add_metric(app):
     assert len(db.Metric.select()) == 1
 
 
+def test_add_metric_with_limits(app):
+    rv = db.add_metric("foo", "bar", 5, 15)
+    assert rv.name == "foo"
+    assert rv.units == "bar"
+    assert rv.upper_limit == 15
+    assert rv.lower_limit == 5
+
+
+def test_add_metric_with_upper_limit(app):
+    rv = db.add_metric("foo", "bar", None, 15)
+    assert rv.name == "foo"
+    assert rv.units == "bar"
+    assert rv.upper_limit == 15
+    assert rv.lower_limit is None
+
+
+def test_add_metric_with_lower_limit(app):
+    rv = db.add_metric("foo", "bar", -16.33)
+    assert rv.name == "foo"
+    assert rv.units == "bar"
+    assert rv.upper_limit is None
+    assert rv.lower_limit == -16.33
+
+
+def test_add_metric_with_invalid_limits_raises_value_error(app, caplog):
+    with pytest.raises(ValueError):
+        db.add_metric("foo", "bar", 16, -54.452)
+    assert "upper_limit not greater than lower_limit" in caplog.text
+
+
+@pytest.mark.parametrize("lower, upper", [
+    ("hello", None),
+    (None, "hello"),
+    ("hello", "hello"),
+    (object(), None),
+    (int, str),
+])
+def test_add_metric_raises_type_error(app, caplog, lower, upper):
+    with pytest.raises(TypeError):
+        db.add_metric("foo", "bar", lower, upper)
+    assert "Invalid type for limits" in caplog.text
+
+
 def test_add_data_point(app, populated_db):
     rv = db.add_data_point("empty_metric", 15)
     assert rv.metric.metric_id == 1
