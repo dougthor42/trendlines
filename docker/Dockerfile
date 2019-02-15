@@ -39,7 +39,7 @@ RUN pip install \
     -r /requirements.txt \
     && rm /requirements.txt
 
-# I hate that I copy over everything.
+COPY ./migrations /trendlines/migrations
 COPY ./src /trendlines/src
 COPY setup.py /trendlines
 COPY README.md /trendlines
