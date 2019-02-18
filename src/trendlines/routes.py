@@ -11,6 +11,7 @@ from flask import request
 
 # peewee
 from peewee import DoesNotExist
+from peewee import IntegrityError
 from playhouse.shortcuts import model_to_dict
 
 from trendlines import logger
@@ -247,3 +248,124 @@ def delete_metric(metric):
         return resp.as_response(), http_status
     else:
         return "", 204
+
+
+@api.route("/api/v1/metric/<metric>", methods=["PUT"])
+def put_metric(metric):
+    """
+    Replace a metric with new values.
+
+    This function cannot change the ``metric_id`` value.
+
+    Keys not given are assumed to be ``None``.
+
+    Accepts JSON data with the following format:
+
+    .. code-block::json
+       {
+         "name": "your.metric_name.here",
+         "units": {string, optional},
+         "upper_limit": {float, optional},
+         "lower_limit": {float, optional},
+       }
+
+    Returns
+    -------
+    200 :
+        Success. Returned JSON data has two keys: ``old_value`` and
+        ``new_value``, each containing a full :class:`orm.Metric` object.
+    400 :
+        Malformed JSON data (such as when ``name`` is missing)
+    404 :
+        The requested metric is not found.
+    409 :
+        The metric already exists.
+
+
+    See Also
+    --------
+    :func:`routes.get_metric_as_json`
+    :func:`routes.post_metric`
+    :func:`routes.delete_metric`
+    """
+    data = request.get_json()
+
+    # First see if our item actually exists
+    try:
+        metric = db.Metric.get(db.Metric.name == metric)
+        old_name = metric.name
+        old_units = metric.units
+        old_lower = metric.lower_limit
+        old_upper = metric.upper_limit
+    except DoesNotExist:
+        http_status = 404
+        detail = "The metric '{}' does not exist".format(metric)
+        resp = utils.Rfc7807ErrorResponse(
+            type_="metric-not-found",
+            title="Metric not found",
+            status=http_status,
+            detail=detail,
+        )
+        logger.warning("API error: %s" % detail)
+        return resp.as_response(), http_status
+
+    # Parse our json.
+    # TODO: possible to replace with peewee.dict_to_model?
+    try:
+        name = data['name']
+    except KeyError:
+        http_status = 400
+        detail = "Missing required key 'name'."
+        resp = utils.Rfc7807ErrorResponse(
+            type_="invalid-request",
+            title="Missing required JSON key.",
+            status=http_status,
+            detail=detail,
+        )
+        logger.warning("API error: %s" % detail)
+        return resp.as_response(), http_status
+
+    # All other fields we assume to be None if they're missing.
+    units = data.get('units', None)
+    upper_limit = data.get('upper_limit', None)
+    lower_limit = data.get('lower_limit', None)
+
+    # Update the values with the new thingy.
+    # TODO: use dict_to_model?
+    metric.name = name
+    metric.units = units
+    metric.lower_limit = lower_limit
+    metric.upper_limit = upper_limit
+    try:
+        metric.save()
+    except IntegrityError:
+        # Failed the unique constraint on Metric.name
+        http_status = 409
+        detail = ("Unable to change metric name '{}': target name '{}'"
+                  " already exists.")
+        detail = detail.format(old_name, name)
+        resp = utils.Rfc7807ErrorResponse(
+            type_="integrity-error",
+            title="Constraint Failure",
+            status=http_status,
+            detail=detail,
+        )
+        logger.warning("API error: %s" % detail)
+        return resp.as_response(), http_status
+
+    rv = {
+        "old_value": {
+            "name": old_name,
+            "units": old_units,
+            "lower_limit": old_lower,
+            "upper_limit": old_upper,
+        },
+        "new_value": {
+            "name": metric.name,
+            "units": metric.units,
+            "lower_limit": metric.lower_limit,
+            "upper_limit": metric.upper_limit,
+        },
+    }
+
+    return jsonify(rv), 200
