@@ -38,7 +38,7 @@ def _alter_constraint(migrator, new):
 
     # Create the original table with the new FK constraints.
     with migrator.create_table('datapoint') as table:
-        table.int('datapoint_id')
+        table.int('datapoint_id', primary_key=True)
         table.foreign_key(**new)
         table.float('value')
         table.int('timestamp')
