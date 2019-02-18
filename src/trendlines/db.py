@@ -62,6 +62,8 @@ def add_metric(name, units=None, lower_limit=None, upper_limit=None):
     )
     if created:
         logger.info("Metric '%s' created." % name)
+    else:
+        logger.debug("Found existing metric '%s'." % name)
     return metric
 
 
