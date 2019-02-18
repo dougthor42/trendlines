@@ -52,7 +52,7 @@ class Metric(InternalModel):
     """
 
     metric_id = IntegerField(primary_key=True)
-    name = CharField(max_length=120)
+    name = CharField(max_length=120, unique=True)
     units = CharField(max_length=24, null=True)
     upper_limit = FloatField(null=True)
     lower_limit = FloatField(null=True)
