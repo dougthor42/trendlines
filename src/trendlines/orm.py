@@ -71,7 +71,8 @@ class DataPoint(DataModel):
     """
 
     datapoint_id = IntegerField(primary_key=True)
-    metric = ForeignKeyField(Metric, backref="datapoints")
+    metric = ForeignKeyField(Metric, backref="datapoints",
+                             on_delete="CASCADE")
     value = FloatField()
     timestamp = TimestampField(utc=True)
 
