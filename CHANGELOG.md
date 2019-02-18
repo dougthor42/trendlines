@@ -9,6 +9,7 @@
   was added on how to perform upgrades. (#67)
 + The `Metric.name` column is now forced to be unique. Previously this was
   enforced on the software side, but not on the database side. (#66)
++ The `DataPoint.metric_id` foreign key is now set to CASCADE on deletes (#69)
 
 
 ## v0.3.0 (2019-01-28)
