@@ -7,6 +7,8 @@
 + Added columns to the `Metric` table to support limits. (#65)
 + DB migrations are now inlcuded in the docker image, and documentation
   was added on how to perform upgrades. (#67)
++ The `Metric.name` column is now forced to be unique. Previously this was
+  enforced on the software side, but not on the database side. (#66)
 
 
 ## v0.3.0 (2019-01-28)
