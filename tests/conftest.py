@@ -70,6 +70,14 @@ def raw_data(app, populated_db):
 
 
 @pytest.fixture
+def raw_metric(app, populated_db):
+    """
+    Provide the raw metric data as return by a Metric query"
+    """
+    return db.Metric.get(db.Metric.name == 'foo')
+
+
+@pytest.fixture
 def client(app):
     """
     A test client.
