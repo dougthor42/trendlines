@@ -146,6 +146,66 @@ def get_metric_as_json(metric):
     return jsonify(data)
 
 
+@api.route("/api/v1/metric", methods=["POST"])
+def post_metric():
+    data = request.get_json()
+
+    try:
+        metric = data['name']
+    except KeyError:
+        http_status = 400
+        detail = "Missing required key 'name'."
+        resp = utils.Rfc7807ErrorResponse(
+            type_="invalid-request",
+            title="Missing required JSON key.",
+            status=http_status,
+            detail=detail,
+        )
+        logger.warning("API error: %s" % detail)
+        return resp.as_response(), http_status
+
+    try:
+        exists = db.Metric.get(db.Metric.name == metric) is not None
+        if exists:
+            http_status = 409
+            detail = "The metric '{}' already exists.".format(metric)
+            resp = utils.Rfc7807ErrorResponse(
+                type_="already-exists",
+                title="Metric already exists",
+                status=http_status,
+                detail=detail,
+            )
+            logger.warning("API error: %s" % detail)
+            return resp.as_response(), http_status
+    except DoesNotExist:
+        logger.debug("Metric does not exist. Able to create.")
+
+    units = data.get('units', None)
+    lower_limit = data.get('lower_limit', None)
+    upper_limit = data.get('upper_limit', None)
+
+    new = db.add_metric(metric, units=units, lower_limit=lower_limit,
+                        upper_limit=upper_limit)
+
+    # Our `db.add_metric` fuction doesn't pull the new metric_id, so we
+    # grab that separately.
+    new.metric_id = db.Metric.get(db.Metric.name == new.name).metric_id
+
+
+    msg = "Added Metric '{}'".format(metric)
+    body = {
+        "message": msg,
+        "metric": {
+            "name": new.name,
+            "metric_id": new.metric_id,
+            "units": new.units,
+            "upper_limit": new.upper_limit,
+            "lower_limit": new.lower_limit,
+        }
+    }
+    return jsonify(body), 201
+
+
 @api.route("/api/v1/metric/<metric>", methods=["DELETE"])
 def delete_metric(metric):
     logger.debug("'api: DELETE '%s'" % metric)
