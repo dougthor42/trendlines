@@ -122,6 +122,65 @@ def get_data_as_json(metric):
     return jsonify(data)
 
 
+@api.route("/api/v1/datapoint", methods=["GET"])
+def api_get_all_datapoints():
+    """
+    Return all of the data for all metrics.
+    """
+    pass
+
+
+@api.route("/api/v1/datapoint", methods=["POST"])
+def api_post_datapoint():
+    """
+    Insert a new datapoint.
+
+    Note that this is different from the "data" route, which will
+    automatically create a new metric if needed. This route will not do so.
+    """
+    pass
+
+
+@api.route("/api/v1/datapoint/<datapoint_id>", methods=["GET"])
+def api_get_datapoint(datapoint_id):
+    """
+    Return the data for a single datapoint.
+    """
+    pass
+
+
+@api.route("/api/v1/datapoint/<datapoint_id>", methods=["PUT"])
+def apit_put_datapoint(datapoint_id):
+    """
+    Replace a datapoint with new values.
+    """
+    pass
+
+
+@api.route("/api/v1/datapoint/<datapoint_id>", methods=["PATCH"])
+def api_patch_datapoint(datapoint_id):
+    """
+    Update parts of a datapoint with new values.
+    """
+    pass
+
+
+@api.route("/api/v1/datapoint/<datapoint_id>", methods=["DELETE"])
+def api_delete_datapoint(datapoint_id):
+    """
+    Delete a datapoint.
+    """
+    pass
+
+
+@api.route("/api/v1/metric", methods=["GET"])
+def api_get_metrics():
+    """
+    Return a list of all metrics in the database.
+    """
+    pass
+
+
 @api.route("/api/v1/metric/<metric>", methods=["GET"])
 def get_metric_as_json(metric):
     """
