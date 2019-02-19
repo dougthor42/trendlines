@@ -144,3 +144,25 @@ def get_metric_as_json(metric):
     data = utils.format_metric_api_result(raw_data)
 
     return jsonify(data)
+
+
+@api.route("/api/v1/metric/<metric>", methods=["DELETE"])
+def delete_metric(metric):
+    logger.debug("'api: DELETE '%s'" % metric)
+
+    try:
+        found = db.Metric.get(db.Metric.name == metric)
+        found.delete_instance()
+    except DoesNotExist:
+        http_status = 404
+        detail = "The metric '{}' does not exist".format(metric)
+        resp = utils.Rfc7807ErrorResponse(
+            type_="metric-not-found",
+            title="Metric not found",
+            status=http_status,
+            detail=detail,
+        )
+        logger.warning("API error: %s" % detail)
+        return resp.as_response(), http_status
+    else:
+        return "", 204
