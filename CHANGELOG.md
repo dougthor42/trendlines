@@ -14,6 +14,7 @@
 + `DELETE /api/v1/metric/<metric_name>` has been implemented (#78)
 + `POST /api/v1/metric` has been implemented (#74)
 + `PUT /api/v1/metric/<metric_name>` has been implemented (#75)
++ `PATCH /api/v1/metric/<metric_name>` has been implemented (#83)
 
 
 ## v0.3.0 (2019-01-28)
