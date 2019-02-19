@@ -148,6 +148,27 @@ def get_metric_as_json(metric):
 
 @api.route("/api/v1/metric", methods=["POST"])
 def post_metric():
+    """
+    Create a new metric.
+
+    Accepts JSON data with the following format:
+
+    .. code-block::json
+       {
+         "name": "your.metric_name.here",
+         "units": string, optional,
+         "upper_limit": {float, optional},
+         "lower_limit": {float, optional},
+       }
+
+    Returns ``201`` on success, ``400`` on malformed JSON data (such as when
+    ``name`` is missing), or ``409`` if the metric already exists.
+
+    See Also
+    --------
+    :func:`routes.get_metric_as_json`
+    :func:`routes.delete_metric`
+    """
     data = request.get_json()
 
     try:
