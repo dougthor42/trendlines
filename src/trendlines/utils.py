@@ -253,6 +253,25 @@ def format_data(data, units=None):
     return {'rows': data, "units": units}
 
 
+def format_metric_api_result(metric):
+    """
+    Format Metric information in a jsonify-able structure.
+
+    Parameters
+    ----------
+    metric : :class:`peewee.ModelSelect`
+        The metric to act on.
+    """
+    rv = {
+        'metric_id': metric.metric_id,
+        'name': metric.name,
+        'units': metric.units,
+        'upper_limit': metric.upper_limit,
+        'lower_limit': metric.lower_limit,
+    }
+    return rv
+
+
 def parse_socket_data(data):
     """
     Parse socket data to a dict suitable for sending to ``/api/v1/data``.

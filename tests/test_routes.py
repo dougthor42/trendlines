@@ -75,3 +75,24 @@ def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
     assert 'type' in d.keys()
     assert d['status'] == 404
     assert 'No data exists for metric' in d['detail']
+
+
+def test_api_get_metric_as_json(client, populated_db, caplog):
+    rv = client.get("/api/v1/metric/foo")
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    print(d)
+    assert d['metric_id'] == 2
+    assert "API: get metric" in caplog.text
+
+
+def test_api_get_metric_as_json_not_found(client, populated_db, caplog):
+    metric = "querty"
+    rv = client.get("/api/v1/metric/{}".format(metric))
+    assert rv.status_code == 404
+    assert rv.is_json
+    d = rv.get_json()
+    assert metric in d['detail']
+    assert d['title'] == "Metric not found"
+    assert "API error:" in caplog.text

@@ -118,3 +118,29 @@ def get_data_as_json(metric):
     data = utils.format_data(raw_data, units)
 
     return jsonify(data)
+
+
+@api.route("/api/v1/metric/<metric>", methods=["GET"])
+def get_metric_as_json(metric):
+    """
+    Return metric information as JSON
+    """
+    logger.debug("API: get metric '%s'" % metric)
+
+    try:
+        raw_data = db.Metric.get(db.Metric.name == metric)
+    except DoesNotExist:
+        http_status = 404
+        detail = "The metric '{}' does not exist".format(metric)
+        resp = utils.Rfc7807ErrorResponse(
+            type_="metric-not-found",
+            title="Metric not found",
+            status=http_status,
+            detail=detail,
+        )
+        logger.warning("API error: %s" % detail)
+        return resp.as_response(), http_status
+
+    data = utils.format_metric_api_result(raw_data)
+
+    return jsonify(data)
