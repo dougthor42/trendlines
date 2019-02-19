@@ -96,3 +96,24 @@ def test_api_get_metric_as_json_not_found(client, populated_db, caplog):
     assert metric in d['detail']
     assert d['title'] == "Metric not found"
     assert "API error:" in caplog.text
+
+
+def test_api_delete_metric(client, populated_db):
+    metric = "foo.bar"
+    rv = client.delete("/api/v1/metric/{}".format(metric))
+    assert rv.status_code == 204
+
+    # Verify it's actually been deleted
+    after = client.get("/api/v1/metric/{}".format(metric))
+    assert after.status_code == 404
+
+
+def test_api_delete_metric_not_found(client, populated_db, caplog):
+    metric = "missing"
+    rv = client.delete("/api/v1/metric/{}".format(metric))
+    assert rv.status_code == 404
+    assert rv.is_json
+    d = rv.get_json()
+    assert metric in d['detail']
+    assert d['title'] == "Metric not found"
+    assert "API error:" in caplog.text
