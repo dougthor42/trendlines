@@ -10,7 +10,8 @@
 + The `Metric.name` column is now forced to be unique. Previously this was
   enforced on the software side, but not on the database side. (#66)
 + The `DataPoint.metric_id` foreign key is now set to CASCADE on deletes (#69)
-+ `GET /api/v1/metric/<metric_name` has been implemented (#73)
++ `GET /api/v1/metric/<metric_name>` has been implemented (#73)
++ `DELETE /api/v1/metric/<metric_name>` has been implemented (#78)
 
 
 ## v0.3.0 (2019-01-28)
