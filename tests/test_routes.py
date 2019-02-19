@@ -117,3 +117,42 @@ def test_api_delete_metric_not_found(client, populated_db, caplog):
     assert metric in d['detail']
     assert d['title'] == "Metric not found"
     assert "API error:" in caplog.text
+
+
+def test_api_post_metric(client, populated_db):
+    metric = "new"
+    units = "some units"
+    upper_limit = 15.3
+    lower_limit = 1.24
+    data = {"name": metric,
+            "units": units,
+            "upper_limit": upper_limit,
+            "lower_limit": lower_limit,
+            }
+    rv = client.post("/api/v1/metric", json=data)
+    assert rv.status_code == 201
+    assert rv.is_json
+    d = rv.get_json()
+    assert metric in d['message']
+    assert d['metric']['name'] == metric
+    assert d['metric']['lower_limit'] == lower_limit
+    assert d['metric']['metric_id'] == 6
+
+
+def test_api_post_metric_already_exists(client, populated_db):
+    metric = "foo.bar"
+    data = {"name": metric}
+    rv = client.post("/api/v1/metric", json=data)
+    assert rv.status_code == 409
+    assert rv.is_json
+    d = rv.get_json()
+    assert "already exists" in d['detail']
+
+
+def test_api_post_metric_missing_key(client, populated_db):
+    data = {"units": "percent"}
+    rv = client.post("/api/v1/metric", json=data)
+    assert rv.status_code == 400
+    assert rv.is_json
+    d = rv.get_json()
+    assert "Missing required" in d['detail']
