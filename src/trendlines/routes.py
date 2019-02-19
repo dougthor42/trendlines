@@ -13,6 +13,7 @@ from flask import request
 from peewee import DoesNotExist
 from peewee import IntegrityError
 from playhouse.shortcuts import model_to_dict
+from playhouse.shortcuts import update_model_from_dict
 
 from trendlines import logger
 from . import db
@@ -367,5 +368,103 @@ def put_metric(metric):
             "upper_limit": metric.upper_limit,
         },
     }
+
+    return jsonify(rv), 200
+
+
+@api.route("/api/v1/metric/<metric>", methods=["PATCH"])
+def patch_metric(metric):
+    """
+    Update the values for a given metric.
+
+    This cannot change the ``metric_id`` value.
+
+    Accepts JSON data with the following format:
+
+    .. code-block::json
+       {
+         "name": {string, optional},
+         "units": {string, optional},
+         "upper_limit": {float, optional},
+         "lower_limit": {float, optional}
+       }
+
+    Returns
+    -------
+    200 :
+        Success. Returned JSON data has two keys: ``old_value`` and
+        ``new_value``, each containing only the changed items of the
+        :class:`orm.Metric` object.
+    404 :
+        The requested metric is not found.
+    409 :
+        The target metric name already exists.
+
+    See Also
+    --------
+    :func:`routes.get_metric_as_json`
+    :func:`routes.post_metric`
+    :func:`routes.delete_metric`
+    :func:`routes.put_metric`
+    """
+    # XXX: This is essentially the same code as `put`... Gotta refactor ASAP
+    data = request.get_json()
+
+    # First see if our item actually exists
+    try:
+        metric = db.Metric.get(db.Metric.name == metric)
+        old_name = metric.name
+        old_units = metric.units
+        old_lower = metric.lower_limit
+        old_upper = metric.upper_limit
+    except DoesNotExist:
+        http_status = 404
+        detail = "The metric '{}' does not exist".format(metric)
+        resp = utils.Rfc7807ErrorResponse(
+            type_="metric-not-found",
+            title="Metric not found",
+            status=http_status,
+            detail=detail,
+        )
+        logger.warning("API error: %s" % detail)
+        return resp.as_response(), http_status
+
+    metric = update_model_from_dict(metric, data)
+
+    try:
+        metric.save()
+    except IntegrityError:
+        # Failed the unique constraint on Metric.name
+        http_status = 409
+        detail = ("Unable to change metric name '{}': target name '{}'"
+                  " already exists.")
+        detail = detail.format(old_name, metric.name)
+        resp = utils.Rfc7807ErrorResponse(
+            type_="integrity-error",
+            title="Constraint Failure",
+            status=http_status,
+            detail=detail,
+        )
+        logger.warning("API error: %s" % detail)
+        return resp.as_response(), http_status
+
+    old = {
+        "name": old_name,
+        "units": old_units,
+        "lower_limit": old_lower,
+        "upper_limit": old_upper,
+    }
+    new = {
+        "name": metric.name,
+        "units": metric.units,
+        "lower_limit": metric.lower_limit,
+        "upper_limit": metric.upper_limit,
+    }
+
+    # This seems... silly.
+    rv = {'old_value': {}, 'new_value': {}}
+    for item in data.keys():
+        rv['old_value'][item] = old[item]
+        rv['new_value'][item] = new[item]
 
     return jsonify(rv), 200

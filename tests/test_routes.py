@@ -234,3 +234,41 @@ def test_api_put_metric_idempotence(client, populated_db):
     d = rv.get_json()
     # Then verify that they *didn't* change.
     assert d['old_value'] == d['new_value']
+
+
+def test_api_patch_metric(client, populated_db):
+    data = {"units": "pears"}
+    rv = client.patch("/api/v1/metric/foo", json=data)
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    assert d['old_value']['units'] is None
+    assert d['new_value']['units'] == "pears"
+    assert 'name' not in d['old_value'].keys()
+    assert 'name' not in d['new_value'].keys()
+    assert 'lower_limit' not in d['old_value'].keys()
+    assert 'lower_limit' not in d['new_value'].keys()
+
+
+def test_api_patch_metric_not_found(client, populated_db):
+    name = "missing"
+    data = {"units": "pears"}
+    rv = client.patch("/api/v1/metric/{}".format(name), json=data)
+    assert rv.status_code == 404
+    assert rv.is_json
+    d = rv.get_json()
+    assert name in d['detail']
+    assert "does not exist" in d['detail']
+
+
+def test_api_patch_metric_duplicate_name(client, populated_db):
+    new_name = "foo.bar"
+    old_name = "old_data"
+    data = {"name": new_name}
+    rv = client.patch("/api/v1/metric/{}".format(old_name), json=data)
+    assert rv.status_code == 409
+    assert rv.is_json
+    d = rv.get_json()
+    assert old_name in d['detail']
+    assert new_name in d['detail']
+    assert "Unable to change metric name" in d['detail']
