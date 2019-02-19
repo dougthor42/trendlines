@@ -156,3 +156,81 @@ def test_api_post_metric_missing_key(client, populated_db):
     assert rv.is_json
     d = rv.get_json()
     assert "Missing required" in d['detail']
+
+
+def test_api_put_metric(client, populated_db):
+    name = "foo.bar"
+    data = {
+        "name": name,
+        "units": "lines",
+        "upper_limit": 100,
+        "lower_limit": 0,
+    }
+    rv = client.put("/api/v1/metric/{}".format(name), json=data)
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    assert d['old_value']['units'] is None
+    assert d['new_value']['units'] == "lines"
+
+
+def test_api_put_metric_not_found(client, populated_db):
+    name = "missing"
+    data = {
+        "name": name,
+        "units": "lines",
+        "upper_limit": 100,
+        "lower_limit": 0,
+    }
+    rv = client.put("/api/v1/metric/{}".format(name), json=data)
+    assert rv.status_code == 404
+    assert rv.is_json
+    d = rv.get_json()
+    assert name in d['detail']
+    assert "does not exist" in d['detail']
+
+
+def test_api_put_metric_duplicate_name(client, populated_db):
+    new_name = "foo.bar"
+    old_name = "old_data"
+    data = {"name": new_name}
+    rv = client.put("/api/v1/metric/{}".format(old_name), json=data)
+    assert rv.status_code == 409
+    assert rv.is_json
+    d = rv.get_json()
+    assert old_name in d['detail']
+    assert new_name in d['detail']
+    assert "Unable to change metric name" in d['detail']
+
+
+def test_api_put_metric_missing_name(client, populated_db):
+    data = {"units": "goats"}
+    rv = client.put("/api/v1/metric/foo", json=data)
+    assert rv.status_code == 400
+    assert rv.is_json
+    d = rv.get_json()
+    assert "Missing required" in d['detail']
+
+
+def test_api_put_metric_idempotence(client, populated_db):
+    # TODO: I don't think this is the right way to test idempotence...
+    name = "foo.bar"
+    data = {
+        "name": name,
+        "units": "lines",
+        "upper_limit": 100,
+        "lower_limit": 0,
+    }
+    rv = client.put("/api/v1/metric/{}".format(name), json=data)
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    # First verify that things changed.
+    assert d['old_value']['units'] != d['new_value']
+
+    rv = client.put("/api/v1/metric/{}".format(name), json=data)
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    # Then verify that they *didn't* change.
+    assert d['old_value'] == d['new_value']
