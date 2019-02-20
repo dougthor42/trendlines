@@ -305,32 +305,14 @@ def put_metric(metric):
         old_lower = metric.lower_limit
         old_upper = metric.upper_limit
     except DoesNotExist:
-        http_status = 404
-        detail = "The metric '{}' does not exist".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="metric-not-found",
-            title="Metric not found",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_not_found(metric)
 
     # Parse our json.
     # TODO: possible to replace with peewee.dict_to_model?
     try:
         name = data['name']
     except KeyError:
-        http_status = 400
-        detail = "Missing required key 'name'."
-        resp = utils.Rfc7807ErrorResponse(
-            type_="invalid-request",
-            title="Missing required JSON key.",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.missing_required_key('name')
 
     # All other fields we assume to be None if they're missing.
     units = data.get('units', None)
@@ -347,18 +329,7 @@ def put_metric(metric):
         metric.save()
     except IntegrityError:
         # Failed the unique constraint on Metric.name
-        http_status = 409
-        detail = ("Unable to change metric name '{}': target name '{}'"
-                  " already exists.")
-        detail = detail.format(old_name, name)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="integrity-error",
-            title="Constraint Failure",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.unique_metric_name_required(old_name, name)
 
     rv = {
         "old_value": {
