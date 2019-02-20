@@ -300,51 +300,33 @@ def put_metric(metric):
     # First see if our item actually exists
     try:
         metric = db.Metric.get(db.Metric.name == metric)
-        old_name = metric.name
-        old_units = metric.units
-        old_lower = metric.lower_limit
-        old_upper = metric.upper_limit
+        old = model_to_dict(metric)
     except DoesNotExist:
         return ErrorResponse.metric_not_found(metric)
 
     # Parse our json.
-    # TODO: possible to replace with peewee.dict_to_model?
     try:
         name = data['name']
     except KeyError:
         return ErrorResponse.missing_required_key('name')
 
-    # All other fields we assume to be None if they're missing.
-    units = data.get('units', None)
-    upper_limit = data.get('upper_limit', None)
-    lower_limit = data.get('lower_limit', None)
+    # Update fields with new values, assuming None if missing.
+    for k in old.keys():
+        setattr(metric, k, data.get(k, None))
 
-    # Update the values with the new thingy.
-    # TODO: use dict_to_model?
-    metric.name = name
-    metric.units = units
-    metric.lower_limit = lower_limit
-    metric.upper_limit = upper_limit
+    # We need to manually set the primary key because our little setattr
+    # hack above doesn't seem to work. We need to set the PK in general so
+    # that peewee's `save` method performs an UPDATE instead of INSERT.
+    metric.metric_id = old['metric_id']
+
     try:
         metric.save()
+        new = model_to_dict(metric)
     except IntegrityError:
         # Failed the unique constraint on Metric.name
-        return ErrorResponse.unique_metric_name_required(old_name, name)
+        return ErrorResponse.unique_metric_name_required(old['name'], name)
 
-    rv = {
-        "old_value": {
-            "name": old_name,
-            "units": old_units,
-            "lower_limit": old_lower,
-            "upper_limit": old_upper,
-        },
-        "new_value": {
-            "name": metric.name,
-            "units": metric.units,
-            "lower_limit": metric.lower_limit,
-            "upper_limit": metric.upper_limit,
-        },
-    }
+    rv = {"old_value": old, "new_value": new}
 
     return jsonify(rv), 200
 
