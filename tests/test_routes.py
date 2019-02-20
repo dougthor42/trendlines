@@ -136,7 +136,7 @@ def test_api_post_metric(client, populated_db):
     assert metric in d['message']
     assert d['metric']['name'] == metric
     assert d['metric']['lower_limit'] == lower_limit
-    assert d['metric']['metric_id'] == 6
+    assert d['metric']['metric_id'] == 7
 
 
 def test_api_post_metric_already_exists(client, populated_db):

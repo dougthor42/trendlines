@@ -110,7 +110,7 @@ def test_get_recent_data(app, populated_db):
 
 def test_get_metrics(app, populated_db):
     rv = db.get_metrics()
-    assert len(rv) == 5
+    assert len(rv) == 6
     assert all(isinstance(x, orm.Metric) for x in rv)
     assert rv[0].name == "empty_metric"
     assert rv[1].metric_id == 2
