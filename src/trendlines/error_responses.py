@@ -2,7 +2,6 @@
 """
 """
 from enum import Enum
-from enum import auto
 
 from flask import jsonify
 
@@ -11,11 +10,11 @@ from . import utils
 
 
 class ErrorResponseType(Enum):
-    NO_DATA = auto()
-    NOT_FOUND = auto()
-    INVALID_REQUEST = auto()
-    ALREADY_EXISTS = auto()
-    INTEGRETY_ERROR = auto()
+    NO_DATA = 1
+    NOT_FOUND = 2
+    INVALID_REQUEST = 3
+    ALREADY_EXISTS = 4
+    INTEGRETY_ERROR = 5
 
     def __str__(self):
         return self.name.lower().replace("_", "-")
