@@ -17,6 +17,7 @@ from playhouse.shortcuts import update_model_from_dict
 
 from trendlines import logger
 from . import db
+from .error_responses import ErrorResponse
 from . import utils
 
 pages = Blueprint('pages', __name__)
@@ -94,28 +95,10 @@ def get_data_as_json(metric):
         raw_data = db.get_data(metric)
         units = db.get_units(metric)
     except DoesNotExist:
-        http_status = 404
-        detail = "The metric '{}' does not exist.".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="metric-not-found",
-            title="Metric not found",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_not_found(metric)
 
     if len(raw_data) == 0:
-        http_status = 404
-        detail = "No data exists for metric '{}'.".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="no-data",
-            title="No data for metric",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_has_no_data(metric)
 
     data = utils.format_data(raw_data, units)
 
@@ -191,16 +174,7 @@ def get_metric_as_json(metric):
     try:
         raw_data = db.Metric.get(db.Metric.name == metric)
     except DoesNotExist:
-        http_status = 404
-        detail = "The metric '{}' does not exist".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="metric-not-found",
-            title="Metric not found",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_not_found(metric)
 
     data = utils.format_metric_api_result(raw_data)
 
@@ -235,30 +209,12 @@ def post_metric():
     try:
         metric = data['name']
     except KeyError:
-        http_status = 400
-        detail = "Missing required key 'name'."
-        resp = utils.Rfc7807ErrorResponse(
-            type_="invalid-request",
-            title="Missing required JSON key.",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.missing_required_key('name')
 
     try:
         exists = db.Metric.get(db.Metric.name == metric) is not None
         if exists:
-            http_status = 409
-            detail = "The metric '{}' already exists.".format(metric)
-            resp = utils.Rfc7807ErrorResponse(
-                type_="already-exists",
-                title="Metric already exists",
-                status=http_status,
-                detail=detail,
-            )
-            logger.warning("API error: %s" % detail)
-            return resp.as_response(), http_status
+            return ErrorResponse.metric_already_exists(metric)
     except DoesNotExist:
         logger.debug("Metric does not exist. Able to create.")
 
@@ -296,16 +252,7 @@ def delete_metric(metric):
         found = db.Metric.get(db.Metric.name == metric)
         found.delete_instance()
     except DoesNotExist:
-        http_status = 404
-        detail = "The metric '{}' does not exist".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="metric-not-found",
-            title="Metric not found",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_not_found(metric)
     else:
         return "", 204
 
@@ -358,32 +305,14 @@ def put_metric(metric):
         old_lower = metric.lower_limit
         old_upper = metric.upper_limit
     except DoesNotExist:
-        http_status = 404
-        detail = "The metric '{}' does not exist".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="metric-not-found",
-            title="Metric not found",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_not_found(metric)
 
     # Parse our json.
     # TODO: possible to replace with peewee.dict_to_model?
     try:
         name = data['name']
     except KeyError:
-        http_status = 400
-        detail = "Missing required key 'name'."
-        resp = utils.Rfc7807ErrorResponse(
-            type_="invalid-request",
-            title="Missing required JSON key.",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.missing_required_key('name')
 
     # All other fields we assume to be None if they're missing.
     units = data.get('units', None)
@@ -400,18 +329,7 @@ def put_metric(metric):
         metric.save()
     except IntegrityError:
         # Failed the unique constraint on Metric.name
-        http_status = 409
-        detail = ("Unable to change metric name '{}': target name '{}'"
-                  " already exists.")
-        detail = detail.format(old_name, name)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="integrity-error",
-            title="Constraint Failure",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.unique_metric_name_required(old_name, name)
 
     rv = {
         "old_value": {
@@ -477,16 +395,7 @@ def patch_metric(metric):
         old_lower = metric.lower_limit
         old_upper = metric.upper_limit
     except DoesNotExist:
-        http_status = 404
-        detail = "The metric '{}' does not exist".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="metric-not-found",
-            title="Metric not found",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_not_found(metric)
 
     metric = update_model_from_dict(metric, data)
 
@@ -494,18 +403,7 @@ def patch_metric(metric):
         metric.save()
     except IntegrityError:
         # Failed the unique constraint on Metric.name
-        http_status = 409
-        detail = ("Unable to change metric name '{}': target name '{}'"
-                  " already exists.")
-        detail = detail.format(old_name, metric.name)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="integrity-error",
-            title="Constraint Failure",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.unique_metric_name_required(old_name, metric.name)
 
     old = {
         "name": old_name,

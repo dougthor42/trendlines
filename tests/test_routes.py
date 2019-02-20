@@ -94,8 +94,8 @@ def test_api_get_metric_as_json_not_found(client, populated_db, caplog):
     assert rv.is_json
     d = rv.get_json()
     assert metric in d['detail']
-    assert d['title'] == "Metric not found"
-    assert "API error:" in caplog.text
+    assert d['title'] == "NOT_FOUND"
+    assert "API error" in caplog.text
 
 
 def test_api_delete_metric(client, populated_db):
@@ -115,8 +115,8 @@ def test_api_delete_metric_not_found(client, populated_db, caplog):
     assert rv.is_json
     d = rv.get_json()
     assert metric in d['detail']
-    assert d['title'] == "Metric not found"
-    assert "API error:" in caplog.text
+    assert d['title'] == "NOT_FOUND"
+    assert "API error" in caplog.text
 
 
 def test_api_post_metric(client, populated_db):
