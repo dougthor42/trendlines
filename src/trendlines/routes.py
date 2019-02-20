@@ -390,10 +390,7 @@ def patch_metric(metric):
     # First see if our item actually exists
     try:
         metric = db.Metric.get(db.Metric.name == metric)
-        old_name = metric.name
-        old_units = metric.units
-        old_lower = metric.lower_limit
-        old_upper = metric.upper_limit
+        old = model_to_dict(metric)
     except DoesNotExist:
         return ErrorResponse.metric_not_found(metric)
 
@@ -403,20 +400,9 @@ def patch_metric(metric):
         metric.save()
     except IntegrityError:
         # Failed the unique constraint on Metric.name
-        return ErrorResponse.unique_metric_name_required(old_name, metric.name)
+        return ErrorResponse.unique_metric_name_required(old['name'], metric.name)
 
-    old = {
-        "name": old_name,
-        "units": old_units,
-        "lower_limit": old_lower,
-        "upper_limit": old_upper,
-    }
-    new = {
-        "name": metric.name,
-        "units": metric.units,
-        "lower_limit": metric.lower_limit,
-        "upper_limit": metric.upper_limit,
-    }
+    new = model_to_dict(metric)
 
     # This seems... silly.
     rv = {'old_value': {}, 'new_value': {}}
