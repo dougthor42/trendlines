@@ -49,6 +49,7 @@ def populated_db():
     db.add_metric("foo.bar")
     db.add_metric("metric_with_units", "apples")
     db.add_metric("old_data")
+    db.add_metric("with_everything", "percent", 20, 100)
     db.add_data_point("foo", 15)
     db.add_data_point("foo", 17)
     db.add_data_point("foo", 25)

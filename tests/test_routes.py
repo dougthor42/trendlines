@@ -136,7 +136,7 @@ def test_api_post_metric(client, populated_db):
     assert metric in d['message']
     assert d['metric']['name'] == metric
     assert d['metric']['lower_limit'] == lower_limit
-    assert d['metric']['metric_id'] == 6
+    assert d['metric']['metric_id'] == 7
 
 
 def test_api_post_metric_already_exists(client, populated_db):
@@ -172,6 +172,29 @@ def test_api_put_metric(client, populated_db):
     d = rv.get_json()
     assert d['old_value']['units'] is None
     assert d['new_value']['units'] == "lines"
+
+
+def test_api_put_metric_sets_other_values_to_none(client, populated_db):
+    name = "with_everything"
+
+    original = client.get("/api/v1/metric/{}".format(name))
+    assert original.status_code == 200
+    original = original.get_json()
+    assert original['units'] == 'percent'
+    assert original['upper_limit'] == 100.0
+    assert original['lower_limit'] == 20.0
+
+    data = {"name": name}
+    rv = client.put("/api/v1/metric/{}".format(name), json=data)
+    assert rv.status_code == 200
+
+    new = client.get("/api/v1/metric/{}".format(name))
+    assert new.status_code == 200
+    new = new.get_json()
+
+    assert new['units'] is None
+    assert new['upper_limit'] is None
+    assert new['lower_limit'] is None
 
 
 def test_api_put_metric_not_found(client, populated_db):
@@ -248,6 +271,28 @@ def test_api_patch_metric(client, populated_db):
     assert 'name' not in d['new_value'].keys()
     assert 'lower_limit' not in d['old_value'].keys()
     assert 'lower_limit' not in d['new_value'].keys()
+
+
+def test_api_patch_metric_doesnt_change_other_values(client, populated_db):
+    name = "with_everything"
+    original = client.get("/api/v1/metric/{}".format(name))
+    assert original.status_code == 200
+    original = original.get_json()
+    assert original['units'] == 'percent'
+    assert original['upper_limit'] == 100.0
+    assert original['lower_limit'] == 20.0
+
+    data = {"lower_limit": 0.2}
+    rv = client.patch("/api/v1/metric/{}".format(name), json=data)
+    assert rv.status_code == 200
+
+    new = client.get("/api/v1/metric/{}".format(name))
+    assert new.status_code == 200
+    new = new.get_json()
+
+    assert new['lower_limit'] == 0.2
+    assert new['units'] == original['units']
+    assert new['upper_limit'] == original['upper_limit']
 
 
 def test_api_patch_metric_not_found(client, populated_db):
