@@ -95,28 +95,10 @@ def get_data_as_json(metric):
         raw_data = db.get_data(metric)
         units = db.get_units(metric)
     except DoesNotExist:
-        http_status = 404
-        detail = "The metric '{}' does not exist.".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="metric-not-found",
-            title="Metric not found",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_not_found(metric)
 
     if len(raw_data) == 0:
-        http_status = 404
-        detail = "No data exists for metric '{}'.".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="no-data",
-            title="No data for metric",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_has_no_data(metric)
 
     data = utils.format_data(raw_data, units)
 
