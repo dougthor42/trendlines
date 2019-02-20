@@ -209,30 +209,12 @@ def post_metric():
     try:
         metric = data['name']
     except KeyError:
-        http_status = 400
-        detail = "Missing required key 'name'."
-        resp = utils.Rfc7807ErrorResponse(
-            type_="invalid-request",
-            title="Missing required JSON key.",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.missing_required_key('name')
 
     try:
         exists = db.Metric.get(db.Metric.name == metric) is not None
         if exists:
-            http_status = 409
-            detail = "The metric '{}' already exists.".format(metric)
-            resp = utils.Rfc7807ErrorResponse(
-                type_="already-exists",
-                title="Metric already exists",
-                status=http_status,
-                detail=detail,
-            )
-            logger.warning("API error: %s" % detail)
-            return resp.as_response(), http_status
+            return ErrorResponse.metric_already_exists(metric)
     except DoesNotExist:
         logger.debug("Metric does not exist. Able to create.")
 
