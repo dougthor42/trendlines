@@ -229,17 +229,10 @@ def post_metric():
     # grab that separately.
     new.metric_id = db.Metric.get(db.Metric.name == new.name).metric_id
 
-
     msg = "Added Metric '{}'".format(metric)
     body = {
         "message": msg,
-        "metric": {
-            "name": new.name,
-            "metric_id": new.metric_id,
-            "units": new.units,
-            "upper_limit": new.upper_limit,
-            "lower_limit": new.lower_limit,
-        }
+        "metric": model_to_dict(new)
     }
     return jsonify(body), 201
 
