@@ -395,16 +395,7 @@ def patch_metric(metric):
         old_lower = metric.lower_limit
         old_upper = metric.upper_limit
     except DoesNotExist:
-        http_status = 404
-        detail = "The metric '{}' does not exist".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="metric-not-found",
-            title="Metric not found",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_not_found(metric)
 
     metric = update_model_from_dict(metric, data)
 
@@ -412,18 +403,7 @@ def patch_metric(metric):
         metric.save()
     except IntegrityError:
         # Failed the unique constraint on Metric.name
-        http_status = 409
-        detail = ("Unable to change metric name '{}': target name '{}'"
-                  " already exists.")
-        detail = detail.format(old_name, metric.name)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="integrity-error",
-            title="Constraint Failure",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.unique_metric_name_required(old_name, metric.name)
 
     old = {
         "name": old_name,
