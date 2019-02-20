@@ -125,9 +125,3 @@ def test_parse_socket_data(value, expected):
 def test_parse_socket_data_raises_value_error(value):
     with pytest.raises(ValueError):
         utils.parse_socket_data(value)
-
-
-def test_format_metric_api_result(raw_metric):
-    rv = utils.format_metric_api_result(raw_metric)
-    assert isinstance(rv, dict)
-    assert rv['name'] == 'foo'

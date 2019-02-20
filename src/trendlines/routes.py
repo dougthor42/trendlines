@@ -176,7 +176,7 @@ def get_metric_as_json(metric):
     except DoesNotExist:
         return ErrorResponse.metric_not_found(metric)
 
-    data = utils.format_metric_api_result(raw_data)
+    data = model_to_dict(raw_data)
 
     return jsonify(data)
 
