@@ -370,8 +370,8 @@ def patch_metric(metric):
     -------
     200 :
         Success. Returned JSON data has two keys: ``old_value`` and
-        ``new_value``, each containing only the changed items of the
-        :class:`orm.Metric` object.
+        ``new_value``, each containing only the values of the
+        :class:`orm.Metric` object *that were requested to be changed*.
     404 :
         The requested metric is not found.
     409 :
@@ -418,7 +418,9 @@ def patch_metric(metric):
         "upper_limit": metric.upper_limit,
     }
 
-    # This seems... silly.
+    # Only return the values that were requested to be changed (even if they
+    # did not change).
+    # This seems like a silly way to do it. Is there a better way?
     rv = {'old_value': {}, 'new_value': {}}
     for item in data.keys():
         rv['old_value'][item] = old[item]
