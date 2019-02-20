@@ -174,16 +174,7 @@ def get_metric_as_json(metric):
     try:
         raw_data = db.Metric.get(db.Metric.name == metric)
     except DoesNotExist:
-        http_status = 404
-        detail = "The metric '{}' does not exist".format(metric)
-        resp = utils.Rfc7807ErrorResponse(
-            type_="metric-not-found",
-            title="Metric not found",
-            status=http_status,
-            detail=detail,
-        )
-        logger.warning("API error: %s" % detail)
-        return resp.as_response(), http_status
+        return ErrorResponse.metric_not_found(metric)
 
     data = utils.format_metric_api_result(raw_data)
 
