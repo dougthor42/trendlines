@@ -17,6 +17,8 @@
 + `PATCH /api/v1/metric/<metric_name>` has been implemented (#83)
 + Error responses for the REST API have been refactored (#85)
 + Additional tests for PUT/PATCH metric have been added (#86)
++ Make use of peewee's `playhouse` extensions for converting model instances
+  to and from dicts. (#87)
 
 
 ## v0.3.0 (2019-01-28)
