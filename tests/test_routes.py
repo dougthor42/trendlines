@@ -250,6 +250,28 @@ def test_api_patch_metric(client, populated_db):
     assert 'lower_limit' not in d['new_value'].keys()
 
 
+def test_api_patch_metric_doesnt_change_other_values(client, populated_db):
+    name = "with_everything"
+    original = client.get("/api/v1/metric/{}".format(name))
+    assert original.status_code == 200
+    original = original.get_json()
+    assert original['units'] == 'percent'
+    assert original['upper_limit'] == 100.0
+    assert original['lower_limit'] == 20.0
+
+    data = {"lower_limit": 0.2}
+    rv = client.patch("/api/v1/metric/{}".format(name), json=data)
+    assert rv.status_code == 200
+
+    new = client.get("/api/v1/metric/{}".format(name))
+    assert new.status_code == 200
+    new = new.get_json()
+
+    assert new['lower_limit'] == 0.2
+    assert new['units'] == original['units']
+    assert new['upper_limit'] == original['upper_limit']
+
+
 def test_api_patch_metric_not_found(client, populated_db):
     name = "missing"
     data = {"units": "pears"}
