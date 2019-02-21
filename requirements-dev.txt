@@ -5,3 +5,4 @@ freezegun==0.3.11
 coveralls==1.5.1
 wheel==0.32.3
 pdbpp==0.9.3
+sphinx==2.0.0b1
