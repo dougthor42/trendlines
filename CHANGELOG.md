@@ -20,6 +20,7 @@
 + Make use of peewee's `playhouse` extensions for converting model instances
   to and from dicts. (#87)
 + `peewee-moves` was updated to v2.0.1.
++ Documentation is now reStructuredText and is hosted by ReadTheDocs (#91)
 
 
 ## v0.3.0 (2019-01-28)
