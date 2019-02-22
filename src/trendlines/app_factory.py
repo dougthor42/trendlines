@@ -18,7 +18,7 @@ def create_app():
     """
     Primary application factory.
     """
-    _logging.setup_logging()
+    _logging.setup_logging(logger)
 
     logger.debug("Creating app.")
     app = Flask(__name__)
