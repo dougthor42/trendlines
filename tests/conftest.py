@@ -2,15 +2,28 @@
 """
 Global PyTest fixtures.
 """
+import logging
 from pathlib import Path
 
 import pytest
+from _pytest.logging import caplog as _caplog
 
 from trendlines import db
+from trendlines import logger
 from trendlines.app_factory import create_app
 from trendlines.app_factory import create_db
 from trendlines.orm import DataPoint
 from trendlines.orm import Metric
+
+
+@pytest.fixture
+def caplog(_caplog):
+    class PropogateHandler(logging.Handler):
+        def emit(self, record):
+            logging.getLogger(record.name).handle(record)
+    handler_id = logger.add(PropogateHandler(), format="{message}")
+    yield _caplog
+    logger.remove(handler_id)
 
 
 @pytest.fixture
