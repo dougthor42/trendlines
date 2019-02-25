@@ -30,13 +30,15 @@ def test_get_metric_parent(metric, expected):
 
 
 @pytest.mark.parametrize("data, expected", [
-    ("foo", {"id": "foo", "parent": "#", "text": "foo", "is_link": True}),
+    ("foo", {"id": "foo", "parent": "#", "text": "foo",
+             "url": "/plot/foo"}),
     ("foo.bar", {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
-                 "is_link": True}),
+                 "url": "/plot/foo.bar"}),
     ("foo.bar.baz", {"id": "foo.bar.baz", "parent": "foo.bar",
-                     "text": "foo.bar.baz", "is_link": True}),
+                     "text": "foo.bar.baz",
+                     "url": "/plot/foo.bar.baz"}),
 ])
-def test_format_metric_for_jstree(data, expected):
+def test_format_metric_for_jstree(test_request_context, data, expected):
     rv = utils.format_metric_for_jstree(data)
     assert rv == expected
 
