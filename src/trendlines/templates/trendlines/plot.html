@@ -16,49 +16,8 @@
 <div id="graph" style="width:90%; height:500px;"></div>
 
 <script>
-  TESTER = document.getElementById('graph');
-
   var data = {{ data | tojson | safe }};
-
-  // I think Plotly only accepts 1D arrays of data, so split things out.
-  var x = data.rows.map(function (obj) {return obj.timestamp});
-  var y = data.rows.map(function (obj) {return obj.value});
-  var n = data.rows.map(function (obj) {return obj.n});
-  var units = data.units;
-
-  trace1 = {
-    x: n,
-    y: y,
-    type: 'scatter'
-  };
-
-  layout = {
-    yaxis: {
-      title: units
-    }
-  };
-
-  trace = [ trace1 ];
-  Plotly.plot(TESTER, trace, layout);
-
-  $(document).ready(
-    function() {
-      $(":radio[name='x-axis-type']").change(
-        function() {
-          // Determine which x scale to use.
-          if (this.value == "time") {
-            new_x = x;
-          } else if (this.value == "sequential") {
-            new_x = n;
-          }
-
-          // Adjust the x values of the data.
-          Plotly.restyle(TESTER, 'x', [new_x]);
-        }
-      )
-    }
-  );
-
+  makePlot(data);
 </script>
 
 {% endblock %}
