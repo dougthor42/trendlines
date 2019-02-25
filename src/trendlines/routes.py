@@ -164,17 +164,17 @@ def api_get_metrics():
     pass
 
 
-@api.route("/api/v1/metric/<metric>", methods=["GET"])
-def get_metric_as_json(metric):
+@api.route("/api/v1/metric/<metric_name>", methods=["GET"])
+def get_metric_as_json(metric_name):
     """
     Return metric information as JSON
     """
-    logger.debug("API: get metric '%s'" % metric)
+    logger.debug("API: get metric '%s'" % metric_name)
 
     try:
-        raw_data = db.Metric.get(db.Metric.name == metric)
+        raw_data = db.Metric.get(db.Metric.name == metric_name)
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
 
     data = model_to_dict(raw_data)
 
