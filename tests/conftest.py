@@ -110,3 +110,9 @@ def app_context(app):
     """
     with app.app_context():
         yield app
+
+
+@pytest.fixture
+def test_request_context(app):
+    with app.test_request_context():
+        yield app
