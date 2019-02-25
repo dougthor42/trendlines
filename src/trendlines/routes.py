@@ -324,8 +324,8 @@ def put_metric(metric_name):
     return jsonify(rv), 200
 
 
-@api.route("/api/v1/metric/<metric>", methods=["PATCH"])
-def patch_metric(metric):
+@api.route("/api/v1/metric/<metric_name>", methods=["PATCH"])
+def patch_metric(metric_name):
     """
     Update the values for a given metric.
 
@@ -364,10 +364,10 @@ def patch_metric(metric):
 
     # First see if our item actually exists
     try:
-        metric = db.Metric.get(db.Metric.name == metric)
+        metric = db.Metric.get(db.Metric.name == metric_name)
         old = model_to_dict(metric)
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
 
     metric = update_model_from_dict(metric, data)
 
