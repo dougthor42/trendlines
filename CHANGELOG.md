@@ -25,6 +25,7 @@
 + Renamed some function arguments to be more clear. (#89)
 + Removed a hack that caused plot urls to be generated client-side. Was
   blocking #47. (#100)
++ Moved javascript out of HTML files. (#47)
 
 
 ## v0.3.0 (2019-01-28)
