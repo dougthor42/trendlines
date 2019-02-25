@@ -23,14 +23,11 @@ $(function () {
 
   // Go to data pages if they exist, otherwise just open the tree.
   tree.on('select_node.jstree', function(e, data) {
-    // We can't send JS vars into Jinja/url_for, so we hack in a placeholder
-    // that we'll swap out later. There's got to be a better way!
-    var path = "{{ url_for('pages.plot', metric='PLACEHOLDER') }}"
-
     // jsTree puts the original data structure in a nested object
     // called 'original'. How original of them. Hahaha I crack myself up.
-    if (data.node.original.is_link) {
-      var expected = path.replace("PLACEHOLDER", data.node.id);
+    // If `url` is defined, take us there.
+    if (data.node.original.url !== null) {
+      var expected = data.node.original.url;
       var new_href = document.location.origin + expected;
 
       // Take the user to the plot page.
