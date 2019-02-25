@@ -85,20 +85,20 @@ def post_datapoint():
     return msg, 201
 
 
-@api.route("/api/v1/data/<metric>", methods=["GET"])
-def get_data_as_json(metric):
+@api.route("/api/v1/data/<metric_name>", methods=["GET"])
+def get_data_as_json(metric_name):
     """
     Return data for a given metric as JSON.
     """
-    logger.debug("API: get '%s'" % metric)
+    logger.debug("API: get '%s'" % metric_name)
     try:
-        raw_data = db.get_data(metric)
-        units = db.get_units(metric)
+        raw_data = db.get_data(metric_name)
+        units = db.get_units(metric_name)
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
 
     if len(raw_data) == 0:
-        return ErrorResponse.metric_has_no_data(metric)
+        return ErrorResponse.metric_has_no_data(metric_name)
 
     data = utils.format_data(raw_data, units)
 
@@ -164,17 +164,17 @@ def api_get_metrics():
     pass
 
 
-@api.route("/api/v1/metric/<metric>", methods=["GET"])
-def get_metric_as_json(metric):
+@api.route("/api/v1/metric/<metric_name>", methods=["GET"])
+def get_metric_as_json(metric_name):
     """
     Return metric information as JSON
     """
-    logger.debug("API: get metric '%s'" % metric)
+    logger.debug("API: get metric '%s'" % metric_name)
 
     try:
-        raw_data = db.Metric.get(db.Metric.name == metric)
+        raw_data = db.Metric.get(db.Metric.name == metric_name)
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
 
     data = model_to_dict(raw_data)
 
@@ -237,21 +237,21 @@ def post_metric():
     return jsonify(body), 201
 
 
-@api.route("/api/v1/metric/<metric>", methods=["DELETE"])
-def delete_metric(metric):
-    logger.debug("'api: DELETE '%s'" % metric)
+@api.route("/api/v1/metric/<metric_name>", methods=["DELETE"])
+def delete_metric(metric_name):
+    logger.debug("'api: DELETE '%s'" % metric_name)
 
     try:
-        found = db.Metric.get(db.Metric.name == metric)
+        found = db.Metric.get(db.Metric.name == metric_name)
         found.delete_instance()
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
     else:
         return "", 204
 
 
-@api.route("/api/v1/metric/<metric>", methods=["PUT"])
-def put_metric(metric):
+@api.route("/api/v1/metric/<metric_name>", methods=["PUT"])
+def put_metric(metric_name):
     """
     Replace a metric with new values.
 
@@ -292,10 +292,10 @@ def put_metric(metric):
 
     # First see if our item actually exists
     try:
-        metric = db.Metric.get(db.Metric.name == metric)
+        metric = db.Metric.get(db.Metric.name == metric_name)
         old = model_to_dict(metric)
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
 
     # Parse our json.
     try:
@@ -324,8 +324,8 @@ def put_metric(metric):
     return jsonify(rv), 200
 
 
-@api.route("/api/v1/metric/<metric>", methods=["PATCH"])
-def patch_metric(metric):
+@api.route("/api/v1/metric/<metric_name>", methods=["PATCH"])
+def patch_metric(metric_name):
     """
     Update the values for a given metric.
 
@@ -364,10 +364,10 @@ def patch_metric(metric):
 
     # First see if our item actually exists
     try:
-        metric = db.Metric.get(db.Metric.name == metric)
+        metric = db.Metric.get(db.Metric.name == metric_name)
         old = model_to_dict(metric)
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
 
     metric = update_model_from_dict(metric, data)
 
