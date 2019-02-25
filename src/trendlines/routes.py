@@ -250,8 +250,8 @@ def delete_metric(metric_name):
         return "", 204
 
 
-@api.route("/api/v1/metric/<metric>", methods=["PUT"])
-def put_metric(metric):
+@api.route("/api/v1/metric/<metric_name>", methods=["PUT"])
+def put_metric(metric_name):
     """
     Replace a metric with new values.
 
@@ -292,10 +292,10 @@ def put_metric(metric):
 
     # First see if our item actually exists
     try:
-        metric = db.Metric.get(db.Metric.name == metric)
+        metric = db.Metric.get(db.Metric.name == metric_name)
         old = model_to_dict(metric)
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
 
     # Parse our json.
     try:
