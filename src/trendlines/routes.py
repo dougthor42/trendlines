@@ -237,15 +237,15 @@ def post_metric():
     return jsonify(body), 201
 
 
-@api.route("/api/v1/metric/<metric>", methods=["DELETE"])
-def delete_metric(metric):
-    logger.debug("'api: DELETE '%s'" % metric)
+@api.route("/api/v1/metric/<metric_name>", methods=["DELETE"])
+def delete_metric(metric_name):
+    logger.debug("'api: DELETE '%s'" % metric_name)
 
     try:
-        found = db.Metric.get(db.Metric.name == metric)
+        found = db.Metric.get(db.Metric.name == metric_name)
         found.delete_instance()
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
     else:
         return "", 204
 
