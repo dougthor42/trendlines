@@ -153,7 +153,15 @@ def api_delete_datapoint(datapoint_id):
     """
     Delete a datapoint.
     """
-    pass
+    logger.debug("'api: DELETE datapoint '%s'" % datapoint_id)
+
+    try:
+        found = db.DataPoint.get(db.DataPoint.datapoint_id == datapoint_id)
+        found.delete_instance()
+    except DoesNotExist:
+        return ErrorResponse.datapoint_not_found(datapoint_id)
+    else:
+        return "", 204
 
 
 @api.route("/api/v1/metric", methods=["GET"])

@@ -33,6 +33,11 @@ class ErrorResponse(object):
         return error_response(404, ErrorResponseType.NOT_FOUND, detail)
 
     @classmethod
+    def datapoint_not_found(cls, datapoint_id):
+        detail = "The datapoint '{}' does not exist".format(datapoint_id)
+        return error_response(404, ErrorResponseType.NOT_FOUND, detail)
+
+    @classmethod
     def metric_has_no_data(cls, name):
         detail = "No data exists for metric '{}'.".format(name)
         return error_response(404, ErrorResponseType.NO_DATA, detail)
