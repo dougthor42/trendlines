@@ -85,20 +85,20 @@ def post_datapoint():
     return msg, 201
 
 
-@api.route("/api/v1/data/<metric>", methods=["GET"])
-def get_data_as_json(metric):
+@api.route("/api/v1/data/<metric_name>", methods=["GET"])
+def get_data_as_json(metric_name):
     """
     Return data for a given metric as JSON.
     """
-    logger.debug("API: get '%s'" % metric)
+    logger.debug("API: get '%s'" % metric_name)
     try:
-        raw_data = db.get_data(metric)
-        units = db.get_units(metric)
+        raw_data = db.get_data(metric_name)
+        units = db.get_units(metric_name)
     except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric)
+        return ErrorResponse.metric_not_found(metric_name)
 
     if len(raw_data) == 0:
-        return ErrorResponse.metric_has_no_data(metric)
+        return ErrorResponse.metric_has_no_data(metric_name)
 
     data = utils.format_data(raw_data, units)
 
