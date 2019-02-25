@@ -15,6 +15,7 @@
 + `POST /api/v1/metric` has been implemented (#74)
 + `PUT /api/v1/metric/<metric_name>` has been implemented (#75)
 + `PATCH /api/v1/metric/<metric_name>` has been implemented (#83)
++ `DELETE /api/v1/datapoint/<datapoint_id>` has been implemented (#57)
 + Error responses for the REST API have been refactored (#85)
 + Additional tests for PUT/PATCH metric have been added (#86)
 + Make use of peewee's `playhouse` extensions for converting model instances
