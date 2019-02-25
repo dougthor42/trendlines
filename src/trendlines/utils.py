@@ -7,6 +7,7 @@ from datetime import timezone
 
 from flask import current_app
 from flask import jsonify
+from flask import url_for
 
 
 @contextmanager
@@ -78,17 +79,18 @@ def format_metric_for_jstree(metric):
     Returns
     -------
     dict
-        A dict with the following keys: id, parent, text, is_link
+        A dict with the following keys: id, parent, text, url
     """
     parent = get_metric_parent(metric)
-    return {"id": metric, "parent": parent, "text": metric, "is_link": True}
+    url = url_for('pages.plot', metric=metric)
+    return {"id": metric, "parent": parent, "text": metric, "url": url}
 
 
 def build_jstree_data(metrics):
     """
     Build a list of dicts consumable by jsTree.
 
-    Fills in missing parent nodes and gives them a ``"is_link": False`` item.
+    Fills in missing parent nodes.
 
     Parameters
     ----------
@@ -105,7 +107,7 @@ def build_jstree_data(metrics):
     data : list of dict
         A JSON-serializable list of dicts. Each dict has at least ``id`` and
         ``parent`` keys. If the metric doesn't exist (it's just a placeholder
-        parent), then the dict will have the ``"is_link": False`` item.
+        parent), then the value of the ``url`` key will be ``None``.
 
     Notes
     -----
@@ -122,11 +124,11 @@ def build_jstree_data(metrics):
        # Spacing added for readability
        # The `text` key is removed for readabiity.
        [
-        {"id": "foo",         "parent": "#",       "is_link": True },
-        {"id": "foo.bar",     "parent": "foo",     "is_link": True },
-        {"id": "bar",         "parent": "#",       "is_link": False},
-        {"id": "bar.baz",     "parent": "bar",     "is_link": False},
-        {"id": "bar.baz.biz", "parent": "bar.baz", "is_link": True },
+        {"id": "foo",         "parent": "#",       "url": "/plot/foo"         },
+        {"id": "foo.bar",     "parent": "foo",     "url": "/plot/foo.bar"     },
+        {"id": "bar",         "parent": "#",       "url": None                },
+        {"id": "bar.baz",     "parent": "bar",     "url": None                },
+        {"id": "bar.baz.biz", "parent": "bar.baz", "url": "/plot/bar.baz.biz" },
        ]
     """
     # First go through and make all of our existing links
@@ -149,7 +151,8 @@ def build_jstree_data(metrics):
         new = {"id": m['parent'],
                "parent": new_parent,
                "text": m['parent'],
-               "is_link": False}
+               "url": None,
+               }
         data.append(new)
 
     # Lastly sort things in a predictable fashion.

@@ -23,6 +23,8 @@
 + Documentation is now reStructuredText and is hosted by ReadTheDocs (#91)
 + Switched to using `loguru` for logging. (#94)
 + Renamed some function arguments to be more clear. (#89)
++ Removed a hack that caused plot urls to be generated client-side. Was
+  blocking #47. (#100)
 
 
 ## v0.3.0 (2019-01-28)
