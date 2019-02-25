@@ -27,6 +27,7 @@
 + Removed a hack that caused plot urls to be generated client-side. Was
   blocking #47. (#100)
 + Moved javascript out of HTML files. (#47)
++ The tree is now auto-expanded by default. (#105)
 
 
 ## v0.3.0 (2019-01-28)

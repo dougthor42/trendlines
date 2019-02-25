@@ -16,6 +16,10 @@ function populateTree(data) {
   tree.on("changed.jstree", function (e, data) {
   });
 
+  tree.on("loaded.jstree", function () {
+    tree.jstree('open_all');
+  });
+
   // Go to data pages if they exist, otherwise just open the tree.
   tree.on('select_node.jstree', function(e, data) {
     // jsTree puts the original data structure in a nested object
