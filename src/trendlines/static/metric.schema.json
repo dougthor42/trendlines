@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/dougthor42/trendlines/master/src/trendlines/static/metric.schema.json",
+    "title": "Metric",
+    "description": "A metric",
+    "type": "object",
+    "properties": {
+       "metric_id": {
+           "description": "The unique identifier for a metric",
+           "type": "integer"
+        },
+        "name": {
+            "description": "The name of the metric",
+            "type": "string"
+        },
+        "units": {
+            "description": "The units that values are in.",
+            "type": "string"
+        },
+        "upper_limit": {
+            "description": "The maximum acceptable value for a metric. Above this value, notifications are sent.",
+            "type": "number"
+        },
+        "lower_limit": {
+            "description": "The minimum acceptable value for a metric. Below this value, notifications are sent.",
+            "type": "number"
+        }
+    },
+    "required": ["metric_id", "name"]
+}
