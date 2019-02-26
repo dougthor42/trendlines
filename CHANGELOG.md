@@ -2,20 +2,30 @@
 
 
 ## Unreleased
-+ Implemented database migrations (#62)
-+ Changed (again) how we handle being behind a proxy. (#60)
+
+
+## 0.4.0 (2019-02-26)
+
+### New Features
 + Added columns to the `Metric` table to support limits. (#65)
++ Many more API routes have been added:
+    + `GET /api/v1/metric/<metric_name>` has been implemented (#73)
+    + `DELETE /api/v1/metric/<metric_name>` has been implemented (#78)
+    + `POST /api/v1/metric` has been implemented (#74)
+    + `PUT /api/v1/metric/<metric_name>` has been implemented (#75)
+    + `PATCH /api/v1/metric/<metric_name>` has been implemented (#83)
+    + `DELETE /api/v1/datapoint/<datapoint_id>` has been implemented (#57)
++ Implemented database migrations (#62)
++ The program version is now displayed on all pages. (#109)
++ The tree is now auto-expanded by default. (#105)
+
+### Changes
++ Changed (again) how we handle being behind a proxy. (#60)
 + DB migrations are now inlcuded in the docker image, and documentation
   was added on how to perform upgrades. (#67)
 + The `Metric.name` column is now forced to be unique. Previously this was
   enforced on the software side, but not on the database side. (#66)
 + The `DataPoint.metric_id` foreign key is now set to CASCADE on deletes (#69)
-+ `GET /api/v1/metric/<metric_name>` has been implemented (#73)
-+ `DELETE /api/v1/metric/<metric_name>` has been implemented (#78)
-+ `POST /api/v1/metric` has been implemented (#74)
-+ `PUT /api/v1/metric/<metric_name>` has been implemented (#75)
-+ `PATCH /api/v1/metric/<metric_name>` has been implemented (#83)
-+ `DELETE /api/v1/datapoint/<datapoint_id>` has been implemented (#57)
 + Error responses for the REST API have been refactored (#85)
 + Additional tests for PUT/PATCH metric have been added (#86)
 + Make use of peewee's `playhouse` extensions for converting model instances
@@ -27,8 +37,6 @@
 + Removed a hack that caused plot urls to be generated client-side. Was
   blocking #47. (#100)
 + Moved javascript out of HTML files. (#47)
-+ The tree is now auto-expanded by default. (#105)
-+ The program version is now displayed on all pages. (#109)
 
 
 ## v0.3.0 (2019-01-28)
