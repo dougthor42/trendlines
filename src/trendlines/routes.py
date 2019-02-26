@@ -3,10 +3,11 @@
 import json
 from datetime import datetime
 from datetime import timezone
+from functools import partial
 
 from flask import Blueprint
 from flask import jsonify
-from flask import render_template
+from flask import render_template as _render_template
 from flask import request
 
 # peewee
@@ -16,12 +17,17 @@ from playhouse.shortcuts import model_to_dict
 from playhouse.shortcuts import update_model_from_dict
 
 from trendlines import logger
+from trendlines.__about__ import __version__
 from . import db
 from .error_responses import ErrorResponse
 from . import utils
 
 pages = Blueprint('pages', __name__)
 api = Blueprint('api', __name__)
+
+
+# Make sure all pages show our version.
+render_template = partial(_render_template, version=__version__)
 
 
 @pages.route('/', methods=['GET'])
