@@ -28,6 +28,7 @@
   blocking #47. (#100)
 + Moved javascript out of HTML files. (#47)
 + The tree is now auto-expanded by default. (#105)
++ The program version is now displayed on all pages. (#109)
 
 
 ## v0.3.0 (2019-01-28)
