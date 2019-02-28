@@ -41,7 +41,7 @@ def add_metric(name, units=None, lower_limit=None, upper_limit=None):
     TypeError
         The provided limits are not numeric or ``None``.
     """
-    logger.debug("Querying metric %s" % name)
+    logger.debug("Querying metric '%s'" % name)
 
     _t = (int, float, type(None))
     if not isinstance(lower_limit, _t) or not isinstance(upper_limit, _t):
