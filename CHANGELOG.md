@@ -4,6 +4,70 @@
 ## Unreleased
 
 
+## 0.5.0 (2019-02-28)
+
+### Notes
+Upgrading from 0.4.0 to 0.5.0 breaks the migration history of the
+database. **Automatic upgrades are not supported.** In order to correctly
+upgrade without losing your data, follow these instructions (assuming
+docker-compose):
+
+> Note: you may need to add `sudo` to most of these.
+
+1.  Bring `trendlines` down: `docker-compose down`.
+2.  Backup your database: `cp internal.db internal.db_old`
+3.  Pull the new `trendlines` code: `docker-compose pull`
+4.  Make a new, empty database file (see issue #110):
+    ```bash
+    $ touch internal.db
+    $ chown www-data:www-data internal.db
+    ```
+5.  Run the migrations on this new file:
+    ```bash
+    $ docker-compose run --rm --no-deps trendlines \
+          peewee-db \
+              --directory /trendlines/migrations \
+              --database sqlite:///data/internal.db \
+              status
+    $ docker-compose run --rm --no-deps trendlines \
+          peewee-db \
+              --directory /trendlines/migrations \
+              --database sqlite:///data/internal.db \
+              upgrade
+    ```
+    You should see the following outputs, perhaps with a "Creating network"
+    thrown in there from docker:
+    ```
+    INFO: [ ] 0001_create_table_metric
+    INFO: [ ] 0002_create_table_datapoint
+    INFO: [ ] 0003_add_spec_limits
+    INFO: [ ] 0004_unique_constraint_metric_name
+    INFO: [ ] 0005_on_delete_cascade_metric
+
+    INFO: upgrade: 0001_create_table_metric
+    INFO: upgrade: 0002_create_table_datapoint
+    INFO: upgrade: 0003_add_spec_limits
+    INFO: upgrade: 0004_unique_constraint_metric_name
+    INFO: upgrade: 0005_on_delete_cascade_metric
+    ```
+6.  Copy your data from the old file to the new:
+    ```
+    $ sqlite3 internal.db
+    sqlite> ATTACH 'internal.db_old' as old;
+    sqlite> INSERT INTO metric SELECT * FROM old.metric;
+    sqlite> INSERT INTO datapoint SELECT * FROM old.datapoint;
+    sqlite> .q
+    ```
+7.  Bring up `trendlines`: `docker-compose up -d`
+8.  Verify that you can add a new metric and datapoint:
+    ```bash
+    $ echo "some-new-metric-name 99" | nc $SERVER $PORT
+    ```
+
+### Changes
++ Fixed an issue with migrations (#112).
+
+
 ## 0.4.0 (2019-02-26)
 
 ### New Features

@@ -73,6 +73,7 @@ def post_datapoint():
       time: integer or missing
     """
     data = request.get_json()
+    logger.debug("Received POST /api/v1/data: {}".format(data))
 
     try:
         metric = data['metric']
