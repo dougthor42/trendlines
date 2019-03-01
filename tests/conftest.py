@@ -4,6 +4,8 @@ Global PyTest fixtures.
 """
 import logging
 from pathlib import Path
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
 from _pytest.logging import caplog as _caplog
@@ -38,9 +40,13 @@ def app(tmp_path):
 
     Needed to do things like creating a test client.
     """
-    db_file = Path(tmp_path) / "test.db"
+    db_file = Path(str(tmp_path)) / "test.db"
 
-    app = create_app()
+    # Mock out create_db - we'll do it later. If we let it happen now, then
+    # a database will be made using the `app.config['DATABASE']` value,
+    # which we don't want. (since that'll typically be `./internal.db`)
+    with patch('trendlines.orm.create_db', MagicMock()):
+        app = create_app()
 
     # Since the `create_db` function modifies orm.db directly, we can simply
     # call it here. I guess *technically* what's happening is whatever
