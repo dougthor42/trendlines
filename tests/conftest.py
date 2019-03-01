@@ -27,20 +27,13 @@ def caplog(_caplog):
 
 
 @pytest.fixture
-def app():
+def app(tmp_path):
     """
     A test app.
 
     Needed to do things like creating a test client.
     """
-    db_file = Path("test.db")
-
-    # Unlink the db_file on setup instead of on teardown. This is so we can
-    # check what's in the database after a test has run.
-    try:
-        db_file.unlink()
-    except FileNotFoundError:
-        pass
+    db_file = Path(tmp_path) / "test.db"
 
     app = create_app()
 
