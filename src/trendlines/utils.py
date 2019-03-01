@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 """
+import shutil
 from contextlib import contextmanager
 from datetime import datetime
 from datetime import timezone
+from pathlib import Path
 
 from flask import current_app
 from flask import jsonify
@@ -222,3 +224,26 @@ def parse_socket_data(data):
     d = {"metric": metric, "value": value, "time": time}
 
     return d
+
+
+def backup_file(path, ts_format="%Y%m%d_%H%M%S"):
+    """
+    Backup a file by copying it and appending a timestamp to the name.
+
+    Parameters
+    ----------
+    path : :class:`pathlib.Path`
+        The file to back up.
+    ts_format : str, optional
+        The format of the timestamp to append to the name. Defaults to
+        ``"%Y%m%d_%H%M%S"``: ``20190301_164832``
+
+    Returns
+    -------
+    backup_file : :class:`pathlib.Path`
+        The path to the newly created backup file.
+    """
+    backup_file = "{}.{}".format(path, datetime.now().strftime(ts_format))
+    backup_file = Path(backup_file)
+    shutil.copy(str(path), str(backup_file))
+    return backup_file
