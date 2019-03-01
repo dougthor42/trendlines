@@ -3,6 +3,7 @@
 
 ## Unreleased
 + `create_db` was moved out of `app_factory.py` and into `orm.py`. (#115)
++ All files created during tests are now made in the `/tmp` directory. (#44)
 
 
 ## 0.5.0 (2019-02-28)
