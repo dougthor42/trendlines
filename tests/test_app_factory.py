@@ -11,6 +11,21 @@ import pytest
 from trendlines import app_factory
 
 
+@pytest.fixture(autouse=True)
+def mock_create_db():
+    """
+    Mock out ``orm.create_db`` used by ``app_factory.create_app()``.
+
+    We don't want the database file created.
+
+    This fixture is autoused for all tests in this module. Other modules
+    rely on the the ``conftest.app`` fixture, which also performs this
+    patching.
+    """
+    with patch('trendlines.orm.create_db', MagicMock()):
+        yield
+
+
 def test_create_app(tmp_path, monkeypatch, caplog):
     # We need to touch the file or else we'll hit the FileNotFoundError
     path = tmp_path / "foo.cfg"
