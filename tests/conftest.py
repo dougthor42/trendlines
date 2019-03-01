@@ -18,6 +18,11 @@ from trendlines.orm import Metric
 
 @pytest.fixture
 def caplog(_caplog):
+    """
+    Overwirte pytest's caplog to work with loguru.
+
+    See https://github.com/Delgan/loguru/issues/59
+    """
     class PropogateHandler(logging.Handler):
         def emit(self, record):
             logging.getLogger(record.name).handle(record)
