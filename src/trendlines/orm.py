@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from pathlib import Path
 
 from peewee import SqliteDatabase
 from peewee import Model
@@ -7,6 +8,9 @@ from peewee import FloatField
 from peewee import TimestampField
 from peewee import ForeignKeyField
 from peewee import CharField
+from peewee import OperationalError
+
+from trendlines import logger
 
 
 DB_OPTS = {
@@ -85,3 +89,39 @@ class DataPoint(DataModel):
 
     def __str__(self):
         return repr(self)
+
+
+def create_db(name):
+    """
+    Create the database and the tables.
+
+    Does nothing if the tables already exist. Well, techinically it just
+    connects and disconnects - ``create_tables`` is a noop.
+
+    Parameters
+    ----------
+    name : str
+        The name of the database, as given by ``app.config['DATABASE']``.
+    """
+    logger.debug("Creating database: '%s'." % name)
+    db.init(name, pragmas=DB_OPTS)
+
+    try:
+        db.connect()
+    except OperationalError:
+        # .resolve() will fail for missing paths, and the `strit=False` arg
+        # wasn't added until 3.6. Since dev environment is 3.5 I need
+        # this try..except block.
+        try:        # pragma: no cover
+            full_path = Path(name).resolve()
+        except FileNotFoundError:
+            full_path = name
+        logger.error("Unable to open database file '%s'" % full_path)
+        raise
+
+    tables = [
+        Metric,
+        DataPoint,
+    ]
+    db.create_tables(tables)
+    db.close()

@@ -7,7 +7,6 @@ from unittest.mock import patch
 
 import flask
 import pytest
-from peewee import OperationalError
 
 from trendlines import app_factory
 
@@ -42,13 +41,6 @@ def test_create_app_missing_user_config_envvar(tmp_path, monkeypatch, caplog):
     assert "is not set and as such configuration" in caplog.text
 
 
-def test_create_db(tmp_path):
-    path = tmp_path / "foo.db"
-    app_factory.create_db(str(path))
-    # if the function worked the file should now exist.
-    assert path.exists()
-
-
 @patch("flask.Config.from_envvar",
        MagicMock(side_effect=Exception("foobar"))
 )
@@ -57,12 +49,3 @@ def test_create_app_user_config_general_exception(caplog):
     assert isinstance(rv, flask.app.Flask)
     assert "An unknown error occured while reading from the" in caplog.text
     assert "foobar" in caplog.text
-
-
-@patch("trendlines.orm.db.connect", MagicMock(side_effect=OperationalError))
-def test_create_db_logs_and_raises_operational_error(caplog):
-    with pytest.raises(OperationalError):
-        app_factory.create_db("foo")
-
-    assert "Unable to open database file" in caplog.text
-    assert "foo" in caplog.text

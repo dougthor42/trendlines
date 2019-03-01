@@ -11,7 +11,7 @@ from _pytest.logging import caplog as _caplog
 from trendlines import db
 from trendlines import logger
 from trendlines.app_factory import create_app
-from trendlines.app_factory import create_db
+from trendlines.orm import create_db
 from trendlines.orm import DataPoint
 from trendlines.orm import Metric
 

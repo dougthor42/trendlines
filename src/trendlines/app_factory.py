@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-from pathlib import Path
 from traceback import format_exc
 
 from flask import Flask
@@ -44,7 +43,7 @@ def create_app():
     app.register_blueprint(routes.api)
 
     # Create the database file and populate initial tables if needed.
-    create_db(app.config['DATABASE'])
+    orm.create_db(app.config['DATABASE'])
 
     # If I redesign the architecture a bit, then these could be moved so
     # that they only act on the `api` blueprint instead of the entire app.
@@ -78,39 +77,3 @@ def create_app():
         return response
 
     return app
-
-
-def create_db(name):
-    """
-    Create the database and the tables.
-
-    Does nothing if the tables already exist. Well, techinically it just
-    connects and disconnects - ``create_tables`` is a noop.
-
-    Parameters
-    ----------
-    name : str
-        The name of the database, as given by ``app.config['DATABASE']``.
-    """
-    logger.debug("Creating database: '%s'." % name)
-    orm.db.init(name, pragmas=orm.DB_OPTS)
-
-    try:
-        orm.db.connect()
-    except OperationalError:
-        # .resolve() will fail for missing paths, and the `strit=False` arg
-        # wasn't added until 3.6. Since dev environment is 3.5 I need
-        # this try..except block.
-        try:        # pragma: no cover
-            full_path = Path(name).resolve()
-        except FileNotFoundError:
-            full_path = name
-        logger.error("Unable to open database file '%s'" % full_path)
-        raise
-
-    tables = [
-        orm.Metric,
-        orm.DataPoint,
-    ]
-    orm.db.create_tables(tables)
-    orm.db.close()
