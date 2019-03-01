@@ -2,6 +2,7 @@
 
 
 ## Unreleased
++ `create_db` was moved out of `app_factory.py` and into `orm.py`. (#115)
 
 
 ## 0.5.0 (2019-02-28)
