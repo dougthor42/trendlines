@@ -4,6 +4,8 @@
 ## Unreleased
 + `create_db` was moved out of `app_factory.py` and into `orm.py`. (#115)
 + All files created during tests are now made in the `/tmp` directory. (#44)
++ Migrations are now performed automatically when the flask app is created
+  (when the first request comes in to WSGI). (#71, #114)
 
 
 ## 0.5.0 (2019-02-28)

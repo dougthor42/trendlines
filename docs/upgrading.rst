@@ -20,7 +20,9 @@ connection speed.
     while we're doing things.
 3.  Backup your database.
 4.  Pull the new image.
-5.  Perform database migrations.
+5.  (Optional) Manually perform database migrations. As of #117 (release
+    v0.6.0), migrations are automatically performed upon recieving the first
+    request after server start (when the WSGI process starts).
 6.  Bring up the stack.
 
 If you're using a specific version release, update your ``docker-compose.yml``
@@ -54,7 +56,7 @@ Then run the rest of the steps:
            --database sqlite:///data/internal.db \
            status
 
-   # Run the migrations
+   # Optional: Run the migrations
    $ docker-compose run --rm --no-deps trendlines \
        peewee-db \
            --directory /trendlines/migrations \

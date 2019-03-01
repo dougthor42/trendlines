@@ -9,6 +9,7 @@ from flask import Response
 from freezegun import freeze_time
 
 from trendlines import utils
+from .test_orm import _hash_file
 
 
 def test_adjust_jsonify_mimetype(app_context):
@@ -132,3 +133,13 @@ def test_parse_socket_data(value, expected):
 def test_parse_socket_data_raises_value_error(value):
     with pytest.raises(ValueError):
         utils.parse_socket_data(value)
+
+
+@freeze_time("2019-01-25T04:32:28Z")
+def test_backup_file(tmp_path):
+    path = tmp_path / "foo.bar"
+    path.write_text("hello")
+    rv = utils.backup_file(path)
+    assert rv.exists()
+    assert rv.name == "foo.bar.20190125_043228"
+    assert _hash_file(path) == _hash_file(rv)
