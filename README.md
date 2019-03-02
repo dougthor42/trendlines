@@ -43,7 +43,7 @@ docker run -p 5000:80 -d dougthor42/trendlines:latest
 
 Send in some data:
 
-> **Note:** there are simplier ways to do this. Please see the
+> **Note:** there are simpler ways to do this. Please see the
 [usage documentation](https://trendlines.readthedocs.io/en/latest/usage.html)
 for details.
 
