@@ -40,7 +40,7 @@ def app(tmp_path):
 
     Needed to do things like creating a test client.
     """
-    db_file = Path(str(tmp_path)) / "test.db"
+    db_file = Path(tmp_path) / "test.db"
 
     # Mock out create_db - we'll do it later. If we let it happen now, then
     # a database will be made using the `app.config['DATABASE']` value,
