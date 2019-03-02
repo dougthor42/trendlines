@@ -6,6 +6,7 @@
 + All files created during tests are now made in the `/tmp` directory. (#44)
 + Migrations are now performed automatically when the flask app is created
   (when the first request comes in to WSGI). (#71, #114)
++ Dropped support for Python 3.5 (#119)
 
 
 ## 0.5.0 (2019-02-28)
