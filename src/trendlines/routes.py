@@ -176,7 +176,15 @@ def api_get_metrics():
     """
     Return a list of all metrics in the database.
     """
-    pass
+    logger.debug("api: GET all metrics")
+    raw_data = db.get_metrics()
+    if len(raw_data) == 0:
+        # do a thing.
+        return ErrorResponse.no_data()
+
+    data = [model_to_dict(m) for m in raw_data]
+
+    return jsonify(data)
 
 
 @api.route("/api/v1/metric/<metric_name>", methods=["GET"])
