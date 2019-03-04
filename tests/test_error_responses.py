@@ -85,7 +85,7 @@ def test_rfc_error_response_content_type(rfc_object):
     (ErrorResponse.unique_metric_name_required, ("foo", "bar")),
     (ErrorResponse.missing_required_key, ("foo", )),
 ])
-def test_error_response_metric_not_found(app_context, caplog, method, args):
+def test_error_response_class_methods(app_context, caplog, method, args):
     rv = method(*args)
     assert isinstance(rv, tuple)
     assert len(rv) == 2
