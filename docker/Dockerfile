@@ -39,13 +39,13 @@ RUN pip install \
     -r /requirements.txt \
     && rm /requirements.txt
 
+COPY apache/wsgi.py /var/www/wsgi.py
+COPY apache/trendlines.conf /etc/apache2/sites-available/trendlines.conf
+COPY docker/trendlines.cfg /data/trendlines.cfg
+COPY setup.py /trendlines/
+COPY README.md /trendlines/
 COPY ./migrations /trendlines/migrations
 COPY ./src /trendlines/src
-COPY setup.py /trendlines
-COPY README.md /trendlines
-COPY apache/trendlines.conf /etc/apache2/sites-available/trendlines.conf
-COPY apache/wsgi.py /var/www/wsgi.py
-COPY docker/trendlines.cfg /data/trendlines.cfg
 
 # TODO: Replace with install from pypi? Not if I want things built off master.
 RUN pip install -e /trendlines
