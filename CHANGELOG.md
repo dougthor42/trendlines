@@ -10,6 +10,7 @@
 + Added the REST API to get all metrics (#120)
 + `db.add_data_point` was renamed to `db.insert_datapoint` to match with
   future API naming conventions. (#123)
++ Added an internal api for datapoints to `db.py`. (#125)
 
 
 ## 0.5.0 (2019-02-28)

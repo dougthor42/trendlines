@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+"""
+The general thought for the API of this module is that most queries
+should just be simple wrappers around the peewee API to include things
+like logging.
+
+We allow most errors to be raised to the caller because most of the time
+we need that information to determine things like which ErrorResponse
+to send.
+"""
 
 from datetime import datetime
 from datetime import timezone
@@ -174,3 +183,123 @@ def get_units(metric):
     """
     units = Metric.get(Metric.name == metric).units
     return units
+
+
+def get_datapoints():
+    """
+    Return a list of all datapoints.
+
+    Returns
+    -------
+    datapoints : iterable of :class:`orm.DataPoint` objects
+        If no data exists, an empty iterable is returned.
+    """
+    logger.debug("Querying list of datapoints.")
+    # TODO: Should I raise DoesNotExist if there's no data?
+    return DataPoint.select()
+
+
+def get_datapoint(datapoint_id):
+    """
+    Return a single datapoint.
+
+    Parameters
+    ----------
+    datapoint_id : int
+        The internal ID of the datapoint to query
+
+    Returns
+    -------
+    datapoint : :class:`orm.DataPoint` or None
+        ``None`` if the item isn't found.
+    """
+    logger.debug("Querying datapoint: %s" % datapoint_id)
+    return DataPoint.get_by_id(datapoint_id)
+
+
+def update_datapoint(datapoint, value=None, timestamp=None):
+    """
+    Update the value or timestamp (or both) of a datapoint.
+
+    If ``value`` or ``timestamp`` is None, that item will not be
+    updated.
+
+    Parameters
+    ----------
+    datapoint : int or :class:`orm.DataPoint`
+        The datapoint to update. Can be provided as an ``int`` for the
+        ``datapoint_id`` or as a :class:`~orm.DataPoint` object directly.
+    value : float, optional
+        The new value for the datapoint.
+    timestamp : int or "now", optional
+        The new timestamp of the datapoint. If ``"now"``, then use the
+        current datetime. This should be the POSIX timestamp integer (UTC).
+
+    Raises
+    ------
+    DataPoint.DoesNotExist : :class:`peewee.DoesNotExist`
+        if the ``datapoint`` or ``datapoint_id`` is not found.
+    """
+    logger.debug("Updating datapoint: %s" % datapoint)
+
+    # Shortcut the uncommon case where both things are None
+    if value is None and timestamp is None:
+        logger.debug("No new values given. Nothing to do.")
+        return
+
+    # Make sure we're going to act on an existing object.
+    try:
+        if isinstance(datapoint, int):
+            datapoint = get_datapoint(datapoint)
+        else:
+            DataPoint.get_by_id(datapoint.datapoint_id)
+    except DataPoint.DoesNotExist:
+        msg = "Unable to find datapoint %s. Can't update values."
+        logger.warning(msg % datapoint)
+        raise
+
+    # We should only get down here if the row exists.
+    if value is not None:
+        datapoint.value = value
+
+    if timestamp is not None:
+        if timestamp == "now":
+            timestamp = datetime.now(timezone.utc).timestamp()
+
+        # Convert our POSIX timestamp int to a python datetime object.
+        # We need to (1) specify that the timestamp is in UTC and then
+        # (2) make the timezone object naive because the DataPoint object
+        # uses naive datetimes.
+        new = datetime.fromtimestamp(timestamp, tz=timezone.utc).replace(tzinfo=None)
+        datapoint.timestamp = new
+
+    # Note that `save()` will create the row if it doesn't exist. Even though
+    # we don't want that, we can still use it because we check for existance,
+    # and raise an error on DoesNotExist, in the above code. So in theory,
+    # we never get down here on a object that doesn't exist. Thus `save()`
+    # will not end up creating a row.
+    # We want people to either (a) use the PK or (b) query the DataPoint
+    # object before running this function.
+    datapoint.save()
+
+
+def delete_datapoint(datapoint):
+    """
+    Delete a datapoint.
+
+    Parameters
+    ----------
+    datapoint : int or :class:`orm.DataPoint`
+        The datapoint to delete
+
+    Raises
+    ------
+    DataPointDoesNotExist : :class:`peewee.DoesNotExist`
+        if the ``datapoint`` or ``datapoint_id`` is not found.
+    """
+    logger.debug("Deleting datapoint: %s" % datapoint)
+
+    if isinstance(datapoint, int):
+        datapoint = get_datapoint(datapoint)
+
+    datapoint.delete_instance()
