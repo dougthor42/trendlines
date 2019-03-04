@@ -75,6 +75,19 @@ def test_insert_datapoint(app, populated_db):
     assert len(new) == 1
 
 
+def test_insert_datapoint_with_timestamp(app, populated_db):
+    ts = 1546532070
+    rv = db.insert_datapoint("empty_metric", 15, ts)
+    assert rv.metric.metric_id == 1
+    assert rv.value == 15
+    assert isinstance(rv.timestamp, (int, float))
+
+    new = db.DataPoint.select().where(db.DataPoint.metric_id == 1)
+    assert len(new) == 1
+    expected = _naive_utc_dt_from_posix_ts(ts)
+    assert new[0].timestamp == expected
+
+
 def test_get_data(app, populated_db):
     rv = db.get_data("empty_metric")
     assert len(rv) == 0
