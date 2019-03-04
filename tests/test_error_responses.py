@@ -84,9 +84,13 @@ def test_rfc_error_response_content_type(rfc_object):
     (ErrorResponse.metric_already_exists, ("foo", )),
     (ErrorResponse.unique_metric_name_required, ("foo", "bar")),
     (ErrorResponse.missing_required_key, ("foo", )),
+    (ErrorResponse.no_data, None),
 ])
-def test_error_response_metric_not_found(app_context, caplog, method, args):
-    rv = method(*args)
+def test_error_response_class_methods(app_context, caplog, method, args):
+    if args is None:
+        rv = method()
+    else:
+        rv = method(*args)
     assert isinstance(rv, tuple)
     assert len(rv) == 2
     assert rv[0].is_json
