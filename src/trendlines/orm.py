@@ -77,6 +77,9 @@ class Metric(InternalModel):
 class DataPoint(DataModel):
     """
     Table holding all of the data points.
+
+    The ``timestamp`` field stores values as UTC but queries return
+    naive :class:`datetime.datetime` objects (no timezone info).
     """
 
     datapoint_id = IntegerField(primary_key=True)
