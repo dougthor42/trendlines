@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 """
+from copy import deepcopy
+from datetime import datetime
+from datetime import timezone
 
 import pytest
 from freezegun import freeze_time
+from peewee import DoesNotExist
 
 from trendlines import db
 from trendlines import orm
@@ -123,3 +127,141 @@ def test_get_units(app, populated_db):
 
     rv = db.get_units("foo")
     assert rv is None
+
+
+def test_get_datapoints(app, populated_db):
+    rv = db.get_datapoints()
+    assert len(rv) == 10
+    assert isinstance(rv[0], orm.DataPoint)
+    assert rv[2].value == 25
+    assert rv[-1].value == 8
+
+
+def test_get_datapoints_no_data(app):
+    rv = db.get_datapoints()
+    assert len(rv) == 0
+
+
+def test_get_datapoint(app, populated_db):
+    rv = db.get_datapoint(5)
+    assert isinstance(rv, orm.DataPoint)
+    assert rv.metric_id == 3
+    assert rv.metric.name == "foo.bar"
+    assert rv.value == 1
+    # Check that the timestamp is naive
+    # https://docs.python.org/3/library/datetime.html#datetime.timezone
+    d = rv.timestamp
+    assert (d.tzinfo is None) or (d.tzinfo.utcoffset(d) is None)
+
+
+def test_get_datapoint_not_found(app, populated_db, caplog):
+    with pytest.raises(DoesNotExist):
+        db.get_datapoint(999)
+
+
+@pytest.mark.parametrize("val", [
+    99,
+    123,
+    -1231203572.25215,
+    0,
+])
+def test_update_datapoint_value_by_id(app, populated_db, val, caplog):
+    # Get our original datapoint. DeepCopy avoids by-reference issues.
+    original = deepcopy(db.get_datapoint(1))
+
+    rv = db.update_datapoint(1, value=val)
+    assert rv is None
+    new = db.get_datapoint(1)
+    assert new.datapoint_id == original.datapoint_id
+    assert new.value == val
+    assert new.timestamp == original.timestamp
+    assert "Updating datapoint" in caplog.text
+
+
+def test_update_datapoint_value_by_id_not_found(app, populated_db, caplog):
+    with pytest.raises(DoesNotExist):
+        db.update_datapoint(999, value=123)
+    assert "Unable to find datapoint" in caplog.text
+    assert "999" in caplog.text
+
+
+def _naive_utc_dt_from_posix_ts(ts):
+    """
+    Return a naive datetime object for the given POSIX UTC timestamp.
+    """
+    new = datetime.fromtimestamp(ts, tz=timezone.utc)
+    return new.replace(tzinfo=None)
+
+
+@pytest.mark.parametrize("dt, expected", [
+    (23425702, _naive_utc_dt_from_posix_ts(23425702)),
+    (9483, _naive_utc_dt_from_posix_ts(9483)),
+    ("now", _naive_utc_dt_from_posix_ts(1546532070)),
+    (1, _naive_utc_dt_from_posix_ts(1)),
+    #  (0, _naive_utc_dt_from_posix_ts(0)),  # See peewee#1875
+])
+@freeze_time("2019-01-03T16:14:30Z")        # 1546532070
+def test_update_datapoint_timestamp_by_id(app, populated_db, dt, expected, caplog):
+    # Get our original datapoint. DeepCopy avoids by-reference issues.
+    original = deepcopy(db.get_datapoint(1))
+
+    # Update the value
+    rv = db.update_datapoint(1, timestamp=dt)
+    assert rv is None
+
+    # Verify the new value
+    new = db.get_datapoint(1)
+    assert new.datapoint_id == original.datapoint_id
+    assert new.value == original.value
+    assert isinstance(new.timestamp, datetime)
+    assert new.timestamp == expected
+    assert "Updating datapoint" in caplog.text
+
+
+def test_update_datapoint_no_values_given(app, populated_db, caplog):
+    original = deepcopy(db.get_datapoint(1))
+    db.update_datapoint(1)
+    new = db.get_datapoint(1)
+    assert new == original
+    assert "No new values given" in caplog.text
+
+
+def test_update_datapoint_by_object(app, populated_db, caplog):
+    datapoint = db.get_datapoint(1)
+    original = deepcopy(datapoint)
+
+    db.update_datapoint(datapoint, value=55)
+    new = db.get_datapoint(1)
+    assert new.datapoint_id == original.datapoint_id
+    assert new.value == 55
+    assert new.timestamp == original.timestamp
+    assert "Updating datapoint" in caplog.text
+    assert str(original) in caplog.text
+
+
+def test_update_datapoint_by_object_does_not_exist(app, populated_db, caplog):
+    datapoint = orm.DataPoint(metric_id=1, value=1, timestamp=1)
+    with pytest.raises(DoesNotExist):
+        db.update_datapoint(datapoint, value=55)
+
+
+def test_delete_datapoint(app, populated_db, caplog):
+    db.delete_datapoint(1)
+    with pytest.raises(DoesNotExist):
+        db.get_datapoint(1)
+    assert "Deleting datapoint" in caplog.text
+
+    datapoint = db.get_datapoint(5)
+    db.delete_datapoint(datapoint)
+    with pytest.raises(DoesNotExist):
+        db.get_datapoint(5)
+    assert str(datapoint) in caplog.text
+
+
+def test_delete_datpoint_does_not_exist(app, populated_db):
+    with pytest.raises(DoesNotExist):
+        db.delete_datapoint(999)
+
+    missing = orm.DataPoint(value=50)
+    with pytest.raises(DoesNotExist):
+        db.delete_datapoint(missing)
