@@ -28,6 +28,12 @@ class ErrorResponseType(Enum):
 class ErrorResponse(object):
 
     @classmethod
+    def no_data(cls):
+        """No data exists in the table."""
+        detail = "No data found."
+        return error_response(404, ErrorResponseType.NO_DATA, detail)
+
+    @classmethod
     def metric_not_found(cls, name):
         detail = "The metric '{}' does not exist".format(name)
         return error_response(404, ErrorResponseType.NOT_FOUND, detail)
