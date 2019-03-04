@@ -8,6 +8,8 @@
   (when the first request comes in to WSGI). (#71, #114)
 + Dropped support for Python 3.5 (#119)
 + Added the REST API to get all metrics (#120)
++ `db.add_data_point` was renamed to `db.insert_datapoint` to match with
+  future API naming conventions. (#123)
 
 
 ## 0.5.0 (2019-02-28)

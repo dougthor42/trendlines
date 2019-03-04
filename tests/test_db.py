@@ -61,8 +61,8 @@ def test_add_metric_raises_type_error(app, caplog, lower, upper):
     assert "Invalid type for limits" in caplog.text
 
 
-def test_add_data_point(app, populated_db):
-    rv = db.add_data_point("empty_metric", 15)
+def test_insert_datapoint(app, populated_db):
+    rv = db.insert_datapoint("empty_metric", 15)
     assert rv.metric.metric_id == 1
     assert rv.value == 15
     assert isinstance(rv.timestamp, (int, float))

@@ -67,7 +67,7 @@ def add_metric(name, units=None, lower_limit=None, upper_limit=None):
     return metric
 
 
-def add_data_point(metric, value, timestamp=None):
+def insert_datapoint(metric, value, timestamp=None):
     """
     Add a new datapoint for a given metric.
 
