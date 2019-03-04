@@ -339,3 +339,21 @@ def test_api_patch_metric_duplicate_name(client, populated_db):
     assert old_name in d['detail']
     assert new_name in d['detail']
     assert "Unable to change metric name" in d['detail']
+
+
+def test_api_get_metrics(client, populated_db):
+    rv = client.get("/api/v1/metric")
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    assert len(d) == 6
+    assert "metric_id" in d[0].keys()
+    assert d[0]['name'] == "empty_metric"
+
+
+def test_api_get_metrics_no_data(client):
+    rv = client.get("/api/v1/metric")
+    assert rv.status_code == 404
+    assert rv.is_json
+    d = rv.get_json()
+    assert "No data" in d['detail']
