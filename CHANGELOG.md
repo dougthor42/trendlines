@@ -22,8 +22,9 @@ docker-compose):
 1.  Bring `trendlines` down: `docker-compose down`.
 2.  Backup your database: `cp internal.db internal.db_old`
 3.  Pull the new `trendlines` code: `docker-compose pull`
-4.  Make a new, empty database file (see issue #110):
+4.  Delete your old DB and make a new, empty database file (see issue #110):
     ```bash
+    $ rm internal.db
     $ touch internal.db
     $ chown www-data:www-data internal.db
     ```
