@@ -67,16 +67,16 @@ def populated_db():
     db.add_metric("metric_with_units", "apples")
     db.add_metric("old_data")
     db.add_metric("with_everything", "percent", 20, 100)
-    db.add_data_point("foo", 15)
-    db.add_data_point("foo", 17)
-    db.add_data_point("foo", 25)
-    db.add_data_point("foo", 9)
-    db.add_data_point("foo.bar", 1)
-    db.add_data_point("foo.bar", -2)
-    db.add_data_point("old_data", 0, 0)             # 1970-01-01T00:00:00Z
-    db.add_data_point("old_data", 1, 1545321236)    # 2018-12-20T15:53:56Z
-    db.add_data_point("old_data", 5, 1546532003)    # 2019-01-03T16:13:23Z
-    db.add_data_point("old_data", 8, 1546532067)    # 2019-01-03T16:14:27Z
+    db.insert_datapoint("foo", 15)
+    db.insert_datapoint("foo", 17)
+    db.insert_datapoint("foo", 25)
+    db.insert_datapoint("foo", 9)
+    db.insert_datapoint("foo.bar", 1)
+    db.insert_datapoint("foo.bar", -2)
+    db.insert_datapoint("old_data", 0, 0)             # 1970-01-01T00:00:00Z
+    db.insert_datapoint("old_data", 1, 1545321236)    # 2018-12-20T15:53:56Z
+    db.insert_datapoint("old_data", 5, 1546532003)    # 2019-01-03T16:13:23Z
+    db.insert_datapoint("old_data", 8, 1546532067)    # 2019-01-03T16:14:27Z
 
 
 @pytest.fixture

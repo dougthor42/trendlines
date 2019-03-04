@@ -85,7 +85,7 @@ def post_datapoint():
     time = data.get('time', None)
 
     db.add_metric(metric)
-    new = db.add_data_point(metric, value, time)
+    new = db.insert_datapoint(metric, value, time)
 
     msg = "Added DataPoint to Metric {}\n".format(new.metric)
     logger.info("Added value %s to metric '%s'" % (value, metric))
