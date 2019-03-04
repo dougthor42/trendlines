@@ -7,6 +7,7 @@
 + Migrations are now performed automatically when the flask app is created
   (when the first request comes in to WSGI). (#71, #114)
 + Dropped support for Python 3.5 (#119)
++ Added the REST API to get all metrics (#120)
 
 
 ## 0.5.0 (2019-02-28)
