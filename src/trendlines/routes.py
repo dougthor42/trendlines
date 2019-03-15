@@ -140,7 +140,7 @@ def api_get_datapoint(datapoint_id):
 
 
 @api.route("/api/v1/datapoint/<datapoint_id>", methods=["PUT"])
-def apit_put_datapoint(datapoint_id):
+def api_put_datapoint(datapoint_id):
     """
     Replace a datapoint with new values.
     """
