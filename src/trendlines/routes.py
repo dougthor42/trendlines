@@ -151,44 +151,39 @@ def api_post_datapoint():
     pass
 
 
-@api.route("/api/v1/datapoint/<datapoint_id>", methods=["GET"])
-def api_get_datapoint(datapoint_id):
-    """
-    Return the data for a single datapoint.
-    """
-    pass
+@api.route("/api/v1/datapoint/<datapoint_id>")
+class DataPointById(MethodView):
+    def get(self, datapoint_id):
+        """
+        Return the data for a single datapoint.
+        """
+        pass
 
+    def put(self, datapoint_id):
+        """
+        Replace a datapoint with new values.
+        """
+        pass
 
-@api.route("/api/v1/datapoint/<datapoint_id>", methods=["PUT"])
-def api_put_datapoint(datapoint_id):
-    """
-    Replace a datapoint with new values.
-    """
-    pass
+    def patch(self, datapoint_id):
+        """
+        Update parts of a datapoint with new values.
+        """
+        pass
 
+    def delete(self, datapoint_id):
+        """
+        Delete a datapoint.
+        """
+        logger.debug("'api: DELETE datapoint '%s'" % datapoint_id)
 
-@api.route("/api/v1/datapoint/<datapoint_id>", methods=["PATCH"])
-def api_patch_datapoint(datapoint_id):
-    """
-    Update parts of a datapoint with new values.
-    """
-    pass
-
-
-@api.route("/api/v1/datapoint/<datapoint_id>", methods=["DELETE"])
-def api_delete_datapoint(datapoint_id):
-    """
-    Delete a datapoint.
-    """
-    logger.debug("'api: DELETE datapoint '%s'" % datapoint_id)
-
-    try:
-        found = db.DataPoint.get(db.DataPoint.datapoint_id == datapoint_id)
-        found.delete_instance()
-    except DoesNotExist:
-        return ErrorResponse.datapoint_not_found(datapoint_id)
-    else:
-        return "", 204
+        try:
+            found = db.DataPoint.get(db.DataPoint.datapoint_id == datapoint_id)
+            found.delete_instance()
+        except DoesNotExist:
+            return ErrorResponse.datapoint_not_found(datapoint_id)
+        else:
+            return "", 204
 
 
 @api.route("/api/v1/metric", methods=["GET"])
