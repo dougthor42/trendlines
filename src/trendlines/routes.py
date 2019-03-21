@@ -138,12 +138,14 @@ def get_data_as_json(metric_name):
 
 @api_datapoint.route("/api/v1/datapoint")
 class DataPoint(MethodView):
+    @api_datapoint.response(DataPointSchema(many=True))
     def get(self):
         """
         Return all of the data for all metrics.
         """
         pass
 
+    @api_datapoint.response(DataPointSchema, code=201)
     def post(self):
         """
         Insert a new datapoint.
