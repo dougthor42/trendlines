@@ -32,6 +32,10 @@ pages = FlaskBlueprint('pages', __name__)
 api_class = Api()
 api = Blueprint("api", __name__,
                 description="All API.")
+api_datapoint = Blueprint("DataPoints", __name__,
+                          description="CRUD datapoint(s)")
+api_metric = Blueprint("Metrics", __name__,
+                       description="CRUD metric(s)")
 
 
 # Make sure all pages show our version.
@@ -132,7 +136,7 @@ def get_data_as_json(metric_name):
     return jsonify(data)
 
 
-@api.route("/api/v1/datapoint")
+@api_datapoint.route("/api/v1/datapoint")
 class DataPoint(MethodView):
     def get(self):
         """
@@ -150,7 +154,7 @@ class DataPoint(MethodView):
         pass
 
 
-@api.route("/api/v1/datapoint/<datapoint_id>")
+@api_datapoint.route("/api/v1/datapoint/<datapoint_id>")
 class DataPointById(MethodView):
     def get(self, datapoint_id):
         """
@@ -185,7 +189,7 @@ class DataPointById(MethodView):
             return "", 204
 
 
-@api.route("/api/v1/metric")
+@api_metric.route("/api/v1/metric")
 class Metric(MethodView):
     def get(self):
         """
@@ -256,7 +260,7 @@ class Metric(MethodView):
         return jsonify(body), 201
 
 
-@api.route("/api/v1/metric/<metric_name>")
+@api_metric.route("/api/v1/metric/<metric_name>")
 class MetricById(MethodView):
     def get(self, metric_name):
         """
