@@ -35,3 +35,10 @@ DEBUG = False
 TESTING = False
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024   # 16MB
 SECRET_KEY = b"change me"
+
+# Flask-Rest-Api / OpenAPI ######################
+OPENAPI_VERSION = '3.0.2'
+OPENAPI_URL_PREFIX = '/api'
+OPENAPI_REDOC_PATH = '/redoc'
+OPENAPI_SWAGGER_UI_PATH = ''
+OPENAPI_SWAGGER_UI_VERSION = '3.19.5'
