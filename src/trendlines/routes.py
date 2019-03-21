@@ -270,6 +270,7 @@ class Metric(MethodView):
 
 @api_metric.route("/api/v1/metric/<metric_name>")
 class MetricById(MethodView):
+    @api_metric.response(MetricSchema)
     def get(self, metric_name):
         """
         Return metric information as JSON
@@ -285,6 +286,7 @@ class MetricById(MethodView):
 
         return jsonify(data)
 
+    @api_metric.response(MetricSchema, code=201)
     def put(self, metric_name):
         """
         Replace a metric with new values.
@@ -357,6 +359,7 @@ class MetricById(MethodView):
 
         return jsonify(rv), 200
 
+    @api_metric.response(MetricSchema)
     def patch(self, metric_name):
         """
         Update the values for a given metric.
@@ -421,6 +424,7 @@ class MetricById(MethodView):
 
         return jsonify(rv), 200
 
+    @api_metric.response(code=204)
     def delete(self, metric_name):
         logger.debug("'api: DELETE '%s'" % metric_name)
 
