@@ -10,6 +10,7 @@ from flask import Blueprint as FlaskBlueprint
 from flask import jsonify
 from flask import render_template as _render_template
 from flask import request
+from flask.views import MethodView
 
 from flask_rest_api import Api
 from flask_rest_api import Blueprint
