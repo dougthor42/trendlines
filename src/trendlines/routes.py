@@ -10,6 +10,7 @@ from flask import Blueprint as FlaskBlueprint
 from flask import jsonify
 from flask import render_template as _render_template
 from flask import request
+from flask.views import MethodView
 
 from flask_rest_api import Api
 from flask_rest_api import Blueprint
@@ -131,63 +132,57 @@ def get_data_as_json(metric_name):
     return jsonify(data)
 
 
-@api.route("/api/v1/datapoint", methods=["GET"])
-def api_get_all_datapoints():
-    """
-    Return all of the data for all metrics.
-    """
-    pass
+@api.route("/api/v1/datapoint")
+class DataPoint(MethodView):
+    def get(self):
+        """
+        Return all of the data for all metrics.
+        """
+        pass
+
+    def post(self):
+        """
+        Insert a new datapoint.
+
+        Note that this is different from the "data" route, which will
+        automatically create a new metric if needed. This route will not do so.
+        """
+        pass
 
 
-@api.route("/api/v1/datapoint", methods=["POST"])
-def api_post_datapoint():
-    """
-    Insert a new datapoint.
+@api.route("/api/v1/datapoint/<datapoint_id>")
+class DataPointById(MethodView):
+    def get(self, datapoint_id):
+        """
+        Return the data for a single datapoint.
+        """
+        pass
 
-    Note that this is different from the "data" route, which will
-    automatically create a new metric if needed. This route will not do so.
-    """
-    pass
+    def put(self, datapoint_id):
+        """
+        Replace a datapoint with new values.
+        """
+        pass
 
+    def patch(self, datapoint_id):
+        """
+        Update parts of a datapoint with new values.
+        """
+        pass
 
-@api.route("/api/v1/datapoint/<datapoint_id>", methods=["GET"])
-def api_get_datapoint(datapoint_id):
-    """
-    Return the data for a single datapoint.
-    """
-    pass
+    def delete(self, datapoint_id):
+        """
+        Delete a datapoint.
+        """
+        logger.debug("'api: DELETE datapoint '%s'" % datapoint_id)
 
-
-@api.route("/api/v1/datapoint/<datapoint_id>", methods=["PUT"])
-def api_put_datapoint(datapoint_id):
-    """
-    Replace a datapoint with new values.
-    """
-    pass
-
-
-@api.route("/api/v1/datapoint/<datapoint_id>", methods=["PATCH"])
-def api_patch_datapoint(datapoint_id):
-    """
-    Update parts of a datapoint with new values.
-    """
-    pass
-
-
-@api.route("/api/v1/datapoint/<datapoint_id>", methods=["DELETE"])
-def api_delete_datapoint(datapoint_id):
-    """
-    Delete a datapoint.
-    """
-    logger.debug("'api: DELETE datapoint '%s'" % datapoint_id)
-
-    try:
-        found = db.DataPoint.get(db.DataPoint.datapoint_id == datapoint_id)
-        found.delete_instance()
-    except DoesNotExist:
-        return ErrorResponse.datapoint_not_found(datapoint_id)
-    else:
-        return "", 204
+        try:
+            found = db.DataPoint.get(db.DataPoint.datapoint_id == datapoint_id)
+            found.delete_instance()
+        except DoesNotExist:
+            return ErrorResponse.datapoint_not_found(datapoint_id)
+        else:
+            return "", 204
 
 
 @api.route("/api/v1/metric", methods=["GET"])
