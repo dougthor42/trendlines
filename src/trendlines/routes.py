@@ -185,20 +185,75 @@ class DataPointById(MethodView):
             return "", 204
 
 
-@api.route("/api/v1/metric", methods=["GET"])
-def api_get_metrics():
-    """
-    Return a list of all metrics in the database.
-    """
-    logger.debug("api: GET all metrics")
-    raw_data = db.get_metrics()
-    if len(raw_data) == 0:
-        # do a thing.
-        return ErrorResponse.no_data()
+@api.route("/api/v1/metric")
+class Metrics(MethodView):
+    def get(self):
+        """
+        Return a list of all metrics in the database.
+        """
+        logger.debug("api: GET all metrics")
+        raw_data = db.get_metrics()
+        if len(raw_data) == 0:
+            # do a thing.
+            return ErrorResponse.no_data()
 
-    data = [model_to_dict(m) for m in raw_data]
+        data = [model_to_dict(m) for m in raw_data]
 
-    return jsonify(data)
+        return jsonify(data)
+
+    def post(self):
+        """
+        Create a new metric.
+
+        Accepts JSON data with the following format:
+
+        .. code-block::json
+           {
+             "name": "your.metric_name.here",
+             "units": string, optional,
+             "upper_limit": {float, optional},
+             "lower_limit": {float, optional},
+           }
+
+        Returns ``201`` on success, ``400`` on malformed JSON data (such as when
+        ``name`` is missing), or ``409`` if the metric already exists.
+
+        See Also
+        --------
+        :func:`routes.get_metric_as_json`
+        :func:`routes.delete_metric`
+        """
+        data = request.get_json()
+
+        try:
+            metric = data['name']
+        except KeyError:
+            return ErrorResponse.missing_required_key('name')
+
+        try:
+            exists = db.Metric.get(db.Metric.name == metric) is not None
+            if exists:
+                return ErrorResponse.metric_already_exists(metric)
+        except DoesNotExist:
+            logger.debug("Metric does not exist. Able to create.")
+
+        units = data.get('units', None)
+        lower_limit = data.get('lower_limit', None)
+        upper_limit = data.get('upper_limit', None)
+
+        new = db.add_metric(metric, units=units, lower_limit=lower_limit,
+                            upper_limit=upper_limit)
+
+        # Our `db.add_metric` fuction doesn't pull the new metric_id, so we
+        # grab that separately.
+        new.metric_id = db.Metric.get(db.Metric.name == new.name).metric_id
+
+        msg = "Added Metric '{}'".format(metric)
+        body = {
+            "message": msg,
+            "metric": model_to_dict(new)
+        }
+        return jsonify(body), 201
 
 
 @api.route("/api/v1/metric/<metric_name>", methods=["GET"])
@@ -218,60 +273,6 @@ def get_metric_as_json(metric_name):
     return jsonify(data)
 
 
-@api.route("/api/v1/metric", methods=["POST"])
-def post_metric():
-    """
-    Create a new metric.
-
-    Accepts JSON data with the following format:
-
-    .. code-block::json
-       {
-         "name": "your.metric_name.here",
-         "units": string, optional,
-         "upper_limit": {float, optional},
-         "lower_limit": {float, optional},
-       }
-
-    Returns ``201`` on success, ``400`` on malformed JSON data (such as when
-    ``name`` is missing), or ``409`` if the metric already exists.
-
-    See Also
-    --------
-    :func:`routes.get_metric_as_json`
-    :func:`routes.delete_metric`
-    """
-    data = request.get_json()
-
-    try:
-        metric = data['name']
-    except KeyError:
-        return ErrorResponse.missing_required_key('name')
-
-    try:
-        exists = db.Metric.get(db.Metric.name == metric) is not None
-        if exists:
-            return ErrorResponse.metric_already_exists(metric)
-    except DoesNotExist:
-        logger.debug("Metric does not exist. Able to create.")
-
-    units = data.get('units', None)
-    lower_limit = data.get('lower_limit', None)
-    upper_limit = data.get('upper_limit', None)
-
-    new = db.add_metric(metric, units=units, lower_limit=lower_limit,
-                        upper_limit=upper_limit)
-
-    # Our `db.add_metric` fuction doesn't pull the new metric_id, so we
-    # grab that separately.
-    new.metric_id = db.Metric.get(db.Metric.name == new.name).metric_id
-
-    msg = "Added Metric '{}'".format(metric)
-    body = {
-        "message": msg,
-        "metric": model_to_dict(new)
-    }
-    return jsonify(body), 201
 
 
 @api.route("/api/v1/metric/<metric_name>", methods=["DELETE"])
