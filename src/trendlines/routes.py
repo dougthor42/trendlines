@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timezone
 from functools import partial
 
+from marshmallow_peewee import ModelSchema
 from flask import Blueprint
 from flask import jsonify
 from flask import render_template as _render_template
@@ -19,6 +20,7 @@ from playhouse.shortcuts import update_model_from_dict
 from trendlines import logger
 from trendlines.__about__ import __version__
 from . import db
+from . import orm
 from .error_responses import ErrorResponse
 from . import utils
 
@@ -28,6 +30,16 @@ api = Blueprint('api', __name__)
 
 # Make sure all pages show our version.
 render_template = partial(_render_template, version=__version__)
+
+
+class MetricSchema(ModelSchema):
+    class Meta:
+        model = orm.Metric
+
+
+class DataPointSchema(ModelSchema):
+    class Meta:
+        model = orm.DataPoint
 
 
 @pages.route('/', methods=['GET'])
