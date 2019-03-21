@@ -40,7 +40,10 @@ def create_app():
 
     logger.debug("Registering blueprints.")
     app.register_blueprint(routes.pages)
-    app.register_blueprint(routes.api)
+
+    # Initialize flask-rest-api for OpenAPI (Swagger) documentation
+    routes.api_class.init_app(app)
+    routes.api_class.register_blueprint(routes.api)
 
     # Create the database file and populate initial tables if needed.
     orm.create_db(app.config['DATABASE'])
