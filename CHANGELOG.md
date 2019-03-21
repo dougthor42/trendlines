@@ -12,6 +12,7 @@
   future API naming conventions. (#123)
 + Added an internal api for datapoints to `db.py`. (#125)
 + The REST api is now viewable via a Swagger (or ReDoc!) web page! (#34)
++ Core API routes have been refactored to use Flask's Pluggable Views. (#128)
 
 
 ## 0.5.0 (2019-02-28)

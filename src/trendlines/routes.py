@@ -186,7 +186,7 @@ class DataPointById(MethodView):
 
 
 @api.route("/api/v1/metric")
-class Metrics(MethodView):
+class Metric(MethodView):
     def get(self):
         """
         Return a list of all metrics in the database.
@@ -256,173 +256,166 @@ class Metrics(MethodView):
         return jsonify(body), 201
 
 
-@api.route("/api/v1/metric/<metric_name>", methods=["GET"])
-def get_metric_as_json(metric_name):
-    """
-    Return metric information as JSON
-    """
-    logger.debug("API: get metric '%s'" % metric_name)
+@api.route("/api/v1/metric/<metric_name>")
+class MetricById(MethodView):
+    def get(self, metric_name):
+        """
+        Return metric information as JSON
+        """
+        logger.debug("API: get metric '%s'" % metric_name)
 
-    try:
-        raw_data = db.Metric.get(db.Metric.name == metric_name)
-    except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric_name)
+        try:
+            raw_data = db.Metric.get(db.Metric.name == metric_name)
+        except DoesNotExist:
+            return ErrorResponse.metric_not_found(metric_name)
 
-    data = model_to_dict(raw_data)
+        data = model_to_dict(raw_data)
 
-    return jsonify(data)
+        return jsonify(data)
 
+    def put(self, metric_name):
+        """
+        Replace a metric with new values.
 
+        This function cannot change the ``metric_id`` value.
 
+        Keys not given are assumed to be ``None``.
 
-@api.route("/api/v1/metric/<metric_name>", methods=["DELETE"])
-def delete_metric(metric_name):
-    logger.debug("'api: DELETE '%s'" % metric_name)
+        Accepts JSON data with the following format:
 
-    try:
-        found = db.Metric.get(db.Metric.name == metric_name)
-        found.delete_instance()
-    except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric_name)
-    else:
-        return "", 204
+        .. code-block::json
+           {
+             "name": "your.metric_name.here",
+             "units": {string, optional},
+             "upper_limit": {float, optional},
+             "lower_limit": {float, optional},
+           }
 
-
-@api.route("/api/v1/metric/<metric_name>", methods=["PUT"])
-def put_metric(metric_name):
-    """
-    Replace a metric with new values.
-
-    This function cannot change the ``metric_id`` value.
-
-    Keys not given are assumed to be ``None``.
-
-    Accepts JSON data with the following format:
-
-    .. code-block::json
-       {
-         "name": "your.metric_name.here",
-         "units": {string, optional},
-         "upper_limit": {float, optional},
-         "lower_limit": {float, optional},
-       }
-
-    Returns
-    -------
-    200 :
-        Success. Returned JSON data has two keys: ``old_value`` and
-        ``new_value``, each containing a full :class:`orm.Metric` object.
-    400 :
-        Malformed JSON data (such as when ``name`` is missing)
-    404 :
-        The requested metric is not found.
-    409 :
-        The metric already exists.
+        Returns
+        -------
+        200 :
+            Success. Returned JSON data has two keys: ``old_value`` and
+            ``new_value``, each containing a full :class:`orm.Metric` object.
+        400 :
+            Malformed JSON data (such as when ``name`` is missing)
+        404 :
+            The requested metric is not found.
+        409 :
+            The metric already exists.
 
 
-    See Also
-    --------
-    :func:`routes.get_metric_as_json`
-    :func:`routes.post_metric`
-    :func:`routes.delete_metric`
-    """
-    data = request.get_json()
+        See Also
+        --------
+        :func:`routes.get_metric_as_json`
+        :func:`routes.post_metric`
+        :func:`routes.delete_metric`
+        """
+        data = request.get_json()
 
-    # First see if our item actually exists
-    try:
-        metric = db.Metric.get(db.Metric.name == metric_name)
-        old = model_to_dict(metric)
-    except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric_name)
+        # First see if our item actually exists
+        try:
+            metric = db.Metric.get(db.Metric.name == metric_name)
+            old = model_to_dict(metric)
+        except DoesNotExist:
+            return ErrorResponse.metric_not_found(metric_name)
 
-    # Parse our json.
-    try:
-        name = data['name']
-    except KeyError:
-        return ErrorResponse.missing_required_key('name')
+        # Parse our json.
+        try:
+            name = data['name']
+        except KeyError:
+            return ErrorResponse.missing_required_key('name')
 
-    # Update fields with new values, assuming None if missing.
-    for k in old.keys():
-        setattr(metric, k, data.get(k, None))
+        # Update fields with new values, assuming None if missing.
+        for k in old.keys():
+            setattr(metric, k, data.get(k, None))
 
-    # We need to manually set the primary key because our little setattr
-    # hack above doesn't seem to work. We need to set the PK in general so
-    # that peewee's `save` method performs an UPDATE instead of INSERT.
-    metric.metric_id = old['metric_id']
+        # We need to manually set the primary key because our little setattr
+        # hack above doesn't seem to work. We need to set the PK in general so
+        # that peewee's `save` method performs an UPDATE instead of INSERT.
+        metric.metric_id = old['metric_id']
 
-    try:
-        metric.save()
+        try:
+            metric.save()
+            new = model_to_dict(metric)
+        except IntegrityError:
+            # Failed the unique constraint on Metric.name
+            return ErrorResponse.unique_metric_name_required(old['name'], name)
+
+        rv = {"old_value": old, "new_value": new}
+
+        return jsonify(rv), 200
+
+    def patch(self, metric_name):
+        """
+        Update the values for a given metric.
+
+        This cannot change the ``metric_id`` value.
+
+        Accepts JSON data with the following format:
+
+        .. code-block::json
+           {
+             "name": {string, optional},
+             "units": {string, optional},
+             "upper_limit": {float, optional},
+             "lower_limit": {float, optional}
+           }
+
+        Returns
+        -------
+        200 :
+            Success. Returned JSON data has two keys: ``old_value`` and
+            ``new_value``, each containing only the values of the
+            :class:`orm.Metric` object *that were requested to be changed*.
+        404 :
+            The requested metric is not found.
+        409 :
+            The target metric name already exists.
+
+        See Also
+        --------
+        :func:`routes.get_metric_as_json`
+        :func:`routes.post_metric`
+        :func:`routes.delete_metric`
+        :func:`routes.put_metric`
+        """
+        # XXX: This is essentially the same code as `put`... Gotta refactor ASAP
+        data = request.get_json()
+
+        # First see if our item actually exists
+        try:
+            metric = db.Metric.get(db.Metric.name == metric_name)
+            old = model_to_dict(metric)
+        except DoesNotExist:
+            return ErrorResponse.metric_not_found(metric_name)
+
+        metric = update_model_from_dict(metric, data)
+
+        try:
+            metric.save()
+        except IntegrityError:
+            # Failed the unique constraint on Metric.name
+            return ErrorResponse.unique_metric_name_required(old['name'], metric.name)
+
         new = model_to_dict(metric)
-    except IntegrityError:
-        # Failed the unique constraint on Metric.name
-        return ErrorResponse.unique_metric_name_required(old['name'], name)
 
-    rv = {"old_value": old, "new_value": new}
+        # Only return the values that were requested to be changed (even if they
+        # did not change).
+        # This seems like a silly way to do it. Is there a better way?
+        rv = {'old_value': {}, 'new_value': {}}
+        for item in data.keys():
+            rv['old_value'][item] = old[item]
+            rv['new_value'][item] = new[item]
 
-    return jsonify(rv), 200
+        return jsonify(rv), 200
 
+    def delete(self, metric_name):
+        logger.debug("'api: DELETE '%s'" % metric_name)
 
-@api.route("/api/v1/metric/<metric_name>", methods=["PATCH"])
-def patch_metric(metric_name):
-    """
-    Update the values for a given metric.
-
-    This cannot change the ``metric_id`` value.
-
-    Accepts JSON data with the following format:
-
-    .. code-block::json
-       {
-         "name": {string, optional},
-         "units": {string, optional},
-         "upper_limit": {float, optional},
-         "lower_limit": {float, optional}
-       }
-
-    Returns
-    -------
-    200 :
-        Success. Returned JSON data has two keys: ``old_value`` and
-        ``new_value``, each containing only the values of the
-        :class:`orm.Metric` object *that were requested to be changed*.
-    404 :
-        The requested metric is not found.
-    409 :
-        The target metric name already exists.
-
-    See Also
-    --------
-    :func:`routes.get_metric_as_json`
-    :func:`routes.post_metric`
-    :func:`routes.delete_metric`
-    :func:`routes.put_metric`
-    """
-    # XXX: This is essentially the same code as `put`... Gotta refactor ASAP
-    data = request.get_json()
-
-    # First see if our item actually exists
-    try:
-        metric = db.Metric.get(db.Metric.name == metric_name)
-        old = model_to_dict(metric)
-    except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric_name)
-
-    metric = update_model_from_dict(metric, data)
-
-    try:
-        metric.save()
-    except IntegrityError:
-        # Failed the unique constraint on Metric.name
-        return ErrorResponse.unique_metric_name_required(old['name'], metric.name)
-
-    new = model_to_dict(metric)
-
-    # Only return the values that were requested to be changed (even if they
-    # did not change).
-    # This seems like a silly way to do it. Is there a better way?
-    rv = {'old_value': {}, 'new_value': {}}
-    for item in data.keys():
-        rv['old_value'][item] = old[item]
-        rv['new_value'][item] = new[item]
-
-    return jsonify(rv), 200
+        try:
+            found = db.Metric.get(db.Metric.name == metric_name)
+            found.delete_instance()
+        except DoesNotExist:
+            return ErrorResponse.metric_not_found(metric_name)
+        else:
+            return "", 204
