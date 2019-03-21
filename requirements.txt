@@ -4,3 +4,5 @@ requests==2.21.0
 celery[redis]==4.2.1
 peewee-moves==2.0.1
 loguru==0.2.5
+marshmallow-peewee==2.2.0
+flask-rest-api==0.14.0
