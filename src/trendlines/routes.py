@@ -34,6 +34,8 @@ api = Blueprint("api", __name__,
                 description="All API.")
 api_datapoint = Blueprint("DataPoints", __name__,
                           description="CRUD datapoint(s)")
+api_metric = Blueprint("Metrics", __name__,
+                       description="CRUD metric(s)")
 
 
 # Make sure all pages show our version.
@@ -187,7 +189,7 @@ class DataPointById(MethodView):
             return "", 204
 
 
-@api.route("/api/v1/metric")
+@api_metric.route("/api/v1/metric")
 class Metric(MethodView):
     def get(self):
         """
@@ -258,7 +260,7 @@ class Metric(MethodView):
         return jsonify(body), 201
 
 
-@api.route("/api/v1/metric/<metric_name>")
+@api_metric.route("/api/v1/metric/<metric_name>")
 class MetricById(MethodView):
     def get(self, metric_name):
         """

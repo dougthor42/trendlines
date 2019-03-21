@@ -45,6 +45,7 @@ def create_app():
     routes.api_class.init_app(app)
     routes.api_class.register_blueprint(routes.api)
     routes.api_class.register_blueprint(routes.api_datapoint)
+    routes.api_class.register_blueprint(routes.api_metric)
 
     # Create the database file and populate initial tables if needed.
     orm.create_db(app.config['DATABASE'])
