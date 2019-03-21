@@ -158,24 +158,28 @@ class DataPoint(MethodView):
 
 @api_datapoint.route("/api/v1/datapoint/<datapoint_id>")
 class DataPointById(MethodView):
+    @api_datapoint.response(DataPointSchema)
     def get(self, datapoint_id):
         """
         Return the data for a single datapoint.
         """
         pass
 
+    @api_datapoint.response(DataPointSchema, code=201)
     def put(self, datapoint_id):
         """
         Replace a datapoint with new values.
         """
         pass
 
+    @api_datapoint.response(DataPointSchema)
     def patch(self, datapoint_id):
         """
         Update parts of a datapoint with new values.
         """
         pass
 
+    @api_datapoint.response(code=204)
     def delete(self, datapoint_id):
         """
         Delete a datapoint.
