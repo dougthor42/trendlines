@@ -132,23 +132,22 @@ def get_data_as_json(metric_name):
     return jsonify(data)
 
 
-@api.route("/api/v1/datapoint", methods=["GET"])
-def api_get_all_datapoints():
-    """
-    Return all of the data for all metrics.
-    """
-    pass
+@api.route("/api/v1/datapoint")
+class DataPoint(MethodView):
+    def get(self):
+        """
+        Return all of the data for all metrics.
+        """
+        pass
 
+    def post(self):
+        """
+        Insert a new datapoint.
 
-@api.route("/api/v1/datapoint", methods=["POST"])
-def api_post_datapoint():
-    """
-    Insert a new datapoint.
-
-    Note that this is different from the "data" route, which will
-    automatically create a new metric if needed. This route will not do so.
-    """
-    pass
+        Note that this is different from the "data" route, which will
+        automatically create a new metric if needed. This route will not do so.
+        """
+        pass
 
 
 @api.route("/api/v1/datapoint/<datapoint_id>")
