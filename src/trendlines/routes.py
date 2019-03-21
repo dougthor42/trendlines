@@ -197,6 +197,7 @@ class DataPointById(MethodView):
 
 @api_metric.route("/api/v1/metric")
 class Metric(MethodView):
+    @api_metric.response(MetricSchema(many=True))
     def get(self):
         """
         Return a list of all metrics in the database.
@@ -211,6 +212,7 @@ class Metric(MethodView):
 
         return jsonify(data)
 
+    @api_metric.response(MetricSchema, code=201)
     def post(self):
         """
         Create a new metric.
