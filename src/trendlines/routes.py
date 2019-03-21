@@ -6,10 +6,13 @@ from datetime import timezone
 from functools import partial
 
 from marshmallow_peewee import ModelSchema
-from flask import Blueprint
+from flask import Blueprint as FlaskBlueprint
 from flask import jsonify
 from flask import render_template as _render_template
 from flask import request
+
+from flask_rest_api import Api
+from flask_rest_api import Blueprint
 
 # peewee
 from peewee import DoesNotExist
@@ -24,19 +27,23 @@ from . import orm
 from .error_responses import ErrorResponse
 from . import utils
 
-pages = Blueprint('pages', __name__)
-api = Blueprint('api', __name__)
+pages = FlaskBlueprint('pages', __name__)
+api_class = Api()
+api = Blueprint("api", __name__,
+                description="All API.")
 
 
 # Make sure all pages show our version.
 render_template = partial(_render_template, version=__version__)
 
 
+@api_class.definition("Metrics")
 class MetricSchema(ModelSchema):
     class Meta:
         model = orm.Metric
 
 
+@api_class.definition("DataPoints")
 class DataPointSchema(ModelSchema):
     class Meta:
         model = orm.DataPoint
