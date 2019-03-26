@@ -8,6 +8,7 @@ from datetime import timezone
 import pytest
 from freezegun import freeze_time
 from peewee import DoesNotExist
+from peewee import IntegrityError
 
 from trendlines import db
 from trendlines import orm
@@ -172,6 +173,24 @@ def test_get_datapoint_not_found(populated_db, caplog):
         db.get_datapoint(999)
 
 
+def test_update_datapoint_metric_by_id(app, populated_db, caplog):
+    original = deepcopy(db.get_datapoint(1))
+
+    db.update_datapoint(1, metric=4)
+    new = db.get_datapoint(1)
+    assert new.datapoint_id == original.datapoint_id
+    assert new.metric != original.metric
+    assert new.metric.metric_id == 4
+    assert new.value == original.value
+    assert new.timestamp == original.timestamp
+    assert "Updating datapoint" in caplog.text
+
+
+def test_update_datapoint_metric_by_id_metric_not_found(app, populated_db):
+    with pytest.raises(IntegrityError):
+        db.update_datapoint(1, metric=99)
+
+
 @pytest.mark.parametrize("val", [
     99,
     123,
@@ -183,8 +202,9 @@ def test_update_datapoint_value_by_id(populated_db, val, caplog):
     original = deepcopy(db.get_datapoint(1))
 
     rv = db.update_datapoint(1, value=val)
-    assert rv is None
+    assert isinstance(rv, db.DataPoint)
     new = db.get_datapoint(1)
+    assert rv == new
     assert new.datapoint_id == original.datapoint_id
     assert new.value == val
     assert new.timestamp == original.timestamp
@@ -220,10 +240,11 @@ def test_update_datapoint_timestamp_by_id(populated_db, dt, expected, caplog):
 
     # Update the value
     rv = db.update_datapoint(1, timestamp=dt)
-    assert rv is None
+    assert isinstance(rv, db.DataPoint)
 
     # Verify the new value
     new = db.get_datapoint(1)
+    assert rv == new
     assert new.datapoint_id == original.datapoint_id
     assert new.value == original.value
     assert isinstance(new.timestamp, datetime)
