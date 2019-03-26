@@ -145,7 +145,19 @@ class DataPoint(MethodView):
         """
         Return all of the data for all metrics.
         """
-        pass
+        logger.debug("api: GET all datapoints")
+        raw_data = db.get_datapoints()
+        if len(raw_data) == 0:
+            # do a thing.
+            return ErrorResponse.no_data()
+
+        data = [model_to_dict(m) for m in raw_data]
+
+        # For now, fill in dummy values.
+        return jsonify({"count": len(data),
+                        "prev": None,
+                        "next": None,
+                        "results": data})
 
     @api_datapoint.response(DataPointSchema, code=201)
     def post(self):
@@ -155,7 +167,26 @@ class DataPoint(MethodView):
         Note that this is different from the "data" route, which will
         automatically create a new metric if needed. This route will not do so.
         """
-        pass
+        data = request.get_json()
+
+        # Verify all required keys exist
+        required = ['metric_id', 'value']
+        try:
+            metric_id = data['metric_id']
+            value = data['value']
+        except KeyError:
+            return ErrorResponse.missing_required_key(required)
+
+        timestamp = data.get('timestamp', None)
+
+        try:
+            metric = db.Metric.get(db.Metric.metric_id == metric_id)
+        except db.Metric.DoesNotExist:
+            return ErrorResponse.metric_not_found(metric_id)
+
+        new = db.insert_datapoint(metric.name, value, timestamp)
+
+        return jsonify(model_to_dict(new)), 201
 
 
 @api_datapoint.route("/api/v1/datapoint/<datapoint_id>")
@@ -165,21 +196,58 @@ class DataPointById(MethodView):
         """
         Return the data for a single datapoint.
         """
-        pass
+        logger.debug("api: GET datapoint by ID")
+        try:
+            raw_data = db.get_datapoint(datapoint_id)
+        except DoesNotExist:
+            return ErrorResponse.datapoint_not_found(datapoint_id)
 
-    @api_datapoint.response(DataPointSchema, code=201)
+        data = model_to_dict(raw_data)
+        return jsonify(data)
+
+    @api_datapoint.response(code=201)
     def put(self, datapoint_id):
         """
         Replace a datapoint with new values.
         """
-        pass
+        data = request.get_json()
 
-    @api_datapoint.response(DataPointSchema)
+        # Parse our json.
+        try:
+            metric_id = data['metric_id']
+            value = data['value']
+        except KeyError:
+            return ErrorResponse.missing_required_key(['metric_id', 'value'])
+
+        timestamp = data.get('timestamp', None)
+
+        try:
+            datapoint = db.update_datapoint(datapoint_id,
+                                            metric_id,
+                                            value,
+                                            timestamp)
+        except db.DataPoint.DoesNotExist:
+            return ErrorResponse.datapoint_not_found(datapoint_id)
+        except db.Metric.DoesNotExist:
+            return ErrorResponse.metric_not_found(metric_id)
+
+    @api_datapoint.response(code=204)
     def patch(self, datapoint_id):
         """
         Update parts of a datapoint with new values.
         """
-        pass
+        data = request.get_json()
+
+        metric = data.get('metric_id', None)
+        value = data.get('value', None)
+        timestamp = data.get('timestamp', None)
+
+        try:
+            db.update_datapoint(datapoint_id, metric, value, timestamp)
+        except db.DataPoint.DoesNotExist:
+            return ErrorResponse.datapoint_not_found(datapoint_id)
+        except db.Metric.DoesNotExist:
+            return ErrorResponse.metric_not_found(metric)
 
     @api_datapoint.response(code=204)
     def delete(self, datapoint_id):
