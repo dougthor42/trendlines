@@ -62,7 +62,10 @@ class ErrorResponse(object):
 
     @classmethod
     def missing_required_key(cls, key):
-        detail = "Missing required key 'name'"
+        if isinstance(key, (list, tuple)):
+            detail = "Missing one of required keys: {}".format(key)
+        else:
+            detail = "Missing required key '{}'".format(key)
         return error_response(400, ErrorResponseType.INVALID_REQUEST, detail)
 
 
