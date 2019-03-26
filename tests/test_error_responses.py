@@ -84,6 +84,7 @@ def test_rfc_error_response_content_type(rfc_object):
     (ErrorResponse.metric_already_exists, ("foo", )),
     (ErrorResponse.unique_metric_name_required, ("foo", "bar")),
     (ErrorResponse.missing_required_key, ("foo", )),
+    (ErrorResponse.missing_required_key, (["foo", "bar"], )),
     (ErrorResponse.no_data, None),
 ])
 def test_error_response_class_methods(app_context, caplog, method, args):
