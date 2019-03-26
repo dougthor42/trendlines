@@ -141,7 +141,7 @@ Add the following services to your ``docker-compose.yml``:
    celery:
      image: dougthor42/trendlines:latest
      ports:
-       - "2003:9999"
+       - "2003:2003"
      volumes:
        # should be the same as what's in the 'trendlines' service
        - type: bind
