@@ -25,7 +25,7 @@ services:
   celery:
     image: dougthor42/trendlines:latest
     ports:
-      - "9999:9999"
+      - "2003:2003"
     volumes:
       # This should be the same as what's in the 'trendlines' service.
       - type: bind

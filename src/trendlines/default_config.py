@@ -27,8 +27,8 @@ broker_url = "redis://redis"
 # Socket stuff.
 TARGET_HOST = "0.0.0.0"
 TRENDLINES_API_URL = "http://trendlines/api/v1/data"
-TCP_PORT = 9999
-UDP_PORT = 9999
+TCP_PORT = 2003
+UDP_PORT = 2003
 
 # Flask Builtins ################################
 DEBUG = False

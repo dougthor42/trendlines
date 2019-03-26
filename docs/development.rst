@@ -33,7 +33,7 @@ From a 4th shell, send data using the plaintext protocol:
 
 .. code-block:: shell
 
-   echo "metric.name 12.345 `date +%s`" | nc localhost 9999
+   echo "metric.name 12.345 `date +%s`" | nc localhost 2003
 
 And view the data by opening ``http://localhost:5000`` in your browser.
 
@@ -56,7 +56,7 @@ Send data in
 
 .. code-block:: shell
 
-   echo "metric.name 12.345 `date +%s`" | nc localhost 9999
+   echo "metric.name 12.345 `date +%s`" | nc localhost 2003
 
 And view the data by opening ``http://localhost:5000`` in your browser.
 

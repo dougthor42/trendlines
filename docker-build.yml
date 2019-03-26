@@ -32,7 +32,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     ports:
-      - "9999:9999"
+      - "2003:2003"
     volumes:
       - type: bind
         # Host location. This can be anywhere on your file system.
