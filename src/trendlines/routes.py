@@ -269,26 +269,26 @@ class Metric(MethodView):
         return jsonify(model_to_dict(new)), 201
 
 
-@api_metric.route("/api/v1/metric/<metric_name>")
+@api_metric.route("/api/v1/metric/<metric_id>")
 class MetricById(MethodView):
     @api_metric.response(MetricSchema)
-    def get(self, metric_name):
+    def get(self, metric_id):
         """
         Return metric information as JSON
         """
-        logger.debug("API: get metric '%s'" % metric_name)
+        logger.debug("API: get metric '%s'" % metric_id)
 
         try:
-            raw_data = db.Metric.get(db.Metric.name == metric_name)
+            raw_data = db.Metric.get(db.Metric.metric_id == metric_id)
         except DoesNotExist:
-            return ErrorResponse.metric_not_found(metric_name)
+            return ErrorResponse.metric_not_found(metric_id)
 
         data = model_to_dict(raw_data)
 
         return jsonify(data)
 
-    @api_metric.response(MetricSchema, code=201)
-    def put(self, metric_name):
+    @api_metric.response(MetricSchema, code=204)
+    def put(self, metric_id):
         """
         Replace a metric with new values.
 
@@ -308,9 +308,8 @@ class MetricById(MethodView):
 
         Returns
         -------
-        200 :
-            Success. Returned JSON data has two keys: ``old_value`` and
-            ``new_value``, each containing a full :class:`orm.Metric` object.
+        204 :
+            Success.
         400 :
             Malformed JSON data (such as when ``name`` is missing)
         404 :
@@ -329,10 +328,10 @@ class MetricById(MethodView):
 
         # First see if our item actually exists
         try:
-            metric = db.Metric.get(db.Metric.name == metric_name)
+            metric = db.Metric.get(db.Metric.metric_id == metric_id)
             old = model_to_dict(metric)
         except DoesNotExist:
-            return ErrorResponse.metric_not_found(metric_name)
+            return ErrorResponse.metric_not_found(metric_id)
 
         # Parse our json.
         try:
@@ -351,17 +350,14 @@ class MetricById(MethodView):
 
         try:
             metric.save()
-            new = model_to_dict(metric)
         except IntegrityError:
             # Failed the unique constraint on Metric.name
             return ErrorResponse.unique_metric_name_required(old['name'], name)
 
-        rv = {"old_value": old, "new_value": new}
+        return 204
 
-        return jsonify(rv), 200
-
-    @api_metric.response(MetricSchema)
-    def patch(self, metric_name):
+    @api_metric.response(code=204)
+    def patch(self, metric_id):
         """
         Update the values for a given metric.
 
@@ -400,10 +396,10 @@ class MetricById(MethodView):
 
         # First see if our item actually exists
         try:
-            metric = db.Metric.get(db.Metric.name == metric_name)
+            metric = db.Metric.get(db.Metric.metric_id == metric_id)
             old = model_to_dict(metric)
         except DoesNotExist:
-            return ErrorResponse.metric_not_found(metric_name)
+            return ErrorResponse.metric_not_found(metric_id)
 
         metric = update_model_from_dict(metric, data)
 
@@ -413,26 +409,14 @@ class MetricById(MethodView):
             # Failed the unique constraint on Metric.name
             return ErrorResponse.unique_metric_name_required(old['name'], metric.name)
 
-        new = model_to_dict(metric)
-
-        # Only return the values that were requested to be changed (even if they
-        # did not change).
-        # This seems like a silly way to do it. Is there a better way?
-        rv = {'old_value': {}, 'new_value': {}}
-        for item in data.keys():
-            rv['old_value'][item] = old[item]
-            rv['new_value'][item] = new[item]
-
-        return jsonify(rv), 200
+        return 204
 
     @api_metric.response(code=204)
-    def delete(self, metric_name):
-        logger.debug("'api: DELETE '%s'" % metric_name)
+    def delete(self, metric_id):
+        logger.debug("'api: DELETE '%s'" % metric_id)
 
         try:
-            found = db.Metric.get(db.Metric.name == metric_name)
+            found = db.Metric.get(db.Metric.metric_id == metric_id)
             found.delete_instance()
         except DoesNotExist:
-            return ErrorResponse.metric_not_found(metric_name)
-        else:
-            return "", 204
+            return ErrorResponse.metric_not_found(metric_id)
