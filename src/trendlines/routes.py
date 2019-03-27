@@ -85,55 +85,57 @@ def plot(metric=None):
     return render_template('trendlines/plot.html', name=metric, data=data)
 
 
-@api.route("/api/v1/data", methods=['POST'])
-def post_datapoint():
-    """
-    Add a new value and possibly a metric if needed.
+@api.route("/api/v1/data")
+class Data(MethodView):
+    def post(self):
+        """
+        Add a new value and possibly a metric if needed.
 
-    Expected JSON payload has the following key/value pairs::
+        Expected JSON payload has the following key/value pairs::
 
-      metric: string
-      value: numeric
-      time: integer or missing
-    """
-    data = request.get_json()
-    logger.debug("Received POST /api/v1/data: {}".format(data))
+          metric: string
+          value: numeric
+          time: integer or missing
+        """
+        data = request.get_json()
+        logger.debug("Received POST /api/v1/data: {}".format(data))
 
-    try:
-        metric = data['metric']
-        value = data['value']
-    except KeyError:
-        logger.warning("Missing JSON keys 'metric' or 'value'.")
-        return "Missing required key. Required keys are:", 400
+        try:
+            metric = data['metric']
+            value = data['value']
+        except KeyError:
+            logger.warning("Missing JSON keys 'metric' or 'value'.")
+            return "Missing required key. Required keys are:", 400
 
-    time = data.get('time', None)
+        time = data.get('time', None)
 
-    db.add_metric(metric)
-    new = db.insert_datapoint(metric, value, time)
+        db.add_metric(metric)
+        new = db.insert_datapoint(metric, value, time)
 
-    msg = "Added DataPoint to Metric {}\n".format(new.metric)
-    logger.info("Added value %s to metric '%s'" % (value, metric))
-    return msg, 201
+        msg = "Added DataPoint to Metric {}\n".format(new.metric)
+        logger.info("Added value %s to metric '%s'" % (value, metric))
+        return msg, 201
 
 
-@api.route("/api/v1/data/<metric_name>", methods=["GET"])
-def get_data_as_json(metric_name):
-    """
-    Return data for a given metric as JSON.
-    """
-    logger.debug("API: get '%s'" % metric_name)
-    try:
-        raw_data = db.get_data(metric_name)
-        units = db.get_units(metric_name)
-    except DoesNotExist:
-        return ErrorResponse.metric_not_found(metric_name)
+@api.route("/api/v1/data/<metric_name>")
+class DataByName(MethodView):
+    def get(self, metric_name):
+        """
+        Return data for a given metric as JSON.
+        """
+        logger.debug("API: get '%s'" % metric_name)
+        try:
+            raw_data = db.get_data(metric_name)
+            units = db.get_units(metric_name)
+        except DoesNotExist:
+            return ErrorResponse.metric_not_found(metric_name)
 
-    if len(raw_data) == 0:
-        return ErrorResponse.metric_has_no_data(metric_name)
+        if len(raw_data) == 0:
+            return ErrorResponse.metric_has_no_data(metric_name)
 
-    data = utils.format_data(raw_data, units)
+        data = utils.format_data(raw_data, units)
 
-    return jsonify(data)
+        return jsonify(data)
 
 
 @api_datapoint.route("/api/v1/datapoint")

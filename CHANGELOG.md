@@ -17,6 +17,7 @@
 + Replaced all instances of port 9999 with port 2003. (#104)
 + The `missing_required_key` error response now accepts lists or tuples.
   (#137)
++ The `/data` API routes have been moved to a MethodView class. (#138)
 
 
 ## 0.5.0 (2019-02-28)
