@@ -113,18 +113,18 @@ def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
 
 def test_api_delete_datapoint(client, populated_db):
     datapoint_id = 6
-    rv = client.delete("/api/v1/datapoint/{}".format(datapoint_id))
+    rv = client.delete(datapoint_url(datapoint_id))
     assert rv.status_code == 204
 
     # Verify it's actually been deleted
     # TODO: needs the datapoint GET route
-    #  after = client.get("/api/v1/datapoint/{}".format(datapoint_id))
+    #  after = client.get(datapoint_url(datapoint_id))
     #  assert after.status_code == 404
 
 
 def test_api_delete_datapoint_not_found(client, populated_db, caplog):
     datapoint_id = 103132
-    rv = client.delete("/api/v1/datapoint/{}".format(datapoint_id))
+    rv = client.delete(datapoint_url(datapoint_id))
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
