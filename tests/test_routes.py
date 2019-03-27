@@ -155,10 +155,9 @@ def test_api_post_metric(client, populated_db):
     assert rv.status_code == 201
     assert rv.is_json
     d = rv.get_json()
-    assert metric in d['message']
-    assert d['metric']['name'] == metric
-    assert d['metric']['lower_limit'] == lower_limit
-    assert d['metric']['metric_id'] == 7
+    assert d['name'] == metric
+    assert d['lower_limit'] == lower_limit
+    assert d['metric_id'] == 7
 
 
 def test_api_post_metric_already_exists(client, populated_db):
@@ -346,9 +345,13 @@ def test_api_get_metrics(client, populated_db):
     assert rv.status_code == 200
     assert rv.is_json
     d = rv.get_json()
-    assert len(d) == 6
-    assert "metric_id" in d[0].keys()
-    assert d[0]['name'] == "empty_metric"
+    assert 'count' in d.keys()
+    assert 'next' in d.keys()
+    assert 'prev' in d.keys()
+    results = d['results']
+    assert len(results) == 6
+    assert "metric_id" in results[0].keys()
+    assert results[0]['name'] == "empty_metric"
 
 
 def test_api_get_metrics_no_data(client):

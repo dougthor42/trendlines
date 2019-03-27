@@ -212,7 +212,11 @@ class Metric(MethodView):
 
         data = [model_to_dict(m) for m in raw_data]
 
-        return jsonify(data)
+        # For now, fill in dummy values.
+        return jsonify({"count": len(data),
+                        "prev": None,
+                        "next": None,
+                        "results": data})
 
     @api_metric.response(MetricSchema, code=201)
     def post(self):
@@ -262,12 +266,7 @@ class Metric(MethodView):
         # grab that separately.
         new.metric_id = db.Metric.get(db.Metric.name == new.name).metric_id
 
-        msg = "Added Metric '{}'".format(metric)
-        body = {
-            "message": msg,
-            "metric": model_to_dict(new)
-        }
-        return jsonify(body), 201
+        return jsonify(model_to_dict(new)), 201
 
 
 @api_metric.route("/api/v1/metric/<metric_name>")
