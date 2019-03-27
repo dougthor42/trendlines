@@ -18,6 +18,10 @@
 + The `missing_required_key` error response now accepts lists or tuples.
   (#137)
 + The `/data` API routes have been moved to a MethodView class. (#138)
++ **BREAKING** The api has been refactored to be more consistent. Public API
+  on core schemas (`Metric`, `DataPoint`) will only accept internal IDs and
+  no longer accept strings for metric identification. See the docs for
+  additional details. (#140)
 
 
 ## 0.5.0 (2019-02-28)
