@@ -6,6 +6,40 @@ import pytest
 from trendlines import routes
 
 
+API_BASE = "/api/v1"
+
+def metric_url(metric_id=None):
+    """
+    Helper to generate the metric url with ID.
+
+    Examples
+    --------
+    >>> metric_url()
+    "/api/v1/metric"
+    >>> metric_url(5)
+    "/api/v1/metric/5"
+    """
+    if metric_id is not None:
+        return API_BASE + "/metric/{}".format(metric_id)
+    return API_BASE + "/metric"
+
+
+def datapoint_url(datapoint_id=None):
+    """
+    Helper to generate the metric url with ID.
+
+    Examples
+    --------
+    >>> datapoint_url()
+    "/api/v1/datapoint"
+    >>> datapoint_url(5)
+    "/api/v1/datapoint/5"
+    """
+    if datapoint_id is not None:
+        return API_BASE + "/datapoint/{}".format(datapoint_id)
+    return API_BASE + "/datapoint"
+
+
 def test_index(client):
     rv = client.get('/')
     assert rv.status_code == 200
