@@ -6,6 +6,40 @@ import pytest
 from trendlines import routes
 
 
+API_BASE = "/api/v1"
+
+def metric_url(metric_id=None):
+    """
+    Helper to generate the metric url with ID.
+
+    Examples
+    --------
+    >>> metric_url()
+    "/api/v1/metric"
+    >>> metric_url(5)
+    "/api/v1/metric/5"
+    """
+    if metric_id is not None:
+        return API_BASE + "/metric/{}".format(metric_id)
+    return API_BASE + "/metric"
+
+
+def datapoint_url(datapoint_id=None):
+    """
+    Helper to generate the metric url with ID.
+
+    Examples
+    --------
+    >>> datapoint_url()
+    "/api/v1/datapoint"
+    >>> datapoint_url(5)
+    "/api/v1/datapoint/5"
+    """
+    if datapoint_id is not None:
+        return API_BASE + "/datapoint/{}".format(datapoint_id)
+    return API_BASE + "/datapoint"
+
+
 def test_index(client):
     rv = client.get('/')
     assert rv.status_code == 200
@@ -79,18 +113,18 @@ def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
 
 def test_api_delete_datapoint(client, populated_db):
     datapoint_id = 6
-    rv = client.delete("/api/v1/datapoint/{}".format(datapoint_id))
+    rv = client.delete(datapoint_url(datapoint_id))
     assert rv.status_code == 204
 
     # Verify it's actually been deleted
     # TODO: needs the datapoint GET route
-    #  after = client.get("/api/v1/datapoint/{}".format(datapoint_id))
+    #  after = client.get(datapoint_url(datapoint_id))
     #  assert after.status_code == 404
 
 
 def test_api_delete_datapoint_not_found(client, populated_db, caplog):
     datapoint_id = 103132
-    rv = client.delete("/api/v1/datapoint/{}".format(datapoint_id))
+    rv = client.delete(datapoint_url(datapoint_id))
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
@@ -100,7 +134,7 @@ def test_api_delete_datapoint_not_found(client, populated_db, caplog):
 
 
 def test_api_get_metric_as_json(client, populated_db, caplog):
-    rv = client.get("/api/v1/metric/2")
+    rv = client.get(metric_url(2))
     assert rv.status_code == 200
     assert rv.is_json
     d = rv.get_json()
@@ -111,7 +145,7 @@ def test_api_get_metric_as_json(client, populated_db, caplog):
 
 def test_api_get_metric_as_json_not_found(client, populated_db, caplog):
     metric_id = 99
-    rv = client.get("/api/v1/metric/{}".format(metric_id))
+    rv = client.get(metric_url(metric_id))
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
@@ -122,17 +156,17 @@ def test_api_get_metric_as_json_not_found(client, populated_db, caplog):
 
 def test_api_delete_metric(client, populated_db):
     metric = 3
-    rv = client.delete("/api/v1/metric/{}".format(metric))
+    rv = client.delete(metric_url(metric))
     assert rv.status_code == 204
 
     # Verify it's actually been deleted
-    after = client.get("/api/v1/metric/{}".format(metric))
+    after = client.get(metric_url(metric))
     assert after.status_code == 404
 
 
 def test_api_delete_metric_not_found(client, populated_db, caplog):
     metric_id = 99
-    rv = client.delete("/api/v1/metric/{}".format(metric_id))
+    rv = client.delete(metric_url(metric_id))
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
@@ -151,7 +185,7 @@ def test_api_post_metric(client, populated_db):
             "upper_limit": upper_limit,
             "lower_limit": lower_limit,
             }
-    rv = client.post("/api/v1/metric", json=data)
+    rv = client.post(metric_url(), json=data)
     assert rv.status_code == 201
     assert rv.is_json
     d = rv.get_json()
@@ -163,7 +197,7 @@ def test_api_post_metric(client, populated_db):
 def test_api_post_metric_already_exists(client, populated_db):
     metric = "foo.bar"
     data = {"name": metric}
-    rv = client.post("/api/v1/metric", json=data)
+    rv = client.post(metric_url(), json=data)
     assert rv.status_code == 409
     assert rv.is_json
     d = rv.get_json()
@@ -172,7 +206,7 @@ def test_api_post_metric_already_exists(client, populated_db):
 
 def test_api_post_metric_missing_key(client, populated_db):
     data = {"units": "percent"}
-    rv = client.post("/api/v1/metric", json=data)
+    rv = client.post(metric_url(), json=data)
     assert rv.status_code == 400
     assert rv.is_json
     d = rv.get_json()
@@ -187,7 +221,7 @@ def test_api_put_metric(client, populated_db):
         "upper_limit": 100,
         "lower_limit": 0,
     }
-    rv = client.put("/api/v1/metric/{}".format(metric_id), json=data)
+    rv = client.put(metric_url(metric_id), json=data)
     assert rv.status_code == 204
     assert rv.data == b""
 
@@ -195,7 +229,7 @@ def test_api_put_metric(client, populated_db):
 def test_api_put_metric_sets_other_values_to_none(client, populated_db):
     metric_id = 6   # "with_everything"
 
-    original = client.get("/api/v1/metric/{}".format(metric_id))
+    original = client.get(metric_url(metric_id))
     assert original.status_code == 200
     original = original.get_json()
     assert original['units'] == 'percent'
@@ -203,10 +237,10 @@ def test_api_put_metric_sets_other_values_to_none(client, populated_db):
     assert original['lower_limit'] == 20.0
 
     data = {"name": "with_everything"}
-    rv = client.put("/api/v1/metric/{}".format(metric_id), json=data)
+    rv = client.put(metric_url(metric_id), json=data)
     assert rv.status_code == 204
 
-    new = client.get("/api/v1/metric/{}".format(metric_id))
+    new = client.get(metric_url(metric_id))
     assert new.status_code == 200
     new = new.get_json()
 
@@ -223,7 +257,7 @@ def test_api_put_metric_not_found(client, populated_db):
         "upper_limit": 100,
         "lower_limit": 0,
     }
-    rv = client.put("/api/v1/metric/{}".format(metric_id), json=data)
+    rv = client.put(metric_url(metric_id), json=data)
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
@@ -236,7 +270,7 @@ def test_api_put_metric_duplicate_name(client, populated_db):
     old_name = "old_data"
     new_name = "foo.bar"
     data = {"name": new_name}
-    rv = client.put("/api/v1/metric/{}".format(metric_id), json=data)
+    rv = client.put(metric_url(metric_id), json=data)
     assert rv.status_code == 409
     assert rv.is_json
     d = rv.get_json()
@@ -247,7 +281,7 @@ def test_api_put_metric_duplicate_name(client, populated_db):
 
 def test_api_put_metric_missing_name(client, populated_db):
     data = {"units": "goats"}
-    rv = client.put("/api/v1/metric/3", json=data)
+    rv = client.put(metric_url(3), json=data)
     assert rv.status_code == 400
     assert rv.is_json
     d = rv.get_json()
@@ -263,28 +297,28 @@ def test_api_put_metric_idempotence(client, populated_db):
         "upper_limit": 100,
         "lower_limit": 0,
     }
-    rv = client.put("/api/v1/metric/{}".format(metric_id), json=data)
+    rv = client.put(metric_url(metric_id), json=data)
     assert rv.status_code == 204
 
-    after_1 = client.get("/api/v1/metric/{}".format(metric_id))
+    after_1 = client.get(metric_url(metric_id))
 
-    rv = client.put("/api/v1/metric/{}".format(metric_id), json=data)
+    rv = client.put(metric_url(metric_id), json=data)
     assert rv.status_code == 204
 
-    after_2 = client.get("/api/v1/metric/{}".format(metric_id))
+    after_2 = client.get(metric_url(metric_id))
     assert after_1.get_json() == after_2.get_json()
 
 
 def test_api_patch_metric(client, populated_db):
     data = {"units": "pears"}
-    rv = client.patch("/api/v1/metric/2", json=data)
+    rv = client.patch(metric_url(2), json=data)
     assert rv.status_code == 204
     assert rv.data == b""
 
 
 def test_api_patch_metric_doesnt_change_other_values(client, populated_db):
     name = 6      # "with_everything"
-    original = client.get("/api/v1/metric/{}".format(name))
+    original = client.get(metric_url(name))
     assert original.status_code == 200
     original = original.get_json()
     assert original['units'] == 'percent'
@@ -292,10 +326,10 @@ def test_api_patch_metric_doesnt_change_other_values(client, populated_db):
     assert original['lower_limit'] == 20.0
 
     data = {"lower_limit": 0.2}
-    rv = client.patch("/api/v1/metric/{}".format(name), json=data)
+    rv = client.patch(metric_url(name), json=data)
     assert rv.status_code == 204
 
-    new = client.get("/api/v1/metric/{}".format(name))
+    new = client.get(metric_url(name))
     assert new.status_code == 200
     new = new.get_json()
 
@@ -307,7 +341,7 @@ def test_api_patch_metric_doesnt_change_other_values(client, populated_db):
 def test_api_patch_metric_not_found(client, populated_db):
     metric_id = 99
     data = {"units": "pears"}
-    rv = client.patch("/api/v1/metric/{}".format(metric_id), json=data)
+    rv = client.patch(metric_url(metric_id), json=data)
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
@@ -320,7 +354,7 @@ def test_api_patch_metric_duplicate_name(client, populated_db):
     metric_id = 5
     old_name = "old_data"
     data = {"name": new_name}
-    rv = client.patch("/api/v1/metric/{}".format(metric_id), json=data)
+    rv = client.patch(metric_url(metric_id), json=data)
     assert rv.status_code == 409
     assert rv.is_json
     d = rv.get_json()
@@ -330,7 +364,7 @@ def test_api_patch_metric_duplicate_name(client, populated_db):
 
 
 def test_api_get_metrics(client, populated_db):
-    rv = client.get("/api/v1/metric")
+    rv = client.get(metric_url())
     assert rv.status_code == 200
     assert rv.is_json
     d = rv.get_json()
@@ -344,7 +378,7 @@ def test_api_get_metrics(client, populated_db):
 
 
 def test_api_get_metrics_no_data(client):
-    rv = client.get("/api/v1/metric")
+    rv = client.get(metric_url())
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
