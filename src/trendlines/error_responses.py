@@ -14,7 +14,7 @@ class ErrorResponseType(Enum):
     NOT_FOUND = 2
     INVALID_REQUEST = 3
     ALREADY_EXISTS = 4
-    INTEGRETY_ERROR = 5
+    INTEGRITY_ERROR = 5
 
     def __str__(self):
         return self.name.lower().replace("_", "-")
@@ -58,7 +58,7 @@ class ErrorResponse(object):
         detail = ("Unable to change metric name '{}': target name '{}'"
                   " already exists.")
         detail = detail.format(old, new)
-        return error_response(409, ErrorResponseType.INTEGRETY_ERROR, detail)
+        return error_response(409, ErrorResponseType.INTEGRITY_ERROR, detail)
 
     @classmethod
     def missing_required_key(cls, key):
