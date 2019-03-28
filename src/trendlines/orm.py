@@ -12,6 +12,7 @@ from peewee import ForeignKeyField
 from peewee import CharField
 from peewee import OperationalError
 from peewee_moves import DatabaseManager
+from playhouse.sqlite_ext import AutoIncrementField
 
 from trendlines import logger
 from trendlines import utils
@@ -60,7 +61,7 @@ class Metric(InternalModel):
     Table holding all of the Metric information.
     """
 
-    metric_id = IntegerField(primary_key=True)
+    metric_id = AutoIncrementField()
     name = CharField(max_length=120, unique=True)
     units = CharField(max_length=24, null=True)
     upper_limit = FloatField(null=True)
@@ -82,7 +83,7 @@ class DataPoint(DataModel):
     naive :class:`datetime.datetime` objects (no timezone info).
     """
 
-    datapoint_id = IntegerField(primary_key=True)
+    datapoint_id = AutoIncrementField()
     metric = ForeignKeyField(Metric, backref="datapoints",
                              on_delete="CASCADE")
     value = FloatField()
