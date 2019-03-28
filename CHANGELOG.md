@@ -22,6 +22,7 @@
   on core schemas (`Metric`, `DataPoint`) will only accept internal IDs and
   no longer accept strings for metric identification. See the docs for
   additional details. (#140)
++ Minor updates to how the `populated_db` test fixture works (#142)
 
 
 ## 0.5.0 (2019-02-28)
