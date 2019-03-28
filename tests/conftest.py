@@ -58,7 +58,7 @@ def app(tmp_path):
 
 
 @pytest.fixture
-def populated_db():
+def populated_db(app):
     # XXX: Should this be using my functions or should it use pure PeeWee
     # stuff like `DataPoint.create(metric=1, value=15, timestamp=1546450008)`?
     db.add_metric("empty_metric", "units")
@@ -80,7 +80,7 @@ def populated_db():
 
 
 @pytest.fixture
-def raw_data(app, populated_db):
+def raw_data(populated_db):
     """
     Provide the raw data as returned by :func:`db.get_data`.
     """
@@ -88,7 +88,7 @@ def raw_data(app, populated_db):
 
 
 @pytest.fixture
-def raw_metric(app, populated_db):
+def raw_metric(populated_db):
     """
     Provide the raw metric data as return by a Metric query"
     """

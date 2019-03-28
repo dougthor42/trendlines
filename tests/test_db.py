@@ -46,7 +46,7 @@ def test_add_metric_with_lower_limit(app):
     assert rv.lower_limit == -16.33
 
 
-def test_add_metric_with_invalid_limits_raises_value_error(app, caplog):
+def test_add_metric_with_invalid_limits_raises_value_error(caplog):
     with pytest.raises(ValueError):
         db.add_metric("foo", "bar", 16, -54.452)
     assert "upper_limit not greater than lower_limit" in caplog.text
@@ -59,13 +59,13 @@ def test_add_metric_with_invalid_limits_raises_value_error(app, caplog):
     (object(), None),
     (int, str),
 ])
-def test_add_metric_raises_type_error(app, caplog, lower, upper):
+def test_add_metric_raises_type_error(caplog, lower, upper):
     with pytest.raises(TypeError):
         db.add_metric("foo", "bar", lower, upper)
     assert "Invalid type for limits" in caplog.text
 
 
-def test_insert_datapoint(app, populated_db):
+def test_insert_datapoint(populated_db):
     rv = db.insert_datapoint("empty_metric", 15)
     assert rv.metric.metric_id == 1
     assert rv.value == 15
@@ -75,7 +75,7 @@ def test_insert_datapoint(app, populated_db):
     assert len(new) == 1
 
 
-def test_insert_datapoint_with_timestamp(app, populated_db):
+def test_insert_datapoint_with_timestamp(populated_db):
     ts = 1546532070
     rv = db.insert_datapoint("empty_metric", 15, ts)
     assert rv.metric.metric_id == 1
@@ -88,7 +88,7 @@ def test_insert_datapoint_with_timestamp(app, populated_db):
     assert new[0].timestamp == expected
 
 
-def test_get_data(app, populated_db):
+def test_get_data(populated_db):
     rv = db.get_data("empty_metric")
     assert len(rv) == 0
     rv = db.get_data("foo")
@@ -99,7 +99,7 @@ def test_get_data(app, populated_db):
 
 
 @freeze_time("2019-01-03T16:14:30Z")        # 1546532070
-def test_get_recent_data(app, populated_db):
+def test_get_recent_data(populated_db):
     """
     Our data from the populated_db fixture has the following timestamps::
 
@@ -125,7 +125,7 @@ def test_get_recent_data(app, populated_db):
     assert rv[0].value == 8
 
 
-def test_get_metrics(app, populated_db):
+def test_get_metrics(populated_db):
     rv = db.get_metrics()
     assert len(rv) == 6
     assert all(isinstance(x, orm.Metric) for x in rv)
@@ -134,7 +134,7 @@ def test_get_metrics(app, populated_db):
     assert rv[3].units == "apples"
 
 
-def test_get_units(app, populated_db):
+def test_get_units(populated_db):
     rv = db.get_units("metric_with_units")
     assert rv == "apples"
 
@@ -142,7 +142,7 @@ def test_get_units(app, populated_db):
     assert rv is None
 
 
-def test_get_datapoints(app, populated_db):
+def test_get_datapoints(populated_db):
     rv = db.get_datapoints()
     assert len(rv) == 10
     assert isinstance(rv[0], orm.DataPoint)
@@ -155,7 +155,7 @@ def test_get_datapoints_no_data(app):
     assert len(rv) == 0
 
 
-def test_get_datapoint(app, populated_db):
+def test_get_datapoint(populated_db):
     rv = db.get_datapoint(5)
     assert isinstance(rv, orm.DataPoint)
     assert rv.metric_id == 3
@@ -167,7 +167,7 @@ def test_get_datapoint(app, populated_db):
     assert (d.tzinfo is None) or (d.tzinfo.utcoffset(d) is None)
 
 
-def test_get_datapoint_not_found(app, populated_db, caplog):
+def test_get_datapoint_not_found(populated_db, caplog):
     with pytest.raises(DoesNotExist):
         db.get_datapoint(999)
 
@@ -178,7 +178,7 @@ def test_get_datapoint_not_found(app, populated_db, caplog):
     -1231203572.25215,
     0,
 ])
-def test_update_datapoint_value_by_id(app, populated_db, val, caplog):
+def test_update_datapoint_value_by_id(populated_db, val, caplog):
     # Get our original datapoint. DeepCopy avoids by-reference issues.
     original = deepcopy(db.get_datapoint(1))
 
@@ -191,7 +191,7 @@ def test_update_datapoint_value_by_id(app, populated_db, val, caplog):
     assert "Updating datapoint" in caplog.text
 
 
-def test_update_datapoint_value_by_id_not_found(app, populated_db, caplog):
+def test_update_datapoint_value_by_id_not_found(populated_db, caplog):
     with pytest.raises(DoesNotExist):
         db.update_datapoint(999, value=123)
     assert "Unable to find datapoint" in caplog.text
@@ -214,7 +214,7 @@ def _naive_utc_dt_from_posix_ts(ts):
     #  (0, _naive_utc_dt_from_posix_ts(0)),  # See peewee#1875
 ])
 @freeze_time("2019-01-03T16:14:30Z")        # 1546532070
-def test_update_datapoint_timestamp_by_id(app, populated_db, dt, expected, caplog):
+def test_update_datapoint_timestamp_by_id(populated_db, dt, expected, caplog):
     # Get our original datapoint. DeepCopy avoids by-reference issues.
     original = deepcopy(db.get_datapoint(1))
 
@@ -231,7 +231,7 @@ def test_update_datapoint_timestamp_by_id(app, populated_db, dt, expected, caplo
     assert "Updating datapoint" in caplog.text
 
 
-def test_update_datapoint_no_values_given(app, populated_db, caplog):
+def test_update_datapoint_no_values_given(populated_db, caplog):
     original = deepcopy(db.get_datapoint(1))
     db.update_datapoint(1)
     new = db.get_datapoint(1)
@@ -239,7 +239,7 @@ def test_update_datapoint_no_values_given(app, populated_db, caplog):
     assert "No new values given" in caplog.text
 
 
-def test_update_datapoint_by_object(app, populated_db, caplog):
+def test_update_datapoint_by_object(populated_db, caplog):
     datapoint = db.get_datapoint(1)
     original = deepcopy(datapoint)
 
@@ -252,13 +252,13 @@ def test_update_datapoint_by_object(app, populated_db, caplog):
     assert str(original) in caplog.text
 
 
-def test_update_datapoint_by_object_does_not_exist(app, populated_db, caplog):
+def test_update_datapoint_by_object_does_not_exist(populated_db, caplog):
     datapoint = orm.DataPoint(metric_id=1, value=1, timestamp=1)
     with pytest.raises(DoesNotExist):
         db.update_datapoint(datapoint, value=55)
 
 
-def test_delete_datapoint(app, populated_db, caplog):
+def test_delete_datapoint(populated_db, caplog):
     db.delete_datapoint(1)
     with pytest.raises(DoesNotExist):
         db.get_datapoint(1)
@@ -271,7 +271,7 @@ def test_delete_datapoint(app, populated_db, caplog):
     assert str(datapoint) in caplog.text
 
 
-def test_delete_datpoint_does_not_exist(app, populated_db):
+def test_delete_datpoint_does_not_exist(populated_db):
     with pytest.raises(DoesNotExist):
         db.delete_datapoint(999)
 
