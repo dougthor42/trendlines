@@ -217,11 +217,11 @@ def get_datapoint(datapoint_id):
     return DataPoint.get_by_id(datapoint_id)
 
 
-def update_datapoint(datapoint, value=None, timestamp=None):
+def update_datapoint(datapoint, metric=None, value=None, timestamp=None):
     """
     Update the value or timestamp (or both) of a datapoint.
 
-    If ``value`` or ``timestamp`` is None, that item will not be
+    If ``metric``, ``value``, or ``timestamp`` is None, that item will not be
     updated.
 
     Parameters
@@ -229,36 +229,47 @@ def update_datapoint(datapoint, value=None, timestamp=None):
     datapoint : int or :class:`orm.DataPoint`
         The datapoint to update. Can be provided as an ``int`` for the
         ``datapoint_id`` or as a :class:`~orm.DataPoint` object directly.
+    metric : int, optional
+        The new metric_id that this datapoint should belong to.
     value : float, optional
         The new value for the datapoint.
     timestamp : int or "now", optional
         The new timestamp of the datapoint. If ``"now"``, then use the
         current datetime. This should be the POSIX timestamp integer (UTC).
 
+    Returns
+    -------
+    datapoint : :class:`orm.DataPoint`
+        The updated datapoint.
+
     Raises
     ------
     DataPoint.DoesNotExist : :class:`peewee.DoesNotExist`
         if the ``datapoint`` or ``datapoint_id`` is not found.
+    Metric.DoesNotExist : :class:`peewee.DoesNotExist`
+        if the ``metric`` is not found.
     """
     logger.debug("Updating datapoint: %s" % datapoint)
 
     # Shortcut the uncommon case where both things are None
-    if value is None and timestamp is None:
+    if all(x is None for x in (metric, value, timestamp)):
         logger.debug("No new values given. Nothing to do.")
         return
 
     # Make sure we're going to act on an existing object.
     try:
-        if isinstance(datapoint, int):
-            datapoint = get_datapoint(datapoint)
-        else:
+        if isinstance(datapoint, DataPoint):
             DataPoint.get_by_id(datapoint.datapoint_id)
+        else:
+            datapoint = get_datapoint(datapoint)
     except DataPoint.DoesNotExist:
         msg = "Unable to find datapoint %s. Can't update values."
         logger.warning(msg % datapoint)
         raise
 
     # We should only get down here if the row exists.
+    if metric is not None:
+        datapoint.metric = metric
     if value is not None:
         datapoint.value = value
 
@@ -281,6 +292,8 @@ def update_datapoint(datapoint, value=None, timestamp=None):
     # We want people to either (a) use the PK or (b) query the DataPoint
     # object before running this function.
     datapoint.save()
+
+    return datapoint
 
 
 def delete_datapoint(datapoint):

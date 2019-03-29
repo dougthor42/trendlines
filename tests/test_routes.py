@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 """
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
 import pytest
 
 from trendlines import routes
+from trendlines import orm
 
 
 API_BASE = "/api/v1"
@@ -111,26 +115,201 @@ def test_api_get_data_as_json_no_data_for_metric(client, populated_db):
     assert 'No data exists for metric' in d['detail']
 
 
-def test_api_delete_datapoint(client, populated_db):
-    datapoint_id = 6
-    rv = client.delete(datapoint_url(datapoint_id))
-    assert rv.status_code == 204
+@pytest.mark.usefixtures('populated_db')
+class TestDataPoint(object):
+    def test_get(self, client):
+        rv = client.get(datapoint_url())
+        assert rv.status_code == 200
+        assert rv.is_json
+        d = rv.get_json()
+        assert set(d.keys()) == {'count', 'next', 'prev', 'results'}
+        assert len(d['results']) == 10
+        assert d['results'][0]['value'] == 15
 
-    # Verify it's actually been deleted
-    # TODO: needs the datapoint GET route
-    #  after = client.get(datapoint_url(datapoint_id))
-    #  assert after.status_code == 404
+    def test_post(self, client):
+        value = 15
+        timestamp = 12451245
+        data = {'metric_id': 1,
+                'value': value,
+                'timestamp': timestamp,
+                }
+
+        rv = client.post(datapoint_url(), json=data)
+        assert rv.status_code == 201
+        assert rv.is_json
+        d = rv.get_json()
+        assert isinstance(d['datapoint_id'], int)
+        assert d['value'] == value
+
+    @pytest.mark.parametrize('missing_key', ['metric_id', 'value'])
+    def test_post_missing_key(self, client, missing_key):
+        data = {'metric_id': 4, 'value': 101}
+        data.pop(missing_key)
+        rv = client.post(datapoint_url(), json=data)
+        assert rv.status_code == 400
+        assert rv.is_json
+        d = rv.get_json()
+        assert missing_key in d['detail']
+
+    def test_post_metric_not_found(self, client):
+        metric_id = 99
+        data = {'metric_id': metric_id, 'value': 101}
+        rv = client.post(datapoint_url(), json=data)
+        assert rv.status_code == 404
+        assert rv.is_json
+        d = rv.get_json()
+        assert str(metric_id) in d['detail']
 
 
-def test_api_delete_datapoint_not_found(client, populated_db, caplog):
-    datapoint_id = 103132
-    rv = client.delete(datapoint_url(datapoint_id))
+@pytest.mark.usefixtures('populated_db')
+class TestDataPointById(object):
+    def test_get(self, client):
+        datapoint_id = 6
+        rv = client.get(datapoint_url(datapoint_id))
+        assert rv.status_code == 200
+        assert rv.is_json
+        d = rv.get_json()
+        assert d['value'] == -2
+        assert d['metric']['name'] == "foo.bar"
+
+    def test_get_not_found(self, client, caplog):
+        datapoint_id = 12
+        rv = client.get(datapoint_url(datapoint_id))
+        assert rv.status_code == 404
+        assert rv.is_json
+        d = rv.get_json()
+        assert str(datapoint_id) in d['detail']
+        assert d['title'] == "NOT_FOUND"
+        assert "API error" in caplog.text
+
+    def test_put(self, client):
+        datapoint_id = 6
+        data = {
+            "datapoint_id": datapoint_id,
+            "metric_id": 1,
+            "value": 99,
+            "timestamp": 123456,
+        }
+        old = client.get(datapoint_url(datapoint_id)).get_json()
+        rv = client.put(datapoint_url(datapoint_id), json=data)
+        assert rv.status_code == 201
+        new = client.get(datapoint_url(datapoint_id)).get_json()
+        assert old != new
+        assert old['value'] == -2
+        assert new['value'] == 99
+
+    @pytest.mark.parametrize('missing_key', ['metric_id', 'value'])
+    def test_put_missing_required_key(self, client, missing_key):
+        datapoint_id = 3
+        data = {'metric_id': 4, 'value': 101}
+        data.pop(missing_key)
+        rv = client.put(datapoint_url(datapoint_id), json=data)
+        assert rv.status_code == 400
+        assert rv.is_json
+        d = rv.get_json()
+        assert missing_key in d['detail']
+
+    @patch('trendlines.db.update_datapoint',
+           MagicMock(side_effect=orm.DataPoint.DoesNotExist()))
+    def test_put_datapoint_does_not_exist(self, client):
+        datapoint_id = 690234234
+        data = {
+            "datapoint_id": datapoint_id,
+            "metric_id": 1,
+            "value": 99,
+            "timestamp": 123456,
+        }
+        rv = client.put(datapoint_url(datapoint_id), json=data)
+        assert rv.status_code == 404
+        assert rv.is_json
+        d = rv.get_json()
+        assert str(datapoint_id) in d['detail']
+
+    @patch('trendlines.db.update_datapoint',
+           MagicMock(side_effect=orm.Metric.DoesNotExist()))
+    def test_put_metric_does_not_exist(self, client):
+        datapoint_id = 6
+        metric_id = 999
+        data = {
+            "datapoint_id": datapoint_id,
+            "metric_id": metric_id,
+            "value": 99,
+            "timestamp": 123456,
+        }
+        rv = client.put(datapoint_url(datapoint_id), json=data)
+        assert rv.status_code == 404
+        assert rv.is_json
+        d = rv.get_json()
+        assert str(metric_id) in d['detail']
+
+    def test_patch(self, client):
+        datapoint_id = 6
+        data = {
+            "value": 99,
+        }
+        old = client.get(datapoint_url(datapoint_id)).get_json()
+        rv = client.patch(datapoint_url(datapoint_id), json=data)
+        assert rv.status_code == 204
+        new = client.get(datapoint_url(datapoint_id)).get_json()
+
+        # Ensure that everything *except what as given in data* is the same.
+        assert old != new
+        for k, v in old.items():
+            if k in data.keys():
+                assert old[k] != new[k]
+            else:
+                assert old[k] == new[k]
+        assert old['value'] == -2
+        assert new['value'] == 99
+
+    @patch('trendlines.db.update_datapoint',
+           MagicMock(side_effect=orm.DataPoint.DoesNotExist()))
+    def test_patch_datapoint_does_not_exist(self, client):
+        datapoint_id = 9999999
+        rv = client.patch(datapoint_url(datapoint_id), json={'value': 5})
+        assert rv.status_code == 404
+        assert rv.is_json
+        d = rv.get_json()
+        assert str(datapoint_id) in d['detail']
+
+    @patch('trendlines.db.update_datapoint',
+           MagicMock(side_effect=orm.Metric.DoesNotExist()))
+    def test_patch_metric_does_not_exist(self, client):
+        datapoint_id = 3
+        metric_id = 999
+        rv = client.patch(datapoint_url(datapoint_id),
+                          json={'metric_id': metric_id})
+        assert rv.status_code == 404
+        assert rv.is_json
+        d = rv.get_json()
+        assert str(metric_id) in d['detail']
+
+    def test_delete(self, client):
+        datapoint_id = 6
+        rv = client.delete(datapoint_url(datapoint_id))
+        assert rv.status_code == 204
+
+        # Verify it's actually been deleted
+        after = client.get(datapoint_url(datapoint_id))
+        assert after.status_code == 404
+
+    def test_delete_not_found(self, client, caplog):
+        datapoint_id = 103132
+        rv = client.delete(datapoint_url(datapoint_id))
+        assert rv.status_code == 404
+        assert rv.is_json
+        d = rv.get_json()
+        assert str(datapoint_id) in d['detail']
+        assert d['title'] == "NOT_FOUND"
+        assert "API error" in caplog.text
+
+
+def test_datapoint_get_no_data(client):
+    rv = client.get(datapoint_url())
     assert rv.status_code == 404
     assert rv.is_json
     d = rv.get_json()
-    assert str(datapoint_id) in d['detail']
-    assert d['title'] == "NOT_FOUND"
-    assert "API error" in caplog.text
+    assert d['detail'] == "No data found."
 
 
 def test_api_get_metric_as_json(client, populated_db, caplog):
