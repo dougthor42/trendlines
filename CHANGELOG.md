@@ -26,6 +26,7 @@
 + Table PKs are now explicit `AUTOINCREMENT` rather than using SQLite's
   internal `ROWID`. This will result in increased cpu/memory/disk overhead,
   but it ensures that PKs cannot be resued. (#143)
++ The REST API for `DataPoint` has been implemented. (#122)
 
 
 ## 0.5.0 (2019-02-28)
