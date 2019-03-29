@@ -27,6 +27,7 @@
   internal `ROWID`. This will result in increased cpu/memory/disk overhead,
   but it ensures that PKs cannot be resued. (#143)
 + The REST API for `DataPoint` has been implemented. (#122)
++ Example `docker-compose.yml` file now includes `depends_on`. (#99)
 
 
 ## 0.5.0 (2019-02-28)

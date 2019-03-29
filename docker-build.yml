@@ -23,10 +23,14 @@ services:
       - type: bind
         source: c:/gitlab/github/trendlines/internal.db
         target: /data/internal.db
+    depends_on:
+      - "celery"
+
   redis:
     image: redis
     ports:
       - "6379:6379"
+
   celery:
     build:
       context: .
@@ -42,3 +46,5 @@ services:
         # `trendlines.cfg`.
         target: /data
     command: celery worker -l info -A trendlines.celery_app.celery
+    depends_on:
+      - "redis"
