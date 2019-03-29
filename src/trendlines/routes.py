@@ -191,6 +191,20 @@ class DataPoint(MethodView):
 
 @api_datapoint.route("/api/v1/datapoint/<datapoint_id>")
 class DataPointById(MethodView):
+
+    def _put_patch(self, datapoint_id, metric_id, value, timestamp):
+        """
+        PUT (replace) or PATCH (update) a datapoint.
+
+        Handles the various DoesNotExist errors that can be raised.
+        """
+        try:
+            db.update_datapoint(datapoint_id, metric_id, value, timestamp)
+        except db.DataPoint.DoesNotExist:
+            return ErrorResponse.datapoint_not_found(datapoint_id)
+        except db.Metric.DoesNotExist:
+            return ErrorResponse.metric_not_found(metric_id)
+
     @api_datapoint.response(DataPointSchema)
     def get(self, datapoint_id):
         """
@@ -221,12 +235,8 @@ class DataPointById(MethodView):
 
         timestamp = data.get('timestamp', None)
 
-        try:
-            db.update_datapoint(datapoint_id, metric_id, value, timestamp)
-        except db.DataPoint.DoesNotExist:
-            return ErrorResponse.datapoint_not_found(datapoint_id)
-        except db.Metric.DoesNotExist:
-            return ErrorResponse.metric_not_found(metric_id)
+        return self._put_patch(datapoint_id, metric_id, value, timestamp)
+
 
     @api_datapoint.response(code=204)
     def patch(self, datapoint_id):
@@ -235,16 +245,11 @@ class DataPointById(MethodView):
         """
         data = request.get_json()
 
-        metric = data.get('metric_id', None)
+        metric_id = data.get('metric_id', None)
         value = data.get('value', None)
         timestamp = data.get('timestamp', None)
 
-        try:
-            db.update_datapoint(datapoint_id, metric, value, timestamp)
-        except db.DataPoint.DoesNotExist:
-            return ErrorResponse.datapoint_not_found(datapoint_id)
-        except db.Metric.DoesNotExist:
-            return ErrorResponse.metric_not_found(metric)
+        return self._put_patch(datapoint_id, metric_id, value, timestamp)
 
     @api_datapoint.response(code=204)
     def delete(self, datapoint_id):
