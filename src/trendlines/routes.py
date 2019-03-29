@@ -222,10 +222,7 @@ class DataPointById(MethodView):
         timestamp = data.get('timestamp', None)
 
         try:
-            datapoint = db.update_datapoint(datapoint_id,
-                                            metric_id,
-                                            value,
-                                            timestamp)
+            db.update_datapoint(datapoint_id, metric_id, value, timestamp)
         except db.DataPoint.DoesNotExist:
             return ErrorResponse.datapoint_not_found(datapoint_id)
         except db.Metric.DoesNotExist:
