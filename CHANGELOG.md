@@ -23,6 +23,9 @@
   no longer accept strings for metric identification. See the docs for
   additional details. (#140)
 + Minor updates to how the `populated_db` test fixture works (#142)
++ Table PKs are now explicit `AUTOINCREMENT` rather than using SQLite's
+  internal `ROWID`. This will result in increased cpu/memory/disk overhead,
+  but it ensures that PKs cannot be resued. (#143)
 
 
 ## 0.5.0 (2019-02-28)
