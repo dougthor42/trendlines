@@ -18,10 +18,14 @@ services:
         # database file (if you're using SQLite) and the configuration file
         # `trendlines.cfg`.
         target: /data
+    depends_on:
+      - "celery"
+
   redis:
     image: redis
     ports:
       - "6379:6379"
+
   celery:
     image: dougthor42/trendlines:latest
     ports:
@@ -32,3 +36,5 @@ services:
         source: /var/www/trendlines
         target: /data
     command: celery worker -l info -A trendlines.celery_app.celery
+    depends_on:
+      - "celery"

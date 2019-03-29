@@ -148,3 +148,5 @@ Add the following services to your ``docker-compose.yml``:
          source: /var/www/trendlines
          target: /data
      command: celery worker -l info -A trendlines.celery_app.celery
+     depends_on:
+       - "redis"
