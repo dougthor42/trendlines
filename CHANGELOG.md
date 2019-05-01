@@ -28,6 +28,8 @@
   but it ensures that PKs cannot be resued. (#143)
 + The REST API for `DataPoint` has been implemented. (#122)
 + Example `docker-compose.yml` file now includes `depends_on`. (#99)
++ A tip on generating a secure secret has been added to the installation
+  docs. (#93)
 
 
 ## 0.5.0 (2019-02-28)
