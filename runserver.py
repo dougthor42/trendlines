@@ -10,6 +10,18 @@ from trendlines.app_factory import create_app
 PORT = 5000
 
 
+def make_db_from_orm():
+    """
+    Make the database directly from the ORM rather than via migrations.
+    """
+    print("making...")
+    orm.db.init("internal.db", pragmas=orm.DB_OPTS)
+    orm.db.connect()
+    orm.db.create_tables([orm.Metric, orm.DataPoint])
+    orm.db.close()
+    print("Done.")
+
+
 def runserver():
     # Load our configuration. We're using pathlib and `.resolve()` because
     # Flask's working dir is src/trendlines and uses that when running
@@ -24,8 +36,12 @@ def runserver():
 
 
 @click.command()
+@click.option("--db-from-orm", is_flag=True)
 def main(db_from_orm):
-    runserver()
+    if db_from_orm:
+        make_db_from_orm()
+    else:
+        runserver()
 
 
 if __name__ == "__main__":
