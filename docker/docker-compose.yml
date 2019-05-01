@@ -20,6 +20,7 @@ services:
         target: /data
     depends_on:
       - "celery"
+      - "redis"
 
   redis:
     image: redis

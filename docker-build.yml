@@ -25,6 +25,7 @@ services:
         target: /data/internal.db
     depends_on:
       - "celery"
+      - "redis"
 
   redis:
     image: redis
