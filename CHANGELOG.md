@@ -28,6 +28,7 @@
   but it ensures that PKs cannot be resued. (#143)
 + The REST API for `DataPoint` has been implemented. (#122)
 + Example `docker-compose.yml` file now includes `depends_on`. (#99)
++ Command line stuff is now handled by `click`. (#150)
 
 
 ## 0.5.0 (2019-02-28)
