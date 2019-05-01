@@ -37,4 +37,4 @@ services:
         target: /data
     command: celery worker -l info -A trendlines.celery_app.celery
     depends_on:
-      - "celery"
+      - "redis"
