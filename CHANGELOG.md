@@ -2,6 +2,14 @@
 
 
 ## Unreleased
+
+
+## 0.6.0b1 (2019-05-01)
+
+### Notes
+This revision contains some breaking API changes.
+
+### Changes
 + `create_db` was moved out of `app_factory.py` and into `orm.py`. (#115)
 + All files created during tests are now made in the `/tmp` directory. (#44)
 + Migrations are now performed automatically when the flask app is created
