@@ -30,6 +30,7 @@
 + Example `docker-compose.yml` file now includes `depends_on`. (#99)
 + A tip on generating a secure secret has been added to the installation
   docs. (#93)
++ Command line stuff is now handled by `click`. (#150)
 
 
 ## 0.5.0 (2019-02-28)
