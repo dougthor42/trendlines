@@ -65,7 +65,7 @@ following is needed:
 
 .. tip::
 
-   You can generate a secure secret key from the shell like so:
+   You can generate a secure secret key from the python REPL like so:
 
    .. code-block:: python
 
