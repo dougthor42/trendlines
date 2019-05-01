@@ -63,6 +63,20 @@ following is needed:
    SECRET_KEY = b"don't use the value written in this README file!"
    DATABASE = "/data/internal.db"
 
+.. tip::
+
+   You can generate a secure secret key from the shell like so:
+
+   .. code-block:: python
+
+      >>> import os
+      >>> import binascii
+      >>> binascii.hexlify(os.urandom(32))
+      b'<some string of hex [0-9a-f]>'
+
+   Which you can then copy into ``trendlines.cfg``'s ``SECRET_KEY`` field.
+   Don't forget the leading ``b``!
+
 You should be all set to bring Docker Compose up:
 
 .. code-block:: bash
