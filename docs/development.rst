@@ -23,8 +23,8 @@ Make sure the `config/localhost.cfg` file exists:
 In 3 separate shells, run these 3 commands in order
 
 1.  ``docker run -p 6379:6379 redis``
-2.  ``python runserver.py``
-3.  ``python runworker.py``
+2.  ``python runworker.py``
+3.  ``python runserver.py``
 
 You can also optionally run each in the background (``-d`` for docker and
 ``&`` for the others), but personally I like to see the logs scroll by.
