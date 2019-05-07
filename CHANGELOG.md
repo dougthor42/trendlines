@@ -4,6 +4,7 @@
 ## Unreleased
 + Links to the Swagger/ReDoc API documentation are now provided on the main
   page. (#152)
++ Fixed small error in development documentation. (#153)
 
 
 ## 0.6.0b1 (2019-05-01)
