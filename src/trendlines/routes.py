@@ -117,13 +117,27 @@ class Data(MethodView):
         return msg, 201
 
 
-@api.route("/api/v1/data/<metric_name>")
+@api.route("/api/v1/data/<metric>")
 class DataByName(MethodView):
-    def get(self, metric_name):
+    def get(self, metric):
         """
         Return data for a given metric as JSON.
+
+        Parameters
+        ----------
+        metric : str or int
+            The metric name or the metric internal id (int) to get data for.
         """
-        logger.debug("API: get '%s'" % metric_name)
+        logger.debug("GET /api/v1/data/%s" % metric)
+
+        # Support both metric_id and metric_name
+        try:
+            metric_id = int(metric)
+            metric_name = orm.Metric.get(orm.Metric.metric_id == metric_id).name
+        except ValueError:
+            # We couldn't parse as an int, so it's a metric name instead.
+            metric_name = metric
+
         try:
             raw_data = db.get_data(metric_name)
             units = db.get_units(metric_name)
