@@ -85,6 +85,10 @@ function selectNodeById(tree, metricId) {
 function makePlot(data) {
   TESTER = document.getElementById('graph');
 
+  // Clear the plot before doing anything. Failure to do so results in each
+  // trace being appended.
+  Plotly.purge(TESTER);
+
   // I think Plotly only accepts 1D arrays of data, so split things out.
   var x = data.rows.map(function (obj) {return obj.timestamp});
   var y = data.rows.map(function (obj) {return obj.value});
