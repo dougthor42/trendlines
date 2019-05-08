@@ -20,22 +20,37 @@ function populateTree(data) {
     tree.jstree('open_all');
   });
 
-  // Go to data pages if they exist, otherwise just open the tree.
   tree.on('select_node.jstree', function(e, data) {
-    // jsTree puts the original data structure in a nested object
-    // called 'original'. How original of them. Hahaha I crack myself up.
-    // If `url` is defined, take us there.
-    if (data.node.original.metric_id !== null) {
-      var expected = "/plot/" + data.node.original.id;
-      var new_href = document.location.origin + expected;
-
-      // Take the user to the plot page.
-      document.location.href = new_href;
-    } else {
-      data.instance.toggle_node(data.node);
-    };
+    treeChanged(e, data);
   });
 };
+
+
+/*
+ * Update the plot if data exists, otherwise just open the tree.
+ * This is called when the `select_node` event is seen.
+ */
+function treeChanged(e, data) {
+  // If `metric_id` is defined, then we can query data
+  if (data.node.original.metric_id !== null) {
+    var expected = "/api/v1/data/" + data.node.original.metric_id;
+    // grab the plot data from the api
+    $.getJSON(expected)
+      .done(function(jsonData) {
+        makePlot(jsonData);
+
+        // This updates the URL to reflect which plot is shown.
+        var history_url = "/plot/" + data.node.original.metric_id;
+        window.history.pushState('page2', 'Title', history_url);
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log("Request failed: " + errorThrown);
+      });
+  } else {
+    // Otherwise just open/close the tree node.
+    data.instance.toggle_node(data.node);
+  };
+}
 
 
 /**
