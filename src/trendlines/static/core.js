@@ -25,8 +25,8 @@ function populateTree(data) {
     // jsTree puts the original data structure in a nested object
     // called 'original'. How original of them. Hahaha I crack myself up.
     // If `url` is defined, take us there.
-    if (data.node.original.url !== null) {
-      var expected = data.node.original.url;
+    if (data.node.original.metric_id !== null) {
+      var expected = "/plot/" + data.node.original.id;
       var new_href = document.location.origin + expected;
 
       // Take the user to the plot page.
