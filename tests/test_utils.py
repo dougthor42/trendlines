@@ -46,37 +46,41 @@ def test_format_metric_for_jstree(test_request_context, data, expected):
 
 
 @pytest.mark.parametrize("metrics, expected", [
-    (["foo", "foo.bar"], [
+    ([orm.Metric(metric_id=1, name="foo"),
+      orm.Metric(metric_id=2, name="foo.bar")], [
         {"id": "foo", "parent": "#", "text": "foo",
-         "url": "/plot/foo"},
+         "metric_id": 1},
         {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
-         "url": "/plot/foo.bar"},
+         "metric_id": 2},
         ]
      ),
-    (["foo.bar.baz"], [
-        {"id": "foo", "parent": "#", "text": "foo", "url": None},
-        {"id": "foo.bar", "parent": "foo", "text": "foo.bar", "url": None},
+    ([orm.Metric(metric_id=1, name="foo.bar.baz")], [
+        {"id": "foo", "parent": "#", "text": "foo", "metric_id": None},
+        {"id": "foo.bar", "parent": "foo", "text": "foo.bar", "metric_id": None},
         {"id": "foo.bar.baz", "parent": "foo.bar", "text": "foo.bar.baz",
-         "url": "/plot/foo.bar.baz"},
+         "metric_id": 1},
         ]
      ),
-    (["foo.bar", "foo.baz"], [
-        {"id": "foo", "parent": "#", "text": "foo", "url": None},
+    ([orm.Metric(metric_id=1, name="foo.bar"),
+      orm.Metric(metric_id=2, name="foo.baz")], [
+        {"id": "foo", "parent": "#", "text": "foo", "metric_id": None},
         {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
-         "url": "/plot/foo.bar"},
+         "metric_id": 1},
         {"id": "foo.baz", "parent": "foo", "text": "foo.baz",
-         "url": "/plot/foo.baz"},
+         "metric_id": 2},
         ]
      ),
-    (["foo", "foo.bar", "bar.baz.biz"], [
-        {"id": "bar", "parent": "#", "text": "bar", "url": None},
-        {"id": "bar.baz", "parent": "bar", "text": "bar.baz", "url": None},
+    ([orm.Metric(metric_id=1, name="foo"),
+      orm.Metric(metric_id=2, name="foo.bar"),
+      orm.Metric(metric_id=3, name="bar.baz.biz")], [
+        {"id": "bar", "parent": "#", "text": "bar", "metric_id": None},
+        {"id": "bar.baz", "parent": "bar", "text": "bar.baz", "metric_id": None},
         {"id": "bar.baz.biz", "parent": "bar.baz", "text": "bar.baz.biz",
-         "url": "/plot/bar.baz.biz"},
+         "metric_id": 3},
         {"id": "foo", "parent": "#", "text": "foo",
-         "url": "/plot/foo"},
+         "metric_id": 1},
         {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
-         "url": "/plot/foo.bar"},
+         "metric_id": 2},
        ]
      )
 ])
