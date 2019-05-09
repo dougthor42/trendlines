@@ -67,7 +67,7 @@ def get_metric_parent(metric):
 
 def format_metric_for_jstree(metric):
     """
-    Format a metric name into a dict consumable by jsTree.
+    Format a metric into a dict consumable by jsTree.
 
     See "Alternative JSON format" in the `jsTree docs`_.
 
@@ -75,17 +75,23 @@ def format_metric_for_jstree(metric):
 
     Parameters
     ----------
-    metric : str
-        The metric name to format.
+    metric : :class:`trendlines.orm.Metric`
+        The metric to format.
 
     Returns
     -------
     dict
-        A dict with the following keys: id, parent, text, url
+        A dict with the following keys: id, parent, text, metric_id
     """
-    parent = get_metric_parent(metric)
-    url = url_for('pages.plot', metric=metric)
-    return {"id": metric, "parent": parent, "text": metric, "url": url}
+    metric_name = metric.name
+    parent = get_metric_parent(metric_name)
+    jstree_node = {
+        "id": metric_name,
+        "parent": parent,
+        "text": metric_name,
+        "metric_id": metric.metric_id,
+    }
+    return jstree_node
 
 
 def build_jstree_data(metrics):
@@ -96,20 +102,26 @@ def build_jstree_data(metrics):
 
     Parameters
     ----------
-    metrics : list of str
-        The metric names to display. Note that this is *not* the Metric
-        objects themselves, but rather a simple list of strings (metric
-        names). Take the results of :func:`db.get_metrics`::
+    metrics : list of :class:`trendlines.orm.Metric` objects
+        Changed in v0.6.0: this is now :class:`~trendlines.orm.Metric` objects
+        and **not** the metric names:
+
+        .. code-block:: python
 
            raw_data = db.get_metrics()
+
+           # Before v0.6.0
            tree = build_jstree_data(m.name for m in raw_data)
+
+           # v0.6.0:
+           tree = build_jstree_data(raw_data)
 
     Returns
     -------
     data : list of dict
         A JSON-serializable list of dicts. Each dict has at least ``id`` and
         ``parent`` keys. If the metric doesn't exist (it's just a placeholder
-        parent), then the value of the ``url`` key will be ``None``.
+        parent), then the value of the ``metric_id`` key will be ``None``.
 
     Notes
     -----
@@ -126,11 +138,11 @@ def build_jstree_data(metrics):
        # Spacing added for readability
        # The `text` key is removed for readabiity.
        [
-        {"id": "foo",         "parent": "#",       "url": "/plot/foo"         },
-        {"id": "foo.bar",     "parent": "foo",     "url": "/plot/foo.bar"     },
-        {"id": "bar",         "parent": "#",       "url": None                },
-        {"id": "bar.baz",     "parent": "bar",     "url": None                },
-        {"id": "bar.baz.biz", "parent": "bar.baz", "url": "/plot/bar.baz.biz" },
+        {"id": "foo",         "parent": "#",       "metric_id": 1    },
+        {"id": "foo.bar",     "parent": "foo",     "metric_id": 2    },
+        {"id": "bar",         "parent": "#",       "metric_id": None },
+        {"id": "bar.baz",     "parent": "bar",     "metric_id": None },
+        {"id": "bar.baz.biz", "parent": "bar.baz", "metric_id": 3    },
        ]
     """
     # First go through and make all of our existing links
@@ -153,7 +165,7 @@ def build_jstree_data(metrics):
         new = {"id": m['parent'],
                "parent": new_parent,
                "text": m['parent'],
-               "url": None,
+               "metric_id": None,
                }
         data.append(new)
 

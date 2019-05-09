@@ -8,6 +8,7 @@ from flask import current_app
 from flask import Response
 from freezegun import freeze_time
 
+from trendlines import orm
 from trendlines import utils
 from .test_orm import _hash_file
 
@@ -31,13 +32,13 @@ def test_get_metric_parent(metric, expected):
 
 
 @pytest.mark.parametrize("data, expected", [
-    ("foo", {"id": "foo", "parent": "#", "text": "foo",
-             "url": "/plot/foo"}),
-    ("foo.bar", {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
-                 "url": "/plot/foo.bar"}),
-    ("foo.bar.baz", {"id": "foo.bar.baz", "parent": "foo.bar",
-                     "text": "foo.bar.baz",
-                     "url": "/plot/foo.bar.baz"}),
+    (orm.Metric(metric_id=1, name="foo"),
+     {"id": "foo", "parent": "#", "text": "foo", "metric_id": 1}),
+    (orm.Metric(metric_id=2, name="foo.bar"),
+     {"id": "foo.bar", "parent": "foo", "text": "foo.bar", "metric_id": 2}),
+    (orm.Metric(metric_id=3, name="foo.bar.baz"),
+     {"id": "foo.bar.baz", "parent": "foo.bar", "text": "foo.bar.baz",
+      "metric_id": 3}),
 ])
 def test_format_metric_for_jstree(test_request_context, data, expected):
     rv = utils.format_metric_for_jstree(data)
@@ -45,37 +46,41 @@ def test_format_metric_for_jstree(test_request_context, data, expected):
 
 
 @pytest.mark.parametrize("metrics, expected", [
-    (["foo", "foo.bar"], [
+    ([orm.Metric(metric_id=1, name="foo"),
+      orm.Metric(metric_id=2, name="foo.bar")], [
         {"id": "foo", "parent": "#", "text": "foo",
-         "url": "/plot/foo"},
+         "metric_id": 1},
         {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
-         "url": "/plot/foo.bar"},
+         "metric_id": 2},
         ]
      ),
-    (["foo.bar.baz"], [
-        {"id": "foo", "parent": "#", "text": "foo", "url": None},
-        {"id": "foo.bar", "parent": "foo", "text": "foo.bar", "url": None},
+    ([orm.Metric(metric_id=1, name="foo.bar.baz")], [
+        {"id": "foo", "parent": "#", "text": "foo", "metric_id": None},
+        {"id": "foo.bar", "parent": "foo", "text": "foo.bar", "metric_id": None},
         {"id": "foo.bar.baz", "parent": "foo.bar", "text": "foo.bar.baz",
-         "url": "/plot/foo.bar.baz"},
+         "metric_id": 1},
         ]
      ),
-    (["foo.bar", "foo.baz"], [
-        {"id": "foo", "parent": "#", "text": "foo", "url": None},
+    ([orm.Metric(metric_id=1, name="foo.bar"),
+      orm.Metric(metric_id=2, name="foo.baz")], [
+        {"id": "foo", "parent": "#", "text": "foo", "metric_id": None},
         {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
-         "url": "/plot/foo.bar"},
+         "metric_id": 1},
         {"id": "foo.baz", "parent": "foo", "text": "foo.baz",
-         "url": "/plot/foo.baz"},
+         "metric_id": 2},
         ]
      ),
-    (["foo", "foo.bar", "bar.baz.biz"], [
-        {"id": "bar", "parent": "#", "text": "bar", "url": None},
-        {"id": "bar.baz", "parent": "bar", "text": "bar.baz", "url": None},
+    ([orm.Metric(metric_id=1, name="foo"),
+      orm.Metric(metric_id=2, name="foo.bar"),
+      orm.Metric(metric_id=3, name="bar.baz.biz")], [
+        {"id": "bar", "parent": "#", "text": "bar", "metric_id": None},
+        {"id": "bar.baz", "parent": "bar", "text": "bar.baz", "metric_id": None},
         {"id": "bar.baz.biz", "parent": "bar.baz", "text": "bar.baz.biz",
-         "url": "/plot/bar.baz.biz"},
+         "metric_id": 3},
         {"id": "foo", "parent": "#", "text": "foo",
-         "url": "/plot/foo"},
+         "metric_id": 1},
         {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
-         "url": "/plot/foo.bar"},
+         "metric_id": 2},
        ]
      )
 ])
