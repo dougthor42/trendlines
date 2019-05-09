@@ -8,6 +8,7 @@ from flask import current_app
 from flask import Response
 from freezegun import freeze_time
 
+from trendlines import orm
 from trendlines import utils
 from .test_orm import _hash_file
 
@@ -31,13 +32,13 @@ def test_get_metric_parent(metric, expected):
 
 
 @pytest.mark.parametrize("data, expected", [
-    ("foo", {"id": "foo", "parent": "#", "text": "foo",
-             "url": "/plot/foo"}),
-    ("foo.bar", {"id": "foo.bar", "parent": "foo", "text": "foo.bar",
-                 "url": "/plot/foo.bar"}),
-    ("foo.bar.baz", {"id": "foo.bar.baz", "parent": "foo.bar",
-                     "text": "foo.bar.baz",
-                     "url": "/plot/foo.bar.baz"}),
+    (orm.Metric(metric_id=1, name="foo"),
+     {"id": "foo", "parent": "#", "text": "foo", "metric_id": 1}),
+    (orm.Metric(metric_id=2, name="foo.bar"),
+     {"id": "foo.bar", "parent": "foo", "text": "foo.bar", "metric_id": 2}),
+    (orm.Metric(metric_id=3, name="foo.bar.baz"),
+     {"id": "foo.bar.baz", "parent": "foo.bar", "text": "foo.bar.baz",
+      "metric_id": 3}),
 ])
 def test_format_metric_for_jstree(test_request_context, data, expected):
     rv = utils.format_metric_for_jstree(data)

@@ -67,7 +67,7 @@ def get_metric_parent(metric):
 
 def format_metric_for_jstree(metric):
     """
-    Format a metric name into a dict consumable by jsTree.
+    Format a metric into a dict consumable by jsTree.
 
     See "Alternative JSON format" in the `jsTree docs`_.
 
@@ -75,17 +75,23 @@ def format_metric_for_jstree(metric):
 
     Parameters
     ----------
-    metric : str
-        The metric name to format.
+    metric : :class:`trendlines.orm.Metric`
+        The metric to format.
 
     Returns
     -------
     dict
-        A dict with the following keys: id, parent, text, url
+        A dict with the following keys: id, parent, text, metric_id
     """
-    parent = get_metric_parent(metric)
-    url = url_for('pages.plot', metric=metric)
-    return {"id": metric, "parent": parent, "text": metric, "url": url}
+    metric_name = metric.name
+    parent = get_metric_parent(metric_name)
+    jstree_node = {
+        "id": metric_name,
+        "parent": parent,
+        "text": metric_name,
+        "metric_id": metric.metric_id,
+    }
+    return jstree_node
 
 
 def build_jstree_data(metrics):
