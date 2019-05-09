@@ -5,6 +5,11 @@
 + Links to the Swagger/ReDoc API documentation are now provided on the main
   page. (#152)
 + Fixed small error in development documentation. (#153)
++ Plots are now all shown on a single page, thus making it much easier to
+  navigate between plots. (#58)
+  + Added Bootstrap4
+  + updated the jstree data structure to use internal ID instead of a
+    generated URL (#156)
 
 
 ## 0.6.0b1 (2019-05-01)
