@@ -54,35 +54,35 @@ class DataPointSchema(ModelSchema):
         model = orm.DataPoint
 
 
-@pages.route('/', methods=['GET'])
-def index():
+@pages.route("/", methods=['GET'])
+@pages.route("/plot/<metric>", methods=["GET"])
+def index(metric=None):
     """
     Main page.
 
-    Displays a list of all the known metrics with links.
+    Also allows direct links to a specific plot.
+
+    Parameters
+    ----------
+    metric : str or int, optional
+        The metric_id or metric name to plot.
     """
-    raw_data = db.get_metrics()
-    data = utils.build_jstree_data(raw_data)
-    return render_template("trendlines/index.html", data=data)
+    metric_name = None
+    if metric is not None:
+        # Support both metric_id and metric_name
+        try:
+            metric_id = int(metric)
+            metric_name = orm.Metric.get(orm.Metric.metric_id == metric_id).name
+        except ValueError:
+            # We couldn't parse as an int, so it's a metric name instead.
+            metric_name = metric
 
+    metric_list = db.get_metrics()
+    tree_data = utils.build_jstree_data(metric_list)
 
-@pages.route("/plot/<metric>", methods=["GET"])
-def plot(metric=None):
-    """
-    Plot a given metric.
-    """
-    if metric is None:
-        return "Need a metric, friend!"
-
-    data = db.get_data(metric)
-    units = db.get_units(metric)
-    data = utils.format_data(data, units)
-    if len(data) == 0:
-        logger.warning("No data exists for metric '%s'" % metric)
-        return "Metric '{}' wasn't found. No data, maybe?".format(metric)
-
-    # TODO: Ajax request for this data instead of sending it to the template.
-    return render_template('trendlines/plot.html', name=metric, data=data)
+    return render_template('trendlines/index.html',
+                           tree_data=tree_data,
+                           metric_id=metric_name)
 
 
 @api.route("/api/v1/data")
