@@ -95,6 +95,18 @@ def test_api_get_data_as_json(client, populated_db):
     assert d[3]['value'] == 9
 
 
+def test_api_get_data_by_id(client, populated_db):
+    rv = client.get("/api/v1/data/2")
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    assert d['units'] == None
+    d = d['rows']
+    assert d[0]['n'] == 0
+    assert d[0]['value'] == 15
+    assert d[3]['value'] == 9
+
+
 def test_api_get_data_as_json_metric_not_found(client):
     rv = client.get("/api/v1/data/missing")
     assert rv.status_code == 404
