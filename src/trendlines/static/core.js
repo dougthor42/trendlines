@@ -1,8 +1,9 @@
 /**
  * Populate the JSTree tree.
  */
-function populateTree(data) {
+function populateTree(data, metricId) {
   var tree = $('#jstree-div');
+
   // Create an instance when the DOM is ready.
   tree.jstree(
     {
@@ -13,6 +14,16 @@ function populateTree(data) {
   );
 
   // Bind events.
+
+  // This event allows us to select a node via `metricId` argument. When the
+  // tree is done populating, the `selectNodeById` function is fired. We need to
+  // wait for the the tree to be fully ready or else the `select_node` method
+  // will fail.
+  tree.on("ready.jstree", function(e, data){
+    console.log("tree ready");
+    selectNodeById(tree, metricId);
+  });
+
   tree.on("changed.jstree", function (e, data) {
   });
 
@@ -50,6 +61,21 @@ function treeChanged(e, data) {
     // Otherwise just open/close the tree node.
     data.instance.toggle_node(data.node);
   };
+}
+
+
+/*
+ * Select a specific tree element.
+ * Called when both:
+ *   (a) a metric_id is given in the URL and
+ *   (b) the jsTree object has fully loaded.
+ */
+function selectNodeById(tree, metricId) {
+  if (typeof metricId === 'undefined') {
+    // We were given a metric ID, so let's select it in the jstree
+    tree.jstree('select_node', metricId);
+  }
+
 }
 
 
