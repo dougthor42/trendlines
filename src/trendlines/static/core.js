@@ -24,13 +24,16 @@ function populateTree(data, metricId) {
     selectNodeById(tree, metricId);
   });
 
+  // Really just here in case it's needed
   tree.on("changed.jstree", function (e, data) {
   });
 
+  // Open all of the nodes by default
   tree.on("loaded.jstree", function () {
     tree.jstree('open_all');
   });
 
+  // Update the plot or toggle the node open/closed.
   tree.on('select_node.jstree', function(e, data) {
     treeChanged(e, data);
   });
