@@ -68,6 +68,11 @@ def test_plot_with_data(client, populated_db):
     assert b"foo" in rv.data
     assert b'<div id="graph"' in rv.data
 
+    rv = client.get("/plot/1")
+    assert rv.status_code == 200
+    assert b"foo" in rv.data
+    assert b'<div id="graph"' in rv.data
+
 
 def test_api_add(client):
     data = {"metric": "test", "value": 10}
