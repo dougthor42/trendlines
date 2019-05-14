@@ -111,7 +111,7 @@ function makePlot(data) {
   };
 
   trace = [ trace1 ];
-  Plotly.plot(TESTER, trace, layout);
+  Plotly.plot(TESTER, trace, layout, {responsive: true});
 
   $(document).ready(
     function() {
