@@ -8,10 +8,13 @@
 <script type="text/javascript" charset="utf-8" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script type="text/javascript" charset="utf-8" src="https://cdn.plot.ly/plotly-1.43.0.min.js"></script>
 <script type="text/javascript" charset="utf-8" src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf-8" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script type="text/javascript" charset="utf-8" src="{{ url_for('static', filename='core.js') }}"></script>
 
 <!-- CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
 
 <title>Trendlines</title>
 
@@ -22,19 +25,8 @@
   </header>
 
   <main>
-  <h1><a href="{{ url_for('pages.index') }}">Trendlines</a></h1>
-  <h4>v{{ version }}</h4>
-  <div id="apiLinks">
-    <ul>
-      <li><a target="_blank" href="/api/">API Reference (Swagger)</a></li>
-      <li><a target="_blank" href="/api/redoc">API Reference (ReDoc)</a></li>
-    </ul>
-  </div>
-
-    <div id="content">
-      {% block body %}
-      {% endblock %}
-    </div>
+  {% block body %}
+  {% endblock %}
   </main>
 
   <footer>

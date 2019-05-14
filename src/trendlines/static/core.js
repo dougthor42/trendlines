@@ -1,8 +1,9 @@
 /**
  * Populate the JSTree tree.
  */
-function populateTree(data) {
+function populateTree(data, metricId) {
   var tree = $('#jstree-div');
+
   // Create an instance when the DOM is ready.
   tree.jstree(
     {
@@ -13,29 +14,72 @@ function populateTree(data) {
   );
 
   // Bind events.
+
+  // This event allows us to select a node via `metricId` argument. When the
+  // tree is done populating, the `selectNodeById` function is fired. We need to
+  // wait for the the tree to be fully ready or else the `select_node` method
+  // will fail.
+  tree.on("ready.jstree", function(e, data){
+    console.log("tree ready");
+    selectNodeById(tree, metricId);
+  });
+
+  // Really just here in case it's needed
   tree.on("changed.jstree", function (e, data) {
   });
 
+  // Open all of the nodes by default
   tree.on("loaded.jstree", function () {
     tree.jstree('open_all');
   });
 
-  // Go to data pages if they exist, otherwise just open the tree.
+  // Update the plot or toggle the node open/closed.
   tree.on('select_node.jstree', function(e, data) {
-    // jsTree puts the original data structure in a nested object
-    // called 'original'. How original of them. Hahaha I crack myself up.
-    // If `url` is defined, take us there.
-    if (data.node.original.metric_id !== null) {
-      var expected = "/plot/" + data.node.original.id;
-      var new_href = document.location.origin + expected;
-
-      // Take the user to the plot page.
-      document.location.href = new_href;
-    } else {
-      data.instance.toggle_node(data.node);
-    };
+    treeChanged(e, data);
   });
 };
+
+
+/*
+ * Update the plot if data exists, otherwise just open the tree.
+ * This is called when the `select_node` event is seen.
+ */
+function treeChanged(e, data) {
+  // If `metric_id` is defined, then we can query data
+  if (data.node.original.metric_id !== null) {
+    var expected = "/api/v1/data/" + data.node.original.metric_id;
+    // grab the plot data from the api
+    $.getJSON(expected)
+      .done(function(jsonData) {
+        makePlot(jsonData);
+
+        // This updates the URL to reflect which plot is shown.
+        var history_url = "/plot/" + data.node.original.metric_id;
+        window.history.pushState('page2', 'Title', history_url);
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log("Request failed: " + errorThrown);
+      });
+  } else {
+    // Otherwise just open/close the tree node.
+    data.instance.toggle_node(data.node);
+  };
+}
+
+
+/*
+ * Select a specific tree element.
+ * Called when both:
+ *   (a) a metric_id is given in the URL and
+ *   (b) the jsTree object has fully loaded.
+ */
+function selectNodeById(tree, metricId) {
+  if (typeof metricId !== 'undefined') {
+    // We were given a metric ID, so let's select it in the jstree
+    tree.jstree('select_node', metricId);
+  }
+
+}
 
 
 /**
@@ -43,6 +87,10 @@ function populateTree(data) {
  */
 function makePlot(data) {
   TESTER = document.getElementById('graph');
+
+  // Clear the plot before doing anything. Failure to do so results in each
+  // trace being appended.
+  Plotly.purge(TESTER);
 
   // I think Plotly only accepts 1D arrays of data, so split things out.
   var x = data.rows.map(function (obj) {return obj.timestamp});
@@ -63,7 +111,7 @@ function makePlot(data) {
   };
 
   trace = [ trace1 ];
-  Plotly.plot(TESTER, trace, layout);
+  Plotly.plot(TESTER, trace, layout, {responsive: true});
 
   $(document).ready(
     function() {

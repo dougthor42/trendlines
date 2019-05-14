@@ -2,13 +2,53 @@
 
 {% block body %}
 
-<div id="jstree-div">
-</div>
+<div id="content" class="container">
+  <div class="row">
+    <div class="col">
+      <h1><a href="{{ url_for('pages.index') }}">Trendlines</a></h1>
+      <h4>v{{ version }}</h4>
+      <div id="apiLinks">
+        <ul>
+          <li><a target="_blank" href="/api/">API Reference (Swagger)</a></li>
+          <li><a target="_blank" href="/api/redoc">API Reference (ReDoc)</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-<script>
-  var data = {{ data | tojson | safe }};
-  $(populateTree(data));
-</script>
+  <div class="row">
+    <div id="tree" class="col-sm-3 order-1 border border-primary" style="height: 500px; overflow-y: scroll;">
+      <!-- This div holds the left side: primarily the JS tree -->
+      <div id="jstree-div">
+      </div>
+
+      <script>
+        $(document).ready( function() {
+          var treeData = {{ tree_data | tojson | safe }};
+
+          // Populate the jsTree with the metric names.
+          var metricId = {{ metric_id | tojson | safe }};
+          populateTree(treeData, metricId);
+        });
+      </script>
+    </div>
+
+    <div id="data" class="col-sm-9 order-2 border">
+      <!-- The right side: the plot and buttons -->
+      <div id="change-axis-buttons" class="btn-group btn-group-toggle" data-toggle="buttons">
+        <label class="btn btn-primary active">
+          <input id="x-axis-type-sequential" type="radio" name="x-axis-type" autocomplete="off" value="sequential" checked>Sequential
+        </label>
+        <label class="btn btn-primary">
+          <input id="x-axis-type-time" type="radio" name="x-axis-type" autocomplete="off" value="time">Time Series
+        </label>
+      </div>
+
+      <div id="graph" style="height: 500px;"></div>
+
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 

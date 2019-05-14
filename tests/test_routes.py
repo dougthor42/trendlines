@@ -56,17 +56,28 @@ def test_index_with_data(client, populated_db):
     assert b"foo.bar" in rv.data
 
 
-@pytest.mark.xfail(reason="Needs code updates")
-def test_plot(client):
-    rv = client.get("/plot/foo")
-    assert rv.status_code == 404
-
-
-def test_plot_with_data(client, populated_db):
+@pytest.mark.xfail(
+    reason="JS callbacks are async: plotly div not populated immediatly"
+)
+def test_plot_with_data_by_name(client, populated_db):
     rv = client.get("/plot/foo")
     assert rv.status_code == 200
     assert b"foo" in rv.data
     assert b'<div id="graph"' in rv.data
+    # TODO: make this work. Issue is JS callbacks.
+    #  assert b'<div class="plot-container plotly">' in rv.data
+
+
+@pytest.mark.xfail(
+    reason="JS callbacks are async: plotly div not populated immediatly"
+)
+def test_plot_with_data_by_id(client, populated_db):
+    rv = client.get("/plot/1")
+    assert rv.status_code == 200
+    assert b"foo" in rv.data
+    assert b'<div id="graph"' in rv.data
+    # TODO: make this work. Issue is JS callbacks.
+    #  assert b'<div class="plot-container plotly">' in rv.data
 
 
 def test_api_add(client):
@@ -85,6 +96,18 @@ def test_api_add_with_missing_key(client):
 
 def test_api_get_data_as_json(client, populated_db):
     rv = client.get("/api/v1/data/foo")
+    assert rv.status_code == 200
+    assert rv.is_json
+    d = rv.get_json()
+    assert d['units'] == None
+    d = d['rows']
+    assert d[0]['n'] == 0
+    assert d[0]['value'] == 15
+    assert d[3]['value'] == 9
+
+
+def test_api_get_data_by_id(client, populated_db):
+    rv = client.get("/api/v1/data/2")
     assert rv.status_code == 200
     assert rv.is_json
     d = rv.get_json()
