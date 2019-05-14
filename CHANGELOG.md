@@ -2,6 +2,8 @@
 
 
 ## Unreleased
++ Fixed a major issue where dataloss would occur when performing database
+  migration 0005 -> 0006. (#158)
 + Links to the Swagger/ReDoc API documentation are now provided on the main
   page. (#152)
 + Fixed small error in development documentation. (#153)
