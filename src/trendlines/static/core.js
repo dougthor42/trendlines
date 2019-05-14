@@ -74,7 +74,7 @@ function treeChanged(e, data) {
  *   (b) the jsTree object has fully loaded.
  */
 function selectNodeById(tree, metricId) {
-  if (typeof metricId === 'undefined') {
+  if (typeof metricId !== 'undefined') {
     // We were given a metric ID, so let's select it in the jstree
     tree.jstree('select_node', metricId);
   }
