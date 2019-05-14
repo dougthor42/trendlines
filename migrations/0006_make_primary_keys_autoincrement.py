@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS "metric" (
   "lower_limit" REAL
 );
 INSERT INTO "metric" SELECT * FROM "metric_temp";
-DROP TABLE "metric_temp";
+DROP INDEX IF EXISTS "metric_name";
 CREATE UNIQUE INDEX "metric_name" ON "metric" ("name");
 
 ALTER TABLE "datapoint" RENAME TO "datapoint_temp";
@@ -36,8 +36,11 @@ CREATE TABLE IF NOT EXISTS "datapoint" (
   FOREIGN KEY ("metric_id") REFERENCES "metric" ("metric_id") ON DELETE CASCADE
 );
 INSERT INTO "datapoint" SELECT * FROM "datapoint_temp";
-DROP TABLE "datapoint_temp";
+DROP INDEX IF EXISTS "datapoint_metric_id";
 CREATE INDEX "fakemodel_metric_id" ON "datapoint" ("metric_id");
+
+DROP TABLE "metric_temp";
+DROP TABLE "datapoint_temp";
 """
 
 # New DDL
@@ -51,7 +54,7 @@ CREATE TABLE IF NOT EXISTS "metric" (
   "lower_limit"  REAL
 );
 INSERT INTO "metric" SELECT * FROM "metric_temp";
-DROP TABLE "metric_temp";
+DROP INDEX IF EXISTS "metric_name";
 CREATE UNIQUE INDEX "metric_name" ON "metric" ("name");
 
 ALTER TABLE "datapoint" RENAME TO "datapoint_temp";
@@ -63,8 +66,11 @@ CREATE TABLE IF NOT EXISTS "datapoint" (
   FOREIGN KEY("metric_id") REFERENCES "metric" ( "metric_id" ) ON DELETE CASCADE
 );
 INSERT INTO "datapoint" SELECT * FROM "datapoint_temp";
-DROP TABLE "datapoint_temp";
+DROP INDEX IF EXISTS "datapoint_metric_id";
 CREATE INDEX "datapoint_metric_id" ON "datapoint" ("metric_id");
+
+DROP TABLE "datapoint_temp";
+DROP TABLE "metric_temp";
 """
 
 
