@@ -2,6 +2,9 @@
 
 
 ## Unreleased
+
+
+## 0.6.0b2 (2019-06-27)
 + Fixed a major issue where dataloss would occur when performing database
   migration 0005 -> 0006. (#158)
 + Links to the Swagger/ReDoc API documentation are now provided on the main

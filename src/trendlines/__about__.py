@@ -4,8 +4,8 @@ __email__ = "doug.thor@gmail.com"
 __license__ = "GNU General Public License v3 (GPLv3)"
 __created__ = "2018-12-19"
 
-__version__ = "0.6.0b1"
-__released__ = "2019-05-01"
+__version__ = "0.6.0b2"
+__released__ = "2019-06-27"
 
 __project_name__ = "Trendlines"
 __package_name__ = "trendlines"
