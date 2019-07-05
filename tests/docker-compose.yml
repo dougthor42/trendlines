@@ -1,0 +1,60 @@
+#
+# Docker-compose file used when running integration tests.
+#
+
+# Need version >= 3.2 because of how we define our volumes
+version: "3.2"
+services:
+  host:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: example-host:pytest
+    ports:
+      - 5000:80
+    volumes:
+      - type: volume
+        source: host_install_loc
+        target: /var/www/trendlines
+
+  trendlines:
+    build:
+      context: ../.
+      dockerfile: docker/Dockerfile
+    image: trendlines:pytest
+    expose:
+      - 80
+    volumes:
+      - type: volume
+        source: host_install_loc
+        target: /data
+    depends_on:
+      - celery
+      - redis
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    depends_on:
+      - host
+
+  celery:
+    build:
+      context: ../.
+      dockerfile: docker/Dockerfile
+    image: trendlines:pytest
+    ports:
+      - "2003:2003"
+    volumes:
+      - type: volume
+        source: host_install_loc
+        target: /data
+    command: celery worker -l info -A trendlines.celery_app.celery
+    depends_on:
+      - redis
+
+# This volume mimics the trendlines stack runnning
+# inside the host.
+volumes:
+  host_install_loc:
