@@ -6,3 +6,5 @@ coveralls==1.5.1
 wheel==0.32.3
 pdbpp==0.9.3
 sphinx==1.7.9
+docker==4.0.2
+pytest-docker==0.6.1
