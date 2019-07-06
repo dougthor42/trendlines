@@ -37,7 +37,7 @@ Docker Compose
    **WIP!**
 
 If you're doing more than just playing around, you'll likely want to set up
-Docker Compose. I've included an example Compose file `in the repo`.
+Docker Compose. I've included an example Compose file `in the repo`_.
 
 .. _`in the repo`: https://github.com/dougthor42/trendlines/blob/master/docker/docker-compose.yml
 
