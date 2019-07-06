@@ -117,6 +117,10 @@ adjustments:
 
 1.  Add a proxy to the ``VirtualHost`` in your apache config.
 2.  Make sure to set the ``URL_PREFIX`` variable in your Trendlines config file.
+3.  Have the following apache mods enabled:
+    + ``mod_proxy``
+    + ``mod_proxy_http``
+    + ``mod_headers``
 
 .. code-block:: apache
 
