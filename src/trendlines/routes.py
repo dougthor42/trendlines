@@ -12,8 +12,9 @@ from flask import render_template as _render_template
 from flask import request
 from flask.views import MethodView
 
-from flask_rest_api import Api
+from flask_rest_api import Api as _Api
 from flask_rest_api import Blueprint
+from werkzeug.routing import RoutingException
 
 # peewee
 from peewee import DoesNotExist
@@ -29,6 +30,17 @@ from .error_responses import ErrorResponse
 from . import utils
 
 pages = FlaskBlueprint('pages', __name__)
+
+
+# https://github.com/Nobatek/flask-rest-api/issues/51
+class Api(_Api):
+    def handle_http_exception(self, error):
+        # Don't serialize redirects
+        if isinstance(error, RoutingException):
+            return error
+        return super().handle_http_exception(error)
+
+
 api_class = Api()
 api = Blueprint("api", __name__,
                 description="All API.")
