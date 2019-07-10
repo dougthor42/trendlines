@@ -25,6 +25,11 @@ Assumptions:
 
       $ pip install -U pip setuptools wheel
       $ pip install -r requirements.txt -r requirements-dev.txt
+      $ wget https://chromedriver.storage.googleapis.com/76.0.3809.25/chromedriver_linux64.zip
+      $ unzip chromedriver_linux64.zip -d .venv/bin
+      $ sudo apt install -y firefox
+      $ wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz
+      $ tar -xzf geckodriver-v0.24.0-linux64.tar.gz -C .venv-trendlines/bin
 
 
 4.  Run tests:
