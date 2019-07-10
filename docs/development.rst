@@ -7,6 +7,33 @@ Assumptions:
 + Python 3.6 or higher
 
 
+1.  Clone the repository::
+
+    $ git clone git@github.com:dougthor42/trendlines.git
+
+2.  Move into the directory, make a virutal environment, and activate it:
+
+    .. code-block:: shell
+
+      $ cd trendlines
+      $ python -m venv .venv
+      $ . .venv/bin/activate
+
+3.  Install requirements:
+
+    .. code-block:: shell
+
+      $ pip install -U pip setuptools wheel
+      $ pip install -r requirements.txt -r requirements-dev.txt
+
+
+4.  Run tests:
+
+    .. code-block:: shell
+
+      $ pytest
+
+
 Running with scripts
 --------------------
 
