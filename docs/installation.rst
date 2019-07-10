@@ -37,7 +37,7 @@ Docker Compose
    **WIP!**
 
 If you're doing more than just playing around, you'll likely want to set up
-Docker Compose. I've included an example Compose file `in the repo`.
+Docker Compose. I've included an example Compose file `in the repo`_.
 
 .. _`in the repo`: https://github.com/dougthor42/trendlines/blob/master/docker/docker-compose.yml
 
@@ -117,6 +117,10 @@ adjustments:
 
 1.  Add a proxy to the ``VirtualHost`` in your apache config.
 2.  Make sure to set the ``URL_PREFIX`` variable in your Trendlines config file.
+3.  Have the following apache mods enabled:
+    + ``mod_proxy``
+    + ``mod_proxy_http``
+    + ``mod_headers``
 
 .. code-block:: apache
 
