@@ -2,6 +2,8 @@
 
 
 ## Unreleased
++ Integration tests (via docker-compose) were added. (#165)
++ Supposedly fixed an issue that occurs when running behind a proxy (#162).
 
 
 ## 0.6.0b2 (2019-06-27)
