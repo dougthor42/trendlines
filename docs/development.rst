@@ -38,6 +38,12 @@ Assumptions:
 
       $ pytest
 
+    .. note::
+
+      Tests will still run even if Docker, docker-compose, or selenium and
+      associated webdrivers are not installed. These tests will simply be
+      skipped.
+
 
 Running with scripts
 --------------------
