@@ -50,14 +50,16 @@ function treeChanged(e, data, urlPrefix) {
 
     // Stupid f-ing javascript... urlPrefix can be `null`, which when concatenated
     // with a string, gets cast to the string 'null'. So we get "null/api/..."
-    var expected = (urlPrefix || "") + "/api/v1/data/" + data.node.original.metric_id;
+    urlPrefix = urlPrefix || ""
+
+    var expected = urlPrefix + "/api/v1/data/" + data.node.original.metric_id;
     // grab the plot data from the api
     $.getJSON(expected)
       .done(function(jsonData) {
         makePlot(jsonData);
 
         // This updates the URL to reflect which plot is shown.
-        var history_url = "/plot/" + data.node.original.metric_id;
+        var history_url = urlPrefix + "/plot/" + data.node.original.metric_id;
         window.history.pushState('page2', 'Title', history_url);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
