@@ -7,6 +7,7 @@
 + *Actually* fixed the issue where the plots wouldn't show when `URL_PREFIX`
   was set (running behind a proxy). (#162).
   + Of course, there's another part which is **not** fixed (#168)
++ Redis was pinned at v5.0.5-alpine. (#163)
 
 
 ## 0.6.0b2 (2019-06-27)

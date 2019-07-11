@@ -153,7 +153,7 @@ Add the following services to your ``docker-compose.yml``:
 .. code-block:: yaml
 
    redis:
-     image: redis
+     image: redis:5.0.5-alpine
      ports:
        - "6379:6379"
    celery:
