@@ -1,7 +1,7 @@
 /**
  * Populate the JSTree tree.
  */
-function populateTree(data, metricId) {
+function populateTree(data, metricId, urlPrefix) {
   var tree = $('#jstree-div');
 
   // Create an instance when the DOM is ready.
@@ -35,7 +35,7 @@ function populateTree(data, metricId) {
 
   // Update the plot or toggle the node open/closed.
   tree.on('select_node.jstree', function(e, data) {
-    treeChanged(e, data);
+    treeChanged(e, data, urlPrefix);
   });
 };
 
@@ -44,17 +44,22 @@ function populateTree(data, metricId) {
  * Update the plot if data exists, otherwise just open the tree.
  * This is called when the `select_node` event is seen.
  */
-function treeChanged(e, data) {
+function treeChanged(e, data, urlPrefix) {
   // If `metric_id` is defined, then we can query data
   if (data.node.original.metric_id !== null) {
-    var expected = "/api/v1/data/" + data.node.original.metric_id;
+
+    // Stupid f-ing javascript... urlPrefix can be `null`, which when concatenated
+    // with a string, gets cast to the string 'null'. So we get "null/api/..."
+    urlPrefix = urlPrefix || ""
+
+    var expected = urlPrefix + "/api/v1/data/" + data.node.original.metric_id;
     // grab the plot data from the api
     $.getJSON(expected)
       .done(function(jsonData) {
         makePlot(jsonData);
 
         // This updates the URL to reflect which plot is shown.
-        var history_url = "/plot/" + data.node.original.metric_id;
+        var history_url = urlPrefix + "/plot/" + data.node.original.metric_id;
         window.history.pushState('page2', 'Title', history_url);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
