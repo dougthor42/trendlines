@@ -33,8 +33,8 @@ def caplog(_caplog):
     logger.remove(handler_id)
 
 
-@pytest.fixture
-def app(tmp_path):
+@pytest.fixture(params=['', None, '/foo'])
+def app(tmp_path, request):
     """
     A test app.
 
@@ -47,6 +47,9 @@ def app(tmp_path):
     # which we don't want. (since that'll typically be `./internal.db`)
     with patch('trendlines.orm.create_db', MagicMock()):
         app = create_app()
+
+        # Run all of our tests with various URL_PREFIX values.
+        app.config['URL_PREFIX'] = request.param
 
     # Since the `create_db` function modifies orm.db directly, we can simply
     # call it here. I guess *technically* what's happening is whatever
