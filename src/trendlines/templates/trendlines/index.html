@@ -9,8 +9,8 @@
       <h4>v{{ version }}</h4>
       <div id="apiLinks">
         <ul>
-          <li><a target="_blank" href="/api/">API Reference (Swagger)</a></li>
-          <li><a target="_blank" href="/api/redoc">API Reference (ReDoc)</a></li>
+          <li><a target="_blank" href="{{ config.get('URL_PREFIX', '') }}/api/">API Reference (Swagger)</a></li>
+          <li><a target="_blank" href="{{ config.get('URL_PREFIX', '') }}/api/redoc">API Reference (ReDoc)</a></li>
         </ul>
       </div>
     </div>
