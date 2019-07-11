@@ -28,7 +28,7 @@
 
           // Populate the jsTree with the metric names.
           var metricId = {{ metric_id | tojson | safe }};
-          populateTree(treeData, metricId);
+          populateTree(treeData, metricId, {{ config.get('URL_PREFIX', None) | tojson | safe }});
         });
       </script>
     </div>
