@@ -19,7 +19,7 @@ install:
   - pip install -e .
   # For selenium tests
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz
-  - tar -xzf geckodriver-v0.24.0-linux64.tar.gz -C /usr/local/bin
+  - sudo tar -xzf geckodriver-v0.24.0-linux64.tar.gz -C /usr/local/bin
 
 script:
   - pytest -ra
