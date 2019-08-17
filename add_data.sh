@@ -1,7 +1,7 @@
 #! /bin/bash
 
 PORT=5000
-URL="http://localhost:$PORT"
+URL="http://localhost:$PORT/trendlines"
 API="$URL/api/v1/data"
 C_TYPE="Content-Type: application/json"
 
