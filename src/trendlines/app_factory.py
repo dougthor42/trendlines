@@ -43,9 +43,9 @@ def create_app():
 
     # Initialize flask-rest-api for OpenAPI (Swagger) documentation
     routes.api_class.init_app(app)
-    routes.api_class.register_blueprint(routes.api)
-    routes.api_class.register_blueprint(routes.api_datapoint)
-    routes.api_class.register_blueprint(routes.api_metric)
+    routes.api_class.register_blueprint(routes.api, url_prefix=app.config.get("URL_PREFIX", None))
+    routes.api_class.register_blueprint(routes.api_datapoint, url_prefix=app.config.get("URL_PREFIX", None))
+    routes.api_class.register_blueprint(routes.api_metric, url_prefix=app.config.get("URL_PREFIX", None))
 
     # Create the database file and populate initial tables if needed.
     orm.create_db(app.config['DATABASE'])
