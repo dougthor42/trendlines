@@ -25,6 +25,8 @@
   </header>
 
   <main>
+  <div>{{ url_for('static', filename='core.js') }}</div>
+  <div>{{ url_for('static', filename='core.js', _external=True) }}</div>
   {% block body %}
   {% endblock %}
   </main>
