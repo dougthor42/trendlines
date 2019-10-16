@@ -15,6 +15,9 @@ long_descr = Path("./README.md").read_text()
 requires = [
     "flask>=1.0",
     "peewee>=3.8",
+    "marshmallow>=2.19,<3.0",
+    "apispec>=2,<3",
+    "pip>=18",
 ]
 
 setup(
