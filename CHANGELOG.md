@@ -8,6 +8,9 @@
   was set (running behind a proxy). (#162).
   + Of course, there's another part which is **not** fixed (#168)
 + Redis was pinned at v5.0.5-alpine. (#163)
++ Added `marshmallow` to `requirements.txt` and pinned it. Also added and
+  pinned `attrs==18.2` in `requirements-dev.txt because of an issue with
+  pytest. See https://stackoverflow.com/a/58189684/1354930. (#175)
 
 
 ## 0.6.0b2 (2019-06-27)
