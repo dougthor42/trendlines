@@ -25,7 +25,7 @@ Assumptions:
 
       $ pip install -U pip setuptools wheel
       $ pip install -r requirements.txt -r requirements-dev.txt
-
+      $ pre-commit install
 
 4.  Run tests:
 
@@ -168,13 +168,11 @@ Creating a New Table
 
     If you're using the python shell, run the following for for step 3:
 
-    .. code-block:: python
-
-       >>> from peewee import SqliteDatabase
-       >>> from peewee_moves import DatabaseManager
-       >>> manager = DatabaseManager(SqliteDatabase('internal.db')
-       >>> manager.create('trendlines.orm')
-       >>> manager.upgrade()
+    >>> from peewee import SqliteDatabase
+    >>> from peewee_moves import DatabaseManager
+    >>> manager = DatabaseManager(SqliteDatabase('internal.db')
+    >>> manager.create('trendlines.orm')
+    >>> manager.upgrade()
 
 
 Modifying a Table
