@@ -10,10 +10,14 @@ from pathlib import Path
 import freezegun
 import pytest
 import requests
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
+
 
 BASE_URL = "http://localhost:5000/trendlines"
 API_URL = BASE_URL + "/api/v1"
-
 
 Data = namedtuple('Data', ['name', 'value', 'timestamp'])
 
@@ -94,9 +98,37 @@ def test_api_get_datapoint():
     assert results[3]['value'] == -19
 
 
-@pytest.mark.skip(reason=("Need a reliable way to check that the plot has"
-                          " actually been displayed. Perhaps Selenium"))
-def test_plot_page():
-    rv = request.get(BASE_URL + "/plot/1")
-    assert rv.status_code == 200
-    assert 'var metricId = "foo.bar"' in rv.text
+@pytest.mark.selenium
+def test_index_click_on_tree_item_makes_plot():
+    options = Options()
+    options.headless = True
+    driver = webdriver.Firefox(options=options)
+    driver.implicitly_wait(5)       # seconds
+    driver.get(BASE_URL)
+    assert "Trendlines" in driver.title
+
+    # Before clicking on something, the 'graph' element should exist but
+    # have no class.
+    elem = driver.find_element_by_id('graph')
+    assert elem.get_attribute('class') == ''
+
+    # Click!
+    elem = driver.find_element_by_id("foo.bar_anchor")
+    elem.click()
+
+    # URL changes
+    assert driver.current_url == BASE_URL + "/plot/1"
+
+    # The 'graph' element class should be modified by plotly
+    elem = driver.find_element_by_id('graph')
+    assert elem.get_attribute('class') == 'js-plotly-plot'
+
+    # The first div after the 'graph' id should be the plotly graph container
+    try:
+        # Note that xpath elements are 1-indexed.
+        elem = driver.find_element_by_xpath("//div[@id='graph']/div[1]")
+    except NoSuchElementException:
+        assert False, "Plot did not appear."
+    assert elem.get_attribute('class') == 'plot-container plotly'
+
+    driver.close()
