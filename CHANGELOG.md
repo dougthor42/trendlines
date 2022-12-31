@@ -13,6 +13,7 @@
   pytest. See https://stackoverflow.com/a/58189684/1354930. (#175)
 + Added pre-commit (#177)
 + The `werkzeug` dependency was pinned to v0.15.4. (#180)
++ Updated dev dependency `wheel` (#182)
 
 
 ## 0.6.0b2 (2019-06-27)
