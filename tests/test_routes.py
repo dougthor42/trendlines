@@ -56,28 +56,16 @@ def test_index_with_data(client, populated_db):
     assert b"foo.bar" in rv.data
 
 
-@pytest.mark.xfail(
-    reason="JS callbacks are async: plotly div not populated immediatly"
-)
-def test_plot_with_data_by_name(client, populated_db):
+@pytest.mark.parametrize('url', [
+    '/plot/foo',
+    '/plot/1',
+])
+def test_plot_with_data_by_name(client, populated_db, url):
+    # Can only be fully tested with selenium. pytest -m selenium
     rv = client.get("/plot/foo")
     assert rv.status_code == 200
     assert b"foo" in rv.data
     assert b'<div id="graph"' in rv.data
-    # TODO: make this work. Issue is JS callbacks.
-    #  assert b'<div class="plot-container plotly">' in rv.data
-
-
-@pytest.mark.xfail(
-    reason="JS callbacks are async: plotly div not populated immediatly"
-)
-def test_plot_with_data_by_id(client, populated_db):
-    rv = client.get("/plot/1")
-    assert rv.status_code == 200
-    assert b"foo" in rv.data
-    assert b'<div id="graph"' in rv.data
-    # TODO: make this work. Issue is JS callbacks.
-    #  assert b'<div class="plot-container plotly">' in rv.data
 
 
 def test_api_add(client):
