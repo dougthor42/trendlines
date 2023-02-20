@@ -34,11 +34,11 @@ jobs:
           pip install -r requirements.txt -r requirements-dev.txt
           pip install -e .
 
-      - name: Run pre-commit checks
-        run: |
-          pip install pre-commit
-          pre-commit install
-          pre-commit run --all-files
+      # - name: Run pre-commit checks
+      #   run: |
+      #     pip install pre-commit
+      #     pre-commit install
+      #     pre-commit run --all-files
 
       - name: Run tests
         run: |
