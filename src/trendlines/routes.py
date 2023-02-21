@@ -54,13 +54,11 @@ api_metric = Blueprint("Metrics", __name__,
 render_template = partial(_render_template, version=__version__)
 
 
-@api_class.definition("Metrics")
 class MetricSchema(ModelSchema):
     class Meta:
         model = orm.Metric
 
 
-@api_class.definition("DataPoints")
 class DataPointSchema(ModelSchema):
     class Meta:
         model = orm.DataPoint
