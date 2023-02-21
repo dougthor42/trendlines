@@ -16,7 +16,7 @@ requires = [
     "flask>=1.0",
     "peewee>=3.8",
     "marshmallow>=2.19,<3.0",
-    "apispec>=2,<3",
+    "apispec>=3,<4",
     "pip>=18",
 ]
 
