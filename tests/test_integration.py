@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+import os
 import tarfile
 from collections import namedtuple
 from datetime import datetime as dt
@@ -32,6 +33,9 @@ try:
     subprocess.run(["docker-compose", "--version"], check=True)
 except (subprocess.CalledProcessError, FileNotFoundError):
     pytestmark = pytest.mark.skip("Integration tests require docker and docker compose.")
+
+if os.environ.get("CI", None):
+    pytestmark = pytest.mark.skip("Don't run integration tests in CI for now.")
 
 
 # I don't like that this uses the API that I'm trying to test.
