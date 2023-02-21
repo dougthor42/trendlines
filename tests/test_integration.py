@@ -25,6 +25,14 @@ DUMMY_DATA = [
     Data("baz", -19.1, "2019-07-07 15:26:35"),
 ]
 
+# Can't run integration tests without docker and docker-compose
+try:
+    import subprocess
+    subprocess.run(["docker", "--version"], check=True)
+    subprocess.run(["docker-compose", "--version"], check=True)
+except (subprocess.CalledProcessError, FileNotFoundError):
+    pytestmark = pytest.mark.skip("Integration tests require docker and docker compose.")
+
 
 # I don't like that this uses the API that I'm trying to test.
 # But I also don't feel like resolving that right now.
