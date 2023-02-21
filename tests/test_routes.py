@@ -12,6 +12,7 @@ from trendlines import orm
 
 API_BASE = "/api/v1"
 
+
 def metric_url(metric_id=None):
     """
     Helper to generate the metric url with ID.
@@ -42,6 +43,18 @@ def datapoint_url(datapoint_id=None):
     if datapoint_id is not None:
         return API_BASE + "/datapoint/{}".format(datapoint_id)
     return API_BASE + "/datapoint"
+
+
+def test_swagger(client):
+    rv = client.get("/api", follow_redirects=True)
+    assert rv.status_code == 200
+    assert b"swagger-ui-container" in rv.data
+
+
+def test_redoc(client):
+    rv = client.get("/api/redoc")
+    assert rv.status_code == 200
+    assert b"<redoc spec-url" in rv.data
 
 
 def test_index(client):
