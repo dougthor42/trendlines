@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+import os
 import tarfile
 from collections import namedtuple
 from datetime import datetime as dt
