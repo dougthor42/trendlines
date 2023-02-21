@@ -12,8 +12,8 @@ from flask import render_template as _render_template
 from flask import request
 from flask.views import MethodView
 
-from flask_rest_api import Api as _Api
-from flask_rest_api import Blueprint
+from flask_smorest import Api as _Api
+from flask_smorest import Blueprint
 from werkzeug.routing import RoutingException
 
 # peewee
