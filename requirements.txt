@@ -1,5 +1,5 @@
 apispec>=3.0,<4.0
-flask==1.1.4
+flask==2.3.2
 peewee==3.8.0
 requests==2.21.0
 celery[redis]==4.2.1
